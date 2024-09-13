@@ -1,14 +1,18 @@
 Instructions on setting up on your machine:
-1. create virtual environment using:
+1. Update .env file
+  - The .env file is a sensitive document which contains our bot's token, essentially a key to logging in; Slack DM Dylan Jian for access
+2. Create virtual environment by running:
 ```
   python -m venv venv
+```
+```
   source venv/bin/activate
 ```
-3. update .env file
-  - The .env file is a sensitive document; Slack DM Dylan Jian for access
 3. inside your virtual environment (should say (venv) at the beginning of your terminal line), run:
 ```
   pip install python-dotenv
+```
+```
   pip install discord.py
 ```
 4. Finally, to log into the discord bot, run:
