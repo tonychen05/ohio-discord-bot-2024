@@ -1,2 +1,7 @@
+main
+venv/
+.env
+
 .env
 pyvenv.cfg
+main
