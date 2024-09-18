@@ -10,9 +10,12 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+#when the bot is ready, this automatically runs
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user}')
+
+
 
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 bot.run(DISCORD_BOT_TOKEN)
