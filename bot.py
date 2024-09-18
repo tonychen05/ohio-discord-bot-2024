@@ -15,7 +15,10 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 async def on_ready():
     print(f'Logged in as {bot.user}')
 
-
+#greeting command as a test
+@bot.command()
+async def greet(ctxt, name: str):
+    await ctxt.send(f'Hi {name}, how\'s your day going? ')
 
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 bot.run(DISCORD_BOT_TOKEN)
