@@ -14,6 +14,14 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 conn = sqlite3.connect('db.sqlite')
 cursor = conn.cursor()
 
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL
+)
+''')
+conn.commit()
+
 #when the bot is ready, this automatically runs
 @bot.event
 async def on_ready():
@@ -24,10 +32,20 @@ async def on_ready():
 async def greet(ctxt, name: str):
     await ctxt.send(f'Hi {name}, how\'s your day going? ')
 
-#team formation command as a test
+#adding an email to database
 @bot.command()
-async def createTeam(ctxt, name1: str, name2: str):
-    await ctxt.send(f'Team consists of {name1} and {name2}')
+async def register(ctxt, email: str):
+    cursor.execute('INSERT INTO users (name) VALUES (?)', (email,))
+    conn.commit()
+    await ctxt.send(f'Email: {email} was successfully added')
+
+#print all
+@bot.command()
+async def showAll(ctxt):
+    cursor.execute('SELECT name FROM users')
+    users = cursor.fetchall()
+    list = "\n".join([user[0] for user in users])
+    await ctxt.send(f'People:\n{list}')
 
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 bot.run(DISCORD_BOT_TOKEN)
