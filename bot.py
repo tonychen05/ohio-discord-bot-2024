@@ -46,6 +46,7 @@ async def greet(ctxt, name: str):
 async def register(ctxt, email: str):
     cursor.execute('INSERT INTO users (name) VALUES (?)', (email,))
     conn.commit()
+    #send success message
     await ctxt.send(f'Email: {email} was successfully added')
 
 #print all
@@ -60,7 +61,7 @@ async def showAll(ctxt):
 #inputs: 4 emails
 #result: add a row where emails are added
 @bot.command()
-async def addTeam(ctxt, *, args: str):
+async def createTeam(ctxt, *, args: str):
     try:
         #Split arguments by space into a list of strings
         split_args = args.split()
@@ -75,10 +76,8 @@ async def addTeam(ctxt, *, args: str):
         email2 = split_args[-3]
         email3 = split_args[-2]
         email4 = split_args[-1]
-
         #join everything before the last 4 emails as the team name
         teamName = " ".join(split_args[:-4])
-
         # Insert these 5 variables into the sql database
         cursor.execute('INSERT INTO teams VALUES (?,?,?,?,?)', (teamName, email1, email2, email3, email4))
         conn.commit()
@@ -89,6 +88,7 @@ async def addTeam(ctxt, *, args: str):
     except Exception as e:
         #Catch any unexpected errors and log them
         await ctxt.send(f"An error occurred: {e}")
+
 
 
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
