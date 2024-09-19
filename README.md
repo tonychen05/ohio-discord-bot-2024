@@ -20,3 +20,5 @@ Instructions on setting up on your machine:
   python bot.py
 ```
   - After running that, it should say "discord.client logging in using static token", and then after a few seconds, "discord.gateway Shard ID None has connected to Gateway (Session ID: ..."
+
+Note: if commands containing ```python``` didn't work for you, try ```python3 ``` instead. 
