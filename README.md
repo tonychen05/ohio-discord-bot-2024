@@ -6,7 +6,7 @@ Instructions on setting up on your machine:
   python -m venv venv
 ```
 
-Mac:
+Then, Mac:
 ```
   source venv/bin/activate
 ```
