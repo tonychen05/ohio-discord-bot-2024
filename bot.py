@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
-import sqlite3
+
 
 #Load in Bot Key
 load_dotenv()
@@ -17,58 +17,12 @@ bot = commands.Bot(command_prefix='/', intents=intents)
 
 MAX_TEAM_SIZE = 4
 TEAM_FORMATION_TIMEOUT = 60
-TEAM_DATABASE = 'db.sqlite'
-USER_DATABASE = None
+TEAM_DATABASE = 'team.sqlite'
+USER_DATABASE = 'user.sqlite'
 
 # --------------------Helper Methods-------------------
-def connect_to_team_db(filename):
-    #Check if database exists
-    conn = sqlite3.connect(filename)
-    cursor = conn.cursor()
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL
-        )
-        ''')
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS teams (
-        teamName TEXT PRIMARY KEY NOT NULL,
-        email1 TEXT NOT NULL,
-        email2 TEXT NOT NULL,
-        email3 TEXT NOT NULL,
-        email4 TEXT NOT NULL
-    )
-    ''')
-    conn.commit()
 
-    return cursor
-
-def connect_to_user_db(filename){
-    #Check if database exists
-    conn = sqlite3.connect(filename)
-    cursor = conn.cursor()
-
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL
-        )
-        ''')
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS teams (
-        teamName TEXT PRIMARY KEY NOT NULL,
-        email1 TEXT NOT NULL,
-        email2 TEXT NOT NULL,
-        email3 TEXT NOT NULL,
-        email4 TEXT NOT NULL
-    )
-    ''')
-    conn.commit()
-
-    return cursor
-}
 
 # ---------------------Classes-------------------------
 
@@ -88,16 +42,14 @@ class teamNameFlag(commands.FlagConverter):
 class registerFlag(commands.FlagConverter):
     email: str = commands.flag(description="User Email Address")
     username: str = commands.flag(description="Discord Username")
-    role: str = commands.flag(desription="User Role")
+    role: str = commands.flag(description="User Role")
 
 #-------------------"/" Command Methods-----------------------------
 #Init DB's
-team_cursor = connect_to_team_db(TEAM_DATABASE)
-user_cursor = connect_to_user_db(USER_DATABASE)
 
 
 #Test Greet Command
-@bot.command()
+@bot.tree.command(description="test command")
 async def greet(ctxt, name: str):
     await ctxt.send(f'Hi {name}, how\'s your day going? ')
 
@@ -110,7 +62,7 @@ async def greet(ctxt, name: str):
     - User in database is updated to verified
 '''
 @bot.command()
-async def verify(Context, flags: emailFlag):
+async def verify(Context, flags: emailFlag): #TODO
     username = Context.author
     email = flags.email
 
@@ -121,11 +73,16 @@ async def verify(Context, flags: emailFlag):
     # else, respond saying either email not found or discord username doesn't match and to contact administration
     
 '''
-
+* @requires
+    - User sending command is admin
+* @ensures
+    - User gains assigned role
+    - Database is updated accordingly
 '''
 @bot.command()
-async def overify(Context, flags: emailFlag):
-    username = Context.author
+async def overify(Context, flags: registerFlag):  #TODO
+    admin_username = Context.author
+    user = flags.username
     email = flags.email
 
     #Search Database for user with matching email
@@ -144,8 +101,10 @@ async def overify(Context, flags: emailFlag):
 * @ensures
     - Team is added to database
     - Format is [Team Token, Team Name, Members...]
+    - Discord Channels are created
+    - User gets role updated
 '''
-@bot.command()
+@bot.command() #TODO
 async def createTeam(ctxt, *, args: str, flags: teamNameFlag):
     try:
         #Split arguments by space into a list of strings
@@ -164,8 +123,8 @@ async def createTeam(ctxt, *, args: str, flags: teamNameFlag):
         #join everything before the last 4 emails as the team name
         teamName = " ".join(split_args[:-4])
         # Insert these 5 variables into the sql database
-        cursor.execute('INSERT INTO teams VALUES (?,?,?,?,?)', (teamName, email1, email2, email3, email4))
-        conn.commit()
+        teamDB.execute('INSERT INTO teams VALUES (?,?,?,?,?)', (teamName, email1, email2, email3, email4))
+        teamDB.commit()
 
         #send success message
         await ctxt.send(f'{teamName} was successfully registered! Happy hacking!')
@@ -174,17 +133,63 @@ async def createTeam(ctxt, *, args: str, flags: teamNameFlag):
         #Catch any unexpected errors and log them
         await ctxt.send(f"An error occurred: {e}")
 
-@bot.command()
-async def registerUser(ctxt, *, flags: emailFlag):
-    cursor.execute('INSERT INTO users (name) VALUES (?)', (flags.emal))
-    conn.commit()
+'''
+* @requires
+    - User calling command is in the team or an admin
+* @ensures
+    - Team is removed from Databse
+    - Discord Channels are removed
+    - Rolls are removed from Users
+'''
+@bot.command() #TODO
+async def deleteTeam(ctxt):
+    pass
+    
+'''
+* @requires
+    - Member is in the server
+    - Member is not currently in a team
+    - Member is Verified
+* @ensures
+    - Member is added to team in db
+    - Member is given the team role
+    - Send message to team channel
+'''
+@bot.command() # TODO
+async def addMember(ctxt, flags: userFlag):
+    pass
+
+'''
+* @requires
+    - Member is in a team
+* @ensures
+    - Member is removed from team db
+    - Member has team role removed
+    - Send message to team channel
+'''
+@bot.command() #TODO
+async def leaveTeam(ctxt):
+    pass
+
+'''
+* @requires
+    - Must be an admin
+    - Must provide 2 arguments for (previous name, new name)
+* @ensures
+    - Team name is altered in db
+    - Role name is changed
+    - Users are assigned the new role
+    - Channel names are changed
+'''
+@bot.command() #TODO
+async def renameTeam(ctxt):
+    pass
+
+    userDB.execute('INSERT INTO users (name) VALUES (?)', (flags.emal))
+    userDB.commit()
 
     #send success message
     await ctxt.send(f'Email: {flags.email} was successfully added')
-
-@bot.command()
-async def deleteTeam(ctxt):
-    pass
 
 
 #When the bot is ready, this automatically runs
