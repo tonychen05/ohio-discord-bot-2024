@@ -4,64 +4,149 @@ import discord
 from discord.ext import commands
 import sqlite3
 
+#Load in Bot Key
 load_dotenv()
 
+#Init Bot Settings
 intents = discord.Intents.default()
 intents.message_content = True
-
+intents.members = True
 bot = commands.Bot(command_prefix='/', intents=intents)
+   
+#---------------------Constants----------------------
 
-conn = sqlite3.connect('db.sqlite')
-cursor = conn.cursor()
+MAX_TEAM_SIZE = 4
+TEAM_FORMATION_TIMEOUT = 60
+TEAM_DATABASE = 'db.sqlite'
+USER_DATABASE = None
 
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
-)
-''')
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS teams (
-    teamName TEXT PRIMARY KEY NOT NULL,
-    email1 TEXT NOT NULL,
-    email2 TEXT NOT NULL,
-    email3 TEXT NOT NULL,
-    email4 TEXT NOT NULL
-)
-''')
-conn.commit()
+# --------------------Helper Methods-------------------
+def connect_to_team_db(filename):
+    #Check if database exists
+    conn = sqlite3.connect(filename)
+    cursor = conn.cursor()
 
-#when the bot is ready, this automatically runs
-@bot.event
-async def on_ready():
-    print(f'Logged in as {bot.user}')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL
+        )
+        ''')
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS teams (
+        teamName TEXT PRIMARY KEY NOT NULL,
+        email1 TEXT NOT NULL,
+        email2 TEXT NOT NULL,
+        email3 TEXT NOT NULL,
+        email4 TEXT NOT NULL
+    )
+    ''')
+    conn.commit()
 
-#greeting command as a test
+    return cursor
+
+def connect_to_user_db(filename){
+    #Check if database exists
+    conn = sqlite3.connect(filename)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL
+        )
+        ''')
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS teams (
+        teamName TEXT PRIMARY KEY NOT NULL,
+        email1 TEXT NOT NULL,
+        email2 TEXT NOT NULL,
+        email3 TEXT NOT NULL,
+        email4 TEXT NOT NULL
+    )
+    ''')
+    conn.commit()
+
+    return cursor
+}
+
+# ---------------------Classes-------------------------
+
+#Retrieves Member username (Can be used for adding members)
+class userFlag(commands.FlagConverter):
+    member: discord.Member = commands.flag(description='The member to ban')
+
+#Retrieves Email
+class emailFlag(commands.FlagConverter):
+    email: str = commands.flag(description = 'Email Address used to Register')
+
+#Retrieves Team Name
+class teamNameFlag(commands.FlagConverter):
+    teamName: str = commands.flag(description = "Name of your team")
+
+#Details to register user to database (Expected to be called by Qualtrics Workflow)
+class registerFlag(commands.FlagConverter):
+    email: str = commands.flag(description="User Email Address")
+    username: str = commands.flag(description="Discord Username")
+    role: str = commands.flag(desription="User Role")
+
+#-------------------"/" Command Methods-----------------------------
+#Init DB's
+team_cursor = connect_to_team_db(TEAM_DATABASE)
+user_cursor = connect_to_user_db(USER_DATABASE)
+
+
+#Test Greet Command
 @bot.command()
 async def greet(ctxt, name: str):
     await ctxt.send(f'Hi {name}, how\'s your day going? ')
 
-#adding an email to database
+'''
+* @requires 
+    - Email entered is in database
+    - Discord Username matches the user whose email was entered
+* @ensures
+    - User gains "verified" role
+    - User in database is updated to verified
+'''
 @bot.command()
-async def register(ctxt, email: str):
-    cursor.execute('INSERT INTO users (name) VALUES (?)', (email,))
-    conn.commit()
-    #send success message
-    await ctxt.send(f'Email: {email} was successfully added')
+async def verify(Context, flags: emailFlag):
+    username = Context.author
+    email = flags.email
 
-#print all
-@bot.command()
-async def showAll(ctxt):
-    cursor.execute('SELECT name FROM users')
-    users = cursor.fetchall()
-    list = "\n".join([user[0] for user in users])
-    await ctxt.send(f'People:\n{list}')
+    #Search Database for user with matching email
 
-#team formation
-#inputs: 4 emails
-#result: add a row where emails are added
+    #If user exists, check if discord username exists
+
+    # else, respond saying either email not found or discord username doesn't match and to contact administration
+    
+'''
+
+'''
 @bot.command()
-async def createTeam(ctxt, *, args: str):
+async def overify(Context, flags: emailFlag):
+    username = Context.author
+    email = flags.email
+
+    #Search Database for user with matching email
+
+    #If user exists, check if discord username exists
+
+    # else, respond saying either email not found or discord username doesn't match and to contact administration
+    
+
+'''
+* @requires 
+    - Cannot already be in a team
+    - Must be Verified
+    - Team cannot already exist
+
+* @ensures
+    - Team is added to database
+    - Format is [Team Token, Team Name, Members...]
+'''
+@bot.command()
+async def createTeam(ctxt, *, args: str, flags: teamNameFlag):
     try:
         #Split arguments by space into a list of strings
         split_args = args.split()
@@ -89,7 +174,25 @@ async def createTeam(ctxt, *, args: str):
         #Catch any unexpected errors and log them
         await ctxt.send(f"An error occurred: {e}")
 
+@bot.command()
+async def registerUser(ctxt, *, flags: emailFlag):
+    cursor.execute('INSERT INTO users (name) VALUES (?)', (flags.emal))
+    conn.commit()
+
+    #send success message
+    await ctxt.send(f'Email: {flags.email} was successfully added')
+
+@bot.command()
+async def deleteTeam(ctxt):
+    pass
 
 
+#When the bot is ready, this automatically runs
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user}')
+
+
+#Get Bot Token and start running on server
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 bot.run(DISCORD_BOT_TOKEN)
