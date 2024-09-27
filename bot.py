@@ -8,7 +8,7 @@ from discord.ext import commands
 load_dotenv()
 
 #Init Bot Settings
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.message_content = True
 intents.members = True
 bot = commands.Bot(command_prefix='/', intents=intents)
@@ -195,7 +195,9 @@ async def renameTeam(ctxt):
 #When the bot is ready, this automatically runs
 @bot.event
 async def on_ready():
+    await bot.tree.sync()
     print(f'Logged in as {bot.user}')
+
 
 
 #Get Bot Token and start running on server
