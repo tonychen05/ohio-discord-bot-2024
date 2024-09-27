@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
+import data
 
 
 #Load in Bot Key
@@ -67,7 +68,7 @@ async def verify(Context, flags: emailFlag): #TODO
     email = flags.email
 
     #Search Database for user with matching email
-
+    
     #If user exists, check if discord username exists
 
     # else, respond saying either email not found or discord username doesn't match and to contact administration
