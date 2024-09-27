@@ -2,66 +2,110 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
-import sqlite3
 
+
+#Load in Bot Key
 load_dotenv()
 
+#Init Bot Settings
 intents = discord.Intents.default()
 intents.message_content = True
-
+intents.members = True
 bot = commands.Bot(command_prefix='/', intents=intents)
+   
+#---------------------Constants----------------------
 
-conn = sqlite3.connect('db.sqlite')
-cursor = conn.cursor()
+MAX_TEAM_SIZE = 4
+TEAM_FORMATION_TIMEOUT = 60
+TEAM_DATABASE = 'team.sqlite'
+USER_DATABASE = 'user.sqlite'
 
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
-)
-''')
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS teams (
-    teamName TEXT PRIMARY KEY NOT NULL,
-    email1 TEXT NOT NULL,
-    email2 TEXT NOT NULL,
-    email3 TEXT NOT NULL,
-    email4 TEXT NOT NULL
-)
-''')
-conn.commit()
+# --------------------Helper Methods-------------------
 
-#when the bot is ready, this automatically runs
-@bot.event
-async def on_ready():
-    print(f'Logged in as {bot.user}')
 
-#greeting command as a test
-@bot.command()
+
+# ---------------------Classes-------------------------
+
+#Retrieves Member username (Can be used for adding members)
+class userFlag(commands.FlagConverter):
+    member: discord.Member = commands.flag(description='The member to ban')
+
+#Retrieves Email
+class emailFlag(commands.FlagConverter):
+    email: str = commands.flag(description = 'Email Address used to Register')
+
+#Retrieves Team Name
+class teamNameFlag(commands.FlagConverter):
+    teamName: str = commands.flag(description = "Name of your team")
+
+#Details to register user to database (Expected to be called by Qualtrics Workflow)
+class registerFlag(commands.FlagConverter):
+    email: str = commands.flag(description="User Email Address")
+    username: str = commands.flag(description="Discord Username")
+    role: str = commands.flag(description="User Role")
+
+#-------------------"/" Command Methods-----------------------------
+#Init DB's
+
+
+#Test Greet Command
+@bot.tree.command(description="test command")
 async def greet(ctxt, name: str):
     await ctxt.send(f'Hi {name}, how\'s your day going? ')
 
-#adding an email to database
+'''
+* @requires 
+    - Email entered is in database
+    - Discord Username matches the user whose email was entered
+* @ensures
+    - User gains "verified" role
+    - User in database is updated to verified
+'''
 @bot.command()
-async def register(ctxt, email: str):
-    cursor.execute('INSERT INTO users (name) VALUES (?)', (email,))
-    conn.commit()
-    #send success message
-    await ctxt.send(f'Email: {email} was successfully added')
+async def verify(Context, flags: emailFlag): #TODO
+    username = Context.author
+    email = flags.email
 
-#print all
-@bot.command()
-async def showAll(ctxt):
-    cursor.execute('SELECT name FROM users')
-    users = cursor.fetchall()
-    list = "\n".join([user[0] for user in users])
-    await ctxt.send(f'People:\n{list}')
+    #Search Database for user with matching email
 
-#team formation
-#inputs: 4 emails
-#result: add a row where emails are added
+    #If user exists, check if discord username exists
+
+    # else, respond saying either email not found or discord username doesn't match and to contact administration
+    
+'''
+* @requires
+    - User sending command is admin
+* @ensures
+    - User gains assigned role
+    - Database is updated accordingly
+'''
 @bot.command()
-async def createTeam(ctxt, *, args: str):
+async def overify(Context, flags: registerFlag):  #TODO
+    admin_username = Context.author
+    user = flags.username
+    email = flags.email
+
+    #Search Database for user with matching email
+
+    #If user exists, check if discord username exists
+
+    # else, respond saying either email not found or discord username doesn't match and to contact administration
+    
+
+'''
+* @requires 
+    - Cannot already be in a team
+    - Must be Verified
+    - Team cannot already exist
+
+* @ensures
+    - Team is added to database
+    - Format is [Team Token, Team Name, Members...]
+    - Discord Channels are created
+    - User gets role updated
+'''
+@bot.command() #TODO
+async def createTeam(ctxt, *, args: str, flags: teamNameFlag):
     try:
         #Split arguments by space into a list of strings
         split_args = args.split()
@@ -79,8 +123,8 @@ async def createTeam(ctxt, *, args: str):
         #join everything before the last 4 emails as the team name
         teamName = " ".join(split_args[:-4])
         # Insert these 5 variables into the sql database
-        cursor.execute('INSERT INTO teams VALUES (?,?,?,?,?)', (teamName, email1, email2, email3, email4))
-        conn.commit()
+        teamDB.execute('INSERT INTO teams VALUES (?,?,?,?,?)', (teamName, email1, email2, email3, email4))
+        teamDB.commit()
 
         #send success message
         await ctxt.send(f'{teamName} was successfully registered! Happy hacking!')
@@ -89,7 +133,71 @@ async def createTeam(ctxt, *, args: str):
         #Catch any unexpected errors and log them
         await ctxt.send(f"An error occurred: {e}")
 
+'''
+* @requires
+    - User calling command is in the team or an admin
+* @ensures
+    - Team is removed from Databse
+    - Discord Channels are removed
+    - Rolls are removed from Users
+'''
+@bot.command() #TODO
+async def deleteTeam(ctxt):
+    pass
+    
+'''
+* @requires
+    - Member is in the server
+    - Member is not currently in a team
+    - Member is Verified
+* @ensures
+    - Member is added to team in db
+    - Member is given the team role
+    - Send message to team channel
+'''
+@bot.command() # TODO
+async def addMember(ctxt, flags: userFlag):
+    pass
+
+'''
+* @requires
+    - Member is in a team
+* @ensures
+    - Member is removed from team db
+    - Member has team role removed
+    - Send message to team channel
+'''
+@bot.command() #TODO
+async def leaveTeam(ctxt):
+    pass
+
+'''
+* @requires
+    - Must be an admin
+    - Must provide 2 arguments for (previous name, new name)
+* @ensures
+    - Team name is altered in db
+    - Role name is changed
+    - Users are assigned the new role
+    - Channel names are changed
+'''
+@bot.command() #TODO
+async def renameTeam(ctxt):
+    pass
+
+    userDB.execute('INSERT INTO users (name) VALUES (?)', (flags.emal))
+    userDB.commit()
+
+    #send success message
+    await ctxt.send(f'Email: {flags.email} was successfully added')
 
 
+#When the bot is ready, this automatically runs
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user}')
+
+
+#Get Bot Token and start running on server
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 bot.run(DISCORD_BOT_TOKEN)
