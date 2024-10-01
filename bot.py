@@ -18,8 +18,6 @@ bot = commands.Bot(command_prefix='/', intents=intents)
 
 MAX_TEAM_SIZE = 4
 TEAM_FORMATION_TIMEOUT = 60
-TEAM_DATABASE = 'team.sqlite'
-USER_DATABASE = 'user.sqlite'
 
 # --------------------Helper Methods-------------------
 
@@ -62,10 +60,10 @@ async def greet(ctxt, name: str):
     - User gains "verified" role
     - User in database is updated to verified
 '''
-@bot.command()
-async def verify(Context, flags: emailFlag): #TODO
+@bot.tree.command(description="Verify your Discord account for this event.")
+async def verify(Context, email: str): #TODO
     username = Context.author
-    email = flags.email
+    # email = flags.email
 
     #Search Database for user with matching email
     
@@ -80,11 +78,11 @@ async def verify(Context, flags: emailFlag): #TODO
     - User gains assigned role
     - Database is updated accordingly
 '''
-@bot.command()
-async def overify(Context, flags: registerFlag):  #TODO
+@bot.tree.command(description="Manually verify a Discord account for this event.")
+async def overify(Context, email: str, role: str):  #TODO
     admin_username = Context.author
-    user = flags.username
-    email = flags.email
+    # user = flags.username
+    # email = flags.email
 
     #Search Database for user with matching email
 
@@ -105,34 +103,9 @@ async def overify(Context, flags: registerFlag):  #TODO
     - Discord Channels are created
     - User gets role updated
 '''
-@bot.command() #TODO
-async def createTeam(ctxt, *, args: str, flags: teamNameFlag):
-    try:
-        #Split arguments by space into a list of strings
-        split_args = args.split()
-
-        #ensure there are at least 5 elements in the list (1 team name + 4 emails)
-        if len(split_args) < 5:
-            await ctxt.send("You need to provide the team name followed by 4 email addresses.")
-            return
-
-        #get the last 4 elements as emails
-        email1 = split_args[-4]
-        email2 = split_args[-3]
-        email3 = split_args[-2]
-        email4 = split_args[-1]
-        #join everything before the last 4 emails as the team name
-        teamName = " ".join(split_args[:-4])
-        # Insert these 5 variables into the sql database
-        teamDB.execute('INSERT INTO teams VALUES (?,?,?,?,?)', (teamName, email1, email2, email3, email4))
-        teamDB.commit()
-
-        #send success message
-        await ctxt.send(f'{teamName} was successfully registered! Happy hacking!')
-
-    except Exception as e:
-        #Catch any unexpected errors and log them
-        await ctxt.send(f"An error occurred: {e}")
+@bot.tree.command(description="Create a new team for this event") #TODO
+async def createteam(ctxt, *, teamname: str):
+    pass
 
 '''
 * @requires
@@ -142,8 +115,8 @@ async def createTeam(ctxt, *, args: str, flags: teamNameFlag):
     - Discord Channels are removed
     - Rolls are removed from Users
 '''
-@bot.command() #TODO
-async def deleteTeam(ctxt):
+@bot.tree.command(description="Remove a team from this event") #TODO
+async def deleteteam(ctxt, teamname: str):
     pass
     
 '''
@@ -156,8 +129,8 @@ async def deleteTeam(ctxt):
     - Member is given the team role
     - Send message to team channel
 '''
-@bot.command() # TODO
-async def addMember(ctxt, flags: userFlag):
+@bot.tree.command(description="Add a member to your team.") # TODO
+async def addmember(ctxt, username: discord.Member):
     pass
 
 '''
@@ -168,8 +141,8 @@ async def addMember(ctxt, flags: userFlag):
     - Member has team role removed
     - Send message to team channel
 '''
-@bot.command() #TODO
-async def leaveTeam(ctxt):
+@bot.tree.command(description="Leave your current team.") #TODO
+async def leaveteam(ctxt):
     pass
 
 '''
@@ -182,15 +155,10 @@ async def leaveTeam(ctxt):
     - Users are assigned the new role
     - Channel names are changed
 '''
-@bot.command() #TODO
-async def renameTeam(ctxt):
+@bot.tree.command(description="Rename a team in the event.") #TODO
+async def renameteam(ctxt, oldname: str, newname: str):
     pass
 
-    userDB.execute('INSERT INTO users (name) VALUES (?)', (flags.emal))
-    userDB.commit()
-
-    #send success message
-    await ctxt.send(f'Email: {flags.email} was successfully added')
 
 
 #When the bot is ready, this automatically runs
