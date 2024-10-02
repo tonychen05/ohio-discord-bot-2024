@@ -62,16 +62,36 @@ async def greet(ctxt, name: str):
     - User gains "verified" role
     - User in database is updated to verified
 '''
-@bot.command()
+@bot.hybrid_command()
 async def verify(Context, flags: emailFlag): #TODO
     username = Context.author
     email = flags.email
 
     #Search Database for user with matching email
     
+    # TODO Replace {email_in_db} with response from data.py if email is in the database or not
+    email_in_db = None
+
+    # if email not registered
+    if not email_in_db:
+        await Context.send(content="You have not registered your email yet. Go to https://hack.osu.edu/hack12/ to register or contact administration.")
+        return
+        
     #If user exists, check if discord username exists
 
-    # else, respond saying either email not found or discord username doesn't match and to contact administration
+    # TODO replace associated_username with repsonse from data.py that gets username given email
+    associated_username = None # something like {data.get_username(email)}
+
+    #username not associated with email
+    if associated_username != username:
+        await Context.send(content="Your Discord username does not match the email provided. Please contact administration.")
+        return
+    
+    # username associated with email and email in db
+    
+    # TODO do stuff here in data.py here to set user as verified
+    await Context.send(content="You have been verified")
+    
     
 '''
 * @requires
@@ -140,7 +160,7 @@ async def createTeam(ctxt, *, args: str, flags: teamNameFlag):
 * @ensures
     - Team is removed from Databse
     - Discord Channels are removed
-    - Rolls are removed from Users
+    - Roles are removed from Users
 '''
 @bot.command() #TODO
 async def deleteTeam(ctxt):
