@@ -3,3 +3,4 @@ venv/
 config.ini
 *.db
 .DS_STORE
+__pycache__

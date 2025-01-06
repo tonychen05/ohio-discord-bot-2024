@@ -52,6 +52,7 @@ Team Scheme {
 _REG_RESPONSES_TABLE_NAME = 'registration'
 _VERIFIED_TABLE_NAME = 'verified'
 _TEAM_TABLE_NAME = 'teams'
+_CODE_TABLE_NAME = 'codes'
 
 
 def _initialize_db(cursor: sqlite3.Cursor):
@@ -61,17 +62,18 @@ def _initialize_db(cursor: sqlite3.Cursor):
         f"""CREATE TABLE {_REG_RESPONSES_TABLE_NAME} ( 
             email TEXT NOT NULL, 
             roles TEXT NOT NULL, 
-            data TEXT 
+            data TEXT,
+            discord_id INTEGER
             )
         """)
 
     # Verified users
     cursor.execute(
         f"""CREATE TABLE {_VERIFIED_TABLE_NAME} ( 
-            discord_id INTEGER PRIMARY KEY, 
+            discord_id INTEGER UNIQUE PRIMARY KEY, 
             team_id REFERENCES {_TEAM_TABLE_NAME}(id), 
-            email TEXT NOT NULL, 
-            username TEXT NOT NULL
+            email TEXT UNIQUE NOT NULL, 
+            username TEXT UNIQUE NOT NULL
             )
         """)
 
@@ -84,13 +86,27 @@ def _initialize_db(cursor: sqlite3.Cursor):
             )
         """)
     
+    # Verification Codes
+    cursor.execute(
+        f"""CREATE TABLE {_CODE_TABLE_NAME} (
+            code TEXT PRIMARY KEY NOT NULL,
+            value INTEGER NOT NULL
+            )
+        """)
+    
 
 # ---------- Register Data into Database ------------------------------------------------------------ DONE
 
-
 def add_registered_user(email: str, roles: list, data: dict):
+   
+    #Check if user with that email already registerd and remove it
+    if registered_user_exists(email):
+        remove_registered_user(email)
+    
     roles = json.dumps(roles)
     data = json.dumps(data)
+
+    #Add Registered user back with newest form submission information
     cursor.execute(
         f'INSERT INTO {_REG_RESPONSES_TABLE_NAME} (email, roles, data) VALUES (?, ?, ?)',
         (email, roles, data)
@@ -102,11 +118,13 @@ def add_verified_user(discord_id: int, email: str, username: str):
         (discord_id, email, username)
     )
 
-def create_team(team_name: str):
+def create_team(team_name: str, channels: dict) -> int:
+    channels_text = json.dumps(channels)
     cursor.execute(
-        f'INSERT INTO {_TEAM_TABLE_NAME} (name) VALUES (?)',
-        (team_name,)
+        f'INSERT INTO {_TEAM_TABLE_NAME} (name, channels) VALUES (?,?)',
+        (team_name,channels_text)
     )
+    return cursor.lastrowid
 
 # ------------ Remove Entries from Tables -------------------------------------------------------------------------- DONE
 
@@ -143,7 +161,8 @@ def get_registered_user(email: str) -> dict:
     data = {
         'email': data_tuple[0],
         'roles': json.loads(data_tuple[1]),
-        'data': json.loads(data_tuple[2])
+        'data': json.loads(data_tuple[2]),
+        'discord_id': data_tuple[3]
     }
 
     return data
@@ -203,29 +222,80 @@ def verified_user_exists(discord_id: int) -> bool:
     )
     return cursor.fetchone() is not None
 
-def team_exists(team_name: str) -> bool:
+def team_exists(team_id: int) -> bool:
     cursor.execute(
-        f'SELECT * FROM {_TEAM_TABLE_NAME} WHERE name = ?',
-        (team_name,)
+        f'SELECT * FROM {_TEAM_TABLE_NAME} WHERE id = ?',
+        (team_id,)
     )
     return cursor.fetchone() is not None
 
 # ------- Registered User Methods ----------------------------------------------------------------------------
 
-def get_first_name(email: str) -> str:
-    userData = get_registered_user(email)
-    return userData['data']['first_name']
+def get_roles(email: str) -> list:
+    cursor.execute(
+        f'SELECT roles FROM {_REG_RESPONSES_TABLE_NAME} WHERE email = ?',
+        (email,)
+    )
+    return json.loads(cursor.fetchone()[0])
 
+def reassign_roles(email: str, roles: list):
+    roles = json.dumps(roles)
+    cursor.execute(
+        f'UPDATE {_REG_RESPONSES_TABLE_NAME} SET roles=? WHERE email=?',
+        (roles, email)
+    )
+
+def get_first_name(email: str) -> str:
+    if not has_first_name(email):
+        return "Hackathon Registrant"
+    else:
+        return get_registered_user(email)['data']['first_name']
+
+def has_first_name(email:str) -> bool:
+    userData = get_registered_user(email)
+    return 'first_name' in userData['data']
+
+def update_reg_discord_id(email:str, discord_id:int):
+    cursor.execute(f"UPDATE {_REG_RESPONSES_TABLE_NAME} SET discord_id=:discord_id where email=:email", {
+        'discord_id':discord_id,
+        'email': email
+    })
+
+def get_email_from_reg(discord_id: int) -> str:
+    return cursor.execute(f"SELECT email FROM {_REG_RESPONSES_TABLE_NAME} WHERE discord_id=:discord_id", {
+        'discord_id': discord_id
+    }).fetchone()[0]
 # ------- Verified User Methods ----------------------------------------------------------------------------
 
-def get_discord_id(email: str) -> int:
+def get_verified_discord_id(email: str) -> int:
     return cursor.execute(
         f"SELECT discord_id FROM {_VERIFIED_TABLE_NAME} WHERE email=:email", {'email': email}).fetchone()[0]
 
-def get_email(discord_id: int) -> str:
+def get_verified_email(discord_id: int) -> str:
     return cursor.execute(
         f"SELECT email FROM {_VERIFIED_TABLE_NAME} WHERE discord_id=:discord_id", {'discord_id': discord_id}).fetchone()[0]
+
+def verified_email_exists(email: str) -> bool:
+    return cursor.execute(f"SELECT * from {_VERIFIED_TABLE_NAME} WHERE email=:email", {
+        'email': email
+    }).fetchone() is not None
+
 # ----------- Team Methods ---------------------------------------------------------------------------- 
+
+def add_channel(team_id, channel):
+    channels = get_channels(team_id)
+    channels.append(channel)
+
+    cursor.execute(f"UPDATE {_TEAM_TABLE_NAME} SET channels=:channels WHERE id=:team_id", {
+        'team_id': team_id,
+        'channels': channels
+    })
+
+def get_channels(team_id):
+    channels_text = cursor.execute(
+        f"SELECT channels FROM {_TEAM_TABLE_NAME} WHERE id=:team_id", {
+            'team_id': team_id})
+    return json.loads(channels_text)
 
 def drop_team(discord_id: int):
     cursor.execute(
@@ -246,7 +316,8 @@ def get_number_of_teams() -> int:
     return cursor.execute(f"SELECT COUNT(*) FROM {_TEAM_TABLE_NAME}").fetchone()[0]
 
 def get_max_team_id() -> int:
-    return cursor.execute(f'SELECT MAX(id) FROM {_TEAM_TABLE_NAME}').fetchone()[0]
+    max_id = cursor.execute(f'SELECT MAX(id) FROM {_TEAM_TABLE_NAME}').fetchone()[0]
+    return max_id if max_id is not None else 0
 
 def is_member_on_team(discord_id: int) -> bool:
     cursor.execute(f"SELECT team_id FROM {_VERIFIED_TABLE_NAME} WHERE discord_id=:discord_id", {'discord_id': discord_id})
@@ -260,6 +331,42 @@ def get_user_team_id(discord_id: int) -> int:
 def get_team_id(team_name: str) -> int:
     return cursor.execute(f"SELECT id FROM {_TEAM_TABLE_NAME} WHERE name=:team_name", {'team_name': team_name}).fetchone()[0]
 
+def get_team_members(team_id: int) -> list:
+    return cursor.execute(f'SELECT discord_id FROM {_VERIFIED_TABLE_NAME} WHERE team_id=:team_id', {'team_id': team_id}).fetchall()
+
+def team_name_exists(team_name: int) -> bool:
+    cursor.execute(f"SELECT * FROM {_TEAM_TABLE_NAME} WHERE name=:team_name", {
+        'team_name': team_name
+    })
+    return cursor.fetchone() is not None
+
+def update_channels(team_id: int, channels: list):
+    channels_text = json.dumps(channels)
+    cursor.execute(f"UPDATE {_TEAM_TABLE_NAME} SET channels=:channels WHERE id=:team_id", {
+        'channels': channels_text,
+        'team_id': team_id
+    })
+# ----------- Verification Code Methods ----------------------------------------------------------------------
+
+def add_code(code: str, value: int):
+    cursor.execute(f"INSERT INTO {_CODE_TABLE_NAME} (code, value) VALUES (:code, :value)", {
+        'code': code,
+        'value': value
+    })
+
+def code_exists(code: str) -> bool:
+    return cursor.execute(f"SELECT * FROM {_CODE_TABLE_NAME} WHERE code=:code", {'code': code}).fetchone() is not None
+
+def get_value_from_code(code: str) -> int:
+    return cursor.execute(f"SELECT value FROM {_CODE_TABLE_NAME} WHERE code=:code", {'code': code}).fetchone()[0]
+
+def remove_code(code: str):
+    cursor.execute(f"DELETE FROM {_CODE_TABLE_NAME} WHERE code=:code", {'code': code})
+
+def remove_user_codes(discord_id: int):
+    cursor.execute(f"DELETE FROM {_CODE_TABLE_NAME} WHERE value=:discord_id",{
+        'discord_id': discord_id
+    })
 # ----------- Connect to Database ----------------------------------------------------------------------------
 
 # Check if db file exists
