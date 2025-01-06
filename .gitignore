@@ -4,3 +4,5 @@ config.ini
 *.db
 .DS_STORE
 __pycache__
+alter_records.py
+/__pycache__
