@@ -27,6 +27,7 @@ Participant Scheme {
         header_name: contents
     }
     ROLES: TEXT (Array parsed)
+    DISCORD_ID: TEXT (Used during email verification, ties email to user_id before adding to verification table)
 }
 
 Verified Scheme {
@@ -265,6 +266,7 @@ def get_email_from_reg(discord_id: int) -> str:
     return cursor.execute(f"SELECT email FROM {_REG_RESPONSES_TABLE_NAME} WHERE discord_id=:discord_id", {
         'discord_id': discord_id
     }).fetchone()[0]
+
 # ------- Verified User Methods ----------------------------------------------------------------------------
 
 def get_verified_discord_id(email: str) -> int:
@@ -279,6 +281,11 @@ def verified_email_exists(email: str) -> bool:
     return cursor.execute(f"SELECT * from {_VERIFIED_TABLE_NAME} WHERE email=:email", {
         'email': email
     }).fetchone() is not None
+
+def user_is_participant(user_id: int) -> bool:
+    roles = get_registered_user(get_verified_email(user_id))['roles']
+    return 'participant' in roles
+
 
 # ----------- Team Methods ---------------------------------------------------------------------------- 
 
@@ -346,6 +353,7 @@ def update_channels(team_id: int, channels: list):
         'channels': channels_text,
         'team_id': team_id
     })
+
 # ----------- Verification Code Methods ----------------------------------------------------------------------
 
 def add_code(code: str, value: int):
@@ -367,6 +375,7 @@ def remove_user_codes(discord_id: int):
     cursor.execute(f"DELETE FROM {_CODE_TABLE_NAME} WHERE value=:discord_id",{
         'discord_id': discord_id
     })
+
 # ----------- Connect to Database ----------------------------------------------------------------------------
 
 # Check if db file exists

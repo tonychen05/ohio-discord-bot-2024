@@ -31,7 +31,7 @@ bot = commands.Bot(command_prefix='/', intents=intents)
 #---------------------Constants----------------------
 
 MAX_TEAM_SIZE = 4
-TEAM_FORMATION_TIMEOUT = 20
+TEAM_FORMATION_TIMEOUT = 60
 
 # --------------------Helper Methods-------------------
 async def assign_user_roles(user, roles: list):
@@ -46,6 +46,19 @@ async def assign_user_roles(user, roles: list):
             await user.add_roles(discord.utils.get(user.guild.roles, id=config.discord_organizer_role_id))
         elif (role == 'verified'):
             await user.add_roles(discord.utils.get(user.guild.roles, id=config.discord_verified_role_id)) 
+
+async def remove_roles(user: discord.Member, roles:list):
+    roles_set = set(roles)
+    old_roles = user.roles
+    new_roles = []
+
+    # If role is not contained in the set of roles to remove
+    for roles in old_roles:
+        if not roles in roles_set:
+            new_roles.append(roles)
+
+    # Update user with new roles
+    await user.edit(roles=new_roles)
 
 def generate_random_string(n):
     characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -104,18 +117,6 @@ async def delete_team(team_id: int):
     # Remove team from database
     records.remove_team(team_id)
 
-async def remove_roles(user: discord.Member, roles:list):
-    roles_set = set(roles)
-    old_roles = user.roles
-    new_roles = []
-
-    # If role is not contained in the set of roles to remove
-    for roles in old_roles:
-        if not roles in roles_set:
-            new_roles.append(roles)
-
-    # Update user with new roles
-    await user.edit(roles=new_roles)
 # ---------------------Classes-------------------------
 
 #Retrieves Member username (Can be used for adding members)
@@ -136,9 +137,12 @@ class registerFlag(commands.FlagConverter):
     email: str = commands.flag(description="User Email Address")
     role: discord.Role = commands.flag(description="User Role")
 
+class removeTeamFlag(commands.FlagConverter):
+    team_role: discord.Role = commands.flag(description="Team to Remove")
+    reason: str = commands.flag(description="Reason for Removal")
 #-------------------"/" Command Methods-----------------------------
 
-#Test Greet Command
+#Test Greet Command - Anyone can run
 @bot.tree.command(description="Recieve a random affirmation for encouragement")
 async def affirm(ctxt):
     affirmations = {
@@ -327,7 +331,7 @@ async def overify(ctxt, flags: registerFlag):
 '''
 * @requires 
     - Cannot already be in a team
-    - Must be Verified
+    - Must be Verified and Participant
     - Team cannot already exist
 
 * @ensures
@@ -357,7 +361,6 @@ async def createteam(ctxt, flags: teamNameFlag):
     if records.team_name_exists(team_name):
         await ctxt.send(ephemeral=True,
                         content=f"That team name is already in use. Please chose a different name")
-        print(records.get_number_of_teams())
         return
 
     # Create Team Role create channel permissions
@@ -425,6 +428,7 @@ async def leaveteam(ctxt):
 
     team_assigned_role = ctxt.guild.get_role(config.discord_team_assigned_role_id)
     team_role = ctxt.guild.get_role(role_id)
+    team_text_channel = ctxt.guild.get_channel(records.get_team(team_id)['channels']['text'])
 
     # Remove user from team in Database
     records.drop_team(user.id)
@@ -435,7 +439,7 @@ async def leaveteam(ctxt):
     # Send message back confirming removal
     await ctxt.send(ephemeral=True,
                     content=f"You have successfully been removed from the team {team_role.mention}")
-    await ctxt.guild.get_channel(team_id).send(content=f'{user.mention} has left the team.')
+    await team_text_channel.send(content=f'{user.mention} has left the team.')
 
     # Delete team if no one is left
     if records.get_team_size(team_id) == 0:
@@ -445,7 +449,7 @@ async def leaveteam(ctxt):
 * @requires
     - Member is in the server
     - Member is not currently in a team
-    - Member is Verified
+    - Member is Verified and Participant
 * @ensures
     - Member is added to team in db
     - Member is given the team role
@@ -468,8 +472,8 @@ async def addmember(ctxt, flags: userFlag):
         await ctxt.send(ephemeral=True,
                         content=f'Failed to add team member. There is no space in your team. Teams can have a maximum of {MAX_TEAM_SIZE} members.')
 
-    # Check that added_user is verified
-    if not records.verified_user_exists(added_user.id):
+    # Check that added_user is verified and a participant
+    if not (records.verified_user_exists(added_user.id) and records.user_is_participant(added_user.id)):
         await ctxt.send(ephemeral=True,
                         content=f'Failed to add team member. `{added_user.mention}` is not a verified participant. All team members must be verified participants.')
         return
@@ -483,13 +487,15 @@ async def addmember(ctxt, flags: userFlag):
     # Add the member to the team
     records.join_team(team_id, added_user.id)
 
+    text_channel = ctxt.guild.get_channel(records.get_team(team_id)['channels']['text'])
+    team_role = ctxt.guild.get_role(records.get_team(team_id)['channels']['role'])
+
     # Assign added user team and team_assigned role
-    added_user.add_roles(ctxt.guild.get_role(records.get_team(team_id)['channels']['role']))
-    added_user.add_roles(ctxt.guild.get_role(config.discord_team_assigned_role_id))
+    await added_user.add_roles(team_role)
+    await added_user.add_roles(ctxt.guild.get_role(config.discord_team_assigned_role_id))
     await ctxt.send(ephemeral=True,
                     content=f'Team member added successfully. {added_user.mention} has been added to {team_role.mention}.')
-    await ctxt.guild.get_channel(team_id).send(content=f'{added_user.mention} has been added to the team by {team_user.mention}.')
-
+    await text_channel.send(content=f'{added_user.mention} has been added to the team by {team_user.mention}.')
 '''
 * @requires
     - Must be an admin
@@ -512,9 +518,29 @@ async def renameTeam(ctxt):
     - Discord Channels are removed
     - Roles are removed from Users
 '''
-@bot.command() #TODO
-async def deleteTeam(ctxt):
-    pass
+@bot.hybrid_command(description="Remove Team (Organizers only)") #TODO
+async def deleteteam(ctxt, flags: removeTeamFlag):
+    team_role = flags.team_role
+    team_name = team_role.name
+    team_id = records.get_team_id(team_name)
+
+    reason = flags.reason
+    members = records.get_team_members(team_id)
+
+    # Remove roles from users
+    for member in members:
+        await remove_roles(ctxt.guild.get_member(member), [team_role, ctxt.guild.get_role(config.discord_team_assigned_role_id)])
+
+    # Delete team from DB
+    await delete_team(team_id)
+
+    # Send messages through discord
+    await ctxt.send(ephemeral=True,
+                    content=f"The team `<{team_name}>` has been removed and the members have been notified")
+    for member in members:
+        await ctxt.guild.get_member(member).send(
+            content=f"Your team has been removed from the event. Reason: {reason}. You may create a new team but continued failure to comply may result in being permanently removed")
+
 
 @bot.command(name="sync", description="Sync bot commands with server (Organizer only)")
 async def sync(ctxt):
