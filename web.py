@@ -17,12 +17,13 @@ Format for Post Requests JSON
 {
     header: {
         'API_KEY': str
-        'data'
     }
     body: {
         'email': str,
-        'roles': [str],
-        'data': {}
+        'roles': (role,role), (comma-separated)
+        
+        'data-header':'data-contents' (Every other pair is considered data)
+        ...
     }
 }
 """

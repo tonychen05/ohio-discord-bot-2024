@@ -1,21 +1,11 @@
 import sqlite3
 import os
 import json
-"""
-Goals
 
-Make a class that connects to the DB and has an interface for methods like
-add_registered_user
-create_team
-remove_team
-leave_team
-getUser
-
-"""
 _DATABASE_FILE = 'records.db'
 
 """
-Participant Scheme {
+Registrant Scheme {
     EMAIL: TEXT*,
     DATA: TEXT (JSON parsed){
         FIRST_NAME: TEXT,
@@ -47,6 +37,11 @@ Team Scheme {
         TEXT: INTEGER,
         VOICE: INTEGER
     }
+}
+
+Code Scheme {
+    CODE: TEXT* PRIMARY KEY
+    USER_ID: INTEGER*
 }
 """
 
