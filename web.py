@@ -1,8 +1,12 @@
-import data
+import records
 import config
+import bot
+
 from flask import Flask, abort, request, jsonify
 from eventlet import wsgi
 import eventlet
+
+
 
 '''
 The purpose of this file is to stay active and listen for any incoming post requests from 
@@ -10,16 +14,19 @@ the Qualtrics Workflow that should send the bot a request to update the userDB a
 registers for the event. This will keep the db up-to-date with new registrations
 
 Format for Post Requests JSON
-
-header= {
-    'API_KEY': str
-    ...
+{
+    header: {
+        'API_KEY': str
+    }
+    body: {
+        'email': str,
+        'roles': (role,role), (comma-separated)
+        
+        'data-header':'data-contents' (Every other pair is considered data)
+        ...
+    }
 }
-data = {
-    'email': str,
-    'discord_username': str,
-    'role': str
-}
+"""
 '''
 
 #Define the server as app
@@ -34,10 +41,15 @@ def push_user():
         #Retrieve Data from Request
         data = request.get_json()
 
+        email = data['email']
+        roles = data['roles']
+        data = data['data']
+
+
         #Append Data to Database 
         try:
-            #TODO: Update with actual DB method
-            data.add_user(str(data['email']).lower(), data['discord_username'], data['role'])
+            #Add User to registrant list
+            records.add_registered_user(str(data['email']).lower(), data['discord_username'], data['roles'])
 
             #Send back "Good" Message
             return jsonify({'email': str(data['email']).lower(), 'discord_username': data['discord_username'], 'role': data['role']})

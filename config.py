@@ -22,6 +22,11 @@ _REQUIRED_CONFIG_ENTRIES = [
     ('contact', 'organizer_email'),
     ('web', 'port'),
     ('web', 'api_key'),
+    ('email', 'address'),
+    ('email', 'password'),
+    ('email', 'domain_name'),
+    ('email', 'get_port'),
+    ('email', 'code_expiration_time')
 ]
 
 #Import Data from CONFIG_FILENAME into _config
@@ -57,3 +62,8 @@ contact_registration_link = config_data['contact']['registration_link']
 contact_organizer_email = config_data['contact']['organizer_email']
 web_port = int(config_data['web']['port'])
 web_api_key = config_data['web']['api_key']
+email_address = config_data['email']['address']
+email_password = config_data['email']['password']
+email_domain_name = config_data['email']['domain_name']
+email_get_port = config_data['email']['get_port']
+email_code_expiration_time = int(config_data['email']['code_expiration_time'])
