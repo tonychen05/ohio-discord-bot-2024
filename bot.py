@@ -5,9 +5,7 @@ import web
 
 import discord
 from discord.ext import commands
-import math
 import asyncio
-from aiohttp import web
 import random
 import smtplib
 from email.mime.text import MIMEText
@@ -31,7 +29,7 @@ bot = commands.Bot(command_prefix='/', intents=intents)
 #---------------------Constants----------------------
 
 MAX_TEAM_SIZE = 4
-TEAM_FORMATION_TIMEOUT = 60
+TEAM_FORMATION_TIMEOUT = 120
 
 # --------------------Helper Methods-------------------
 async def assign_user_roles(user, roles: list):
@@ -81,7 +79,7 @@ async def remove_roles(user: discord.Member, roles:list):
     # Update user with new roles
     await user.edit(roles=new_roles)
 
-def generate_random_string(length):
+def generate_random_code(n):
     """
     Generates random string of specified length using uppercase letters, lowercase letters, and digits.
 
@@ -92,13 +90,11 @@ def generate_random_string(length):
         length (int) >= 0
         
     Returns:
-        str: A random string of specified length, containing uppercase letters, lowercase letters, and digits.
+        str: A random string of specified length, containing digits.
     """
-    # Defines characters to choose from
-    characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    
-    # Generate random string
-    return ''.join(random.choices(characters, k=length))    
+    characters = '0123456789'
+    return ''.join(random.choices(characters, k=n))    
+
 
 async def handle_team_formation_timeout(ctxt: discord.Interaction, team_id: int):
     """
@@ -123,7 +119,7 @@ async def handle_team_formation_timeout(ctxt: discord.Interaction, team_id: int)
         # Remove all Channels
         await delete_team_channels(team_id)
         await ctxt.send(ephemeral=True,
-                        content=f'Team formation timed out. Teams must have at least two members {round(TEAM_FORMATION_TIMEOUT/60, 2)} minutes after creation to be saved. You must re-create your team and use the `/addmember` command to add members to your team within one minute of using the `/createteam` command.')
+                        content=f'Team formation timed out. Teams must have at least two members {round(TEAM_FORMATION_TIMEOUT/60)} minutes after creation to be saved. You must re-create your team and use the `/addmember` command to add members to your team within one minute of using the `/createteam` command.')
 
 async def send_verification_email(recipient, CODE, username):
     """
@@ -141,14 +137,11 @@ async def send_verification_email(recipient, CODE, username):
         Exception: If there is an error with sending email, prints error message.
     
     """
-    #Generate one time code
-    LINK = f"http://{config.email_domain_name}:{config.email_get_port}/verify?code={CODE}"
-
     body = f"""Dear {records.get_first_name(recipient)},<br>
-        To verify that your email is associated with the discord account: {username}, please click the link below:<br><br>
-        <a href="{LINK}">{LINK}</a><br><br>
+        To verify that your email is associated with the discord account: {username}, please enter the code below:<br><br>
+        <h3>{CODE}</h3><br>
         If you didn’t attempt to verify your account, you can safely ignore this email.<br><br>
-        This link will expire in {round(config.email_code_expiration_time/60, 2)} minutes. If it has expired, please request a new verification email.<br><br>
+        This code will expire in {round(config.email_code_expiration_time/60)} minutes. If it has expired, please request a new verification email.<br><br>
         Thank you,<br>
         OHI/O Hackathon Team<br><br>
         If you have any issues or questions, please contact us at {config.contact_organizer_email} or message in the Ask an Organizer channel on discord
@@ -191,6 +184,10 @@ async def delete_team_channels(team_id: int):
     # Remove team from database
     records.remove_team(team_id)
 
+async def handle_permission_error(ctxt: discord.Interaction, error: discord.errors):
+    await ctxt.send(ephemeral=True,
+                               content='You do not have permission to use this command.')
+
 # ---------------------Classes-------------------------
 
 #Retrieves Member username (Can be used for adding members)
@@ -198,14 +195,14 @@ class userFlag(commands.FlagConverter):
     member: discord.Member = commands.flag(description='The User being selected')
 
 #Retrieves Email
-class emailFlag(commands.FlagConverter):
-    email: str = commands.flag(description = 'Email Address used to Register')
+class verifyFlag(commands.FlagConverter):
+    EmailOrCode: str = commands.flag(description = 'Email Address used to Register / or / Verification Code')
 
 #Retrieves Team Name
 class teamNameFlag(commands.FlagConverter):
     teamname: str = commands.flag(description = "Name of your team")
 
-#Details to register user to database (Expected to be called by Qualtrics Workflow)
+#Details to register user to database
 class registerFlag(commands.FlagConverter):
     user: discord.Member = commands.flag(description="Discord User")
     email: str = commands.flag(description="User Email Address")
@@ -246,7 +243,7 @@ async def affirm(ctxt):
 
 # ----------- Email/Account Verification ----------------------------------------------
 @bot.hybrid_command(description="Verify your Discord account for this Event")
-async def verify(ctxt, flags: emailFlag):
+async def verify(ctxt, flags: verifyFlag):
     """
     Verifies a user's Discord account by linking it with their reg email
 
@@ -262,8 +259,46 @@ async def verify(ctxt, flags: emailFlag):
         ctxt (Context): The Context of the Interaction
         flags (emailFlag): Flag containing email address to be verified
     """
+    
     user = ctxt.author
     email = flags.email
+
+    # ------------------ Handle if a code is entered (all digits) --------------------------------
+    if (email.isdigit()):
+        code = email
+
+        # Check that code is valid
+        if not records.code_exists(code):
+            await ctxt.send(ephemeral=True,
+                            content="Your Verification Code is either not valid or has expired. Please request a new one.")
+            return
+            
+        # Retrieve Message ID or Verification message
+        user_id = records.get_value_from_code(code)
+
+        # Check that user_id matches user entering the code
+        if user_id != user.id:
+            await ctxt.send(ephemeral=True,
+                            content=f"The code you entered is not associated with your discord account. Please request a new one by entering the email you registered with.")
+            return
+
+        """ Happy Case """
+
+        email = records.get_email_from_reg(user.id)
+
+        # Add user to verified database
+        records.add_verified_user(user.id, email, user.name)
+
+        # Assign user with all given roles
+        roles = records.get_roles(email)
+        roles.append('verified')
+        await assign_user_roles(user, roles)
+        
+        ## Send the user a message that they have been verified and the next steps
+        await ctxt.send(ephemeral=True,
+                        content=f"Welcome {records.get_first_name(email)}! \nYou have been verified. Please check the {bot.get_guild(config.discord_guild_id).get_channel(config.discord_start_here_channel_id).mention} channel for next steps.")
+        return
+    # -----------------------------------------------------------------------------------------
 
     #Confirm user is registered
     if not records.registered_user_exists(email):
@@ -283,20 +318,25 @@ async def verify(ctxt, flags: emailFlag):
         await ctxt.send(ephemeral=True,
                         content=f"A User with that email address is already verified. Please reregister with a different email address at {config.contact_registration_link}")
         return
-    
-    # Store discord_id with registered user
+
+    """ Happy Case: Send user an email with a one-time code """
+
+    # Add user_id to registered user
     records.update_reg_discord_id(email, user.id)
 
     # Remove any codes from same user so only newest link will work
     records.remove_user_codes(user.id)
 
     # Send Verification Info to web for update
-    CODE = generate_random_string(20)
+    CODE = generate_random_code(6)
+    while records.code_exists():
+        CODE = generate_random_code(6)
+
     if(await send_verification_email(email, CODE, user.name)):
         # add code to verification codes and send message
         records.add_code(CODE, user.id)
         await ctxt.send(ephemeral=True,
-                        content=f"Check your inbox for an email from `<{config.email_address}>` with a verification link. Please check your email and click the link to verify your account.")
+                        content=f"Check your inbox for an email from `<{config.email_address}>` with a verification link. Please check your email and enter the code in this format - /verify (code)")
     else:
         await ctxt.send(ephemeral=True,
                         content="Failed to send verification email. Please contact an organizer for assistance.")
@@ -305,78 +345,16 @@ async def verify(ctxt, flags: emailFlag):
     await asyncio.sleep(config.email_code_expiration_time)
     records.remove_code(CODE)
 
-#@app.route('/verify', ['GET'])
-async def check_verification_code(request):
-    """
-    Handles verification process when user submits verification code. 
-    The code is checked against a database to ensure validity. 
-    On success, the code is removed from database.
-
-    Requires:
-        - verification code must be passed as query parameter 'code'
-    
-    Args:
-        request (Request): The request object containing verification code
-
-    Returns:
-        web.Response: A response indicating the result of the verification attempt. 
-        If successful, returns confirmation message. 
-        If unsuccessful (code is missing, invalid, or expired), returns an error message.
-        
-    Raises:
-        Exception: If there is an error during verification, an error response is sent back
-        
-    """
-    code = request.query.get('code', None)
-    
-    # Check that a code is provided
-    if code is None:
-        return web.Response(text="No Verification Code Provided")
-        
-    # Check that code is valid
-    if not records.code_exists(code):
-        return web.Response(text="Your Verification Code is either not valid or has expired. Please request a new one.")
-        
-    # Retrieve Message ID or Verification message
-    user_id = records.get_value_from_code(code)
-
-    try: 
-        # Complete Verification
-        await complete_verification(user_id)
-
-        # Remove Code from database
-        records.remove_code(code)
-
-        return web.Response(text="Verification Successful")
-    except Exception as e:
-        print(f"ERROR: Verification Failed - {e}")
-        return web.Response(text="Verification Failed: An Internal Error has occured. Please contact an organizer for help")
-
-async def complete_verification(user_id):
-    """
-    Completes verification process for a user by assigning them appropriate roles.
-
-    Args:
-        user_id (int): The Discord ID of the user being verified
-    """
-    guild = bot.get_guild(config.discord_guild_id)
-    user = guild.get_member(user_id)
-    email = records.get_email_from_reg(user_id)
-
-    # Add user to verified database
-    records.add_verified_user(user.id, email, user.name)
-
-    # Assign user the verified role
-    await assign_user_roles(user, ['verified'])
-
-    # Assign user with all given roles
-    roles = records.get_roles(email)
-    await assign_user_roles(user, roles)
-    
-    ## Send the user a message that they have been verified and the next steps
-    await user.send(content=f"Welcome {records.get_first_name(email)}! \nYou have been verified. Please check the {bot.get_guild(config.discord_guild_id).get_channel(config.discord_start_here_channel_id).mention} channel for next steps.")
-    
 # -------------------------------------------------------------------------------------
+'''
+* @requires
+    - User sending command is admin (check role)
+* @ensures
+    - User gains assigned role
+    - Database is updated accordingly 
+        (if user doesn't exist, add them with role, if they do exist, update role)
+'''
+@commands.has_role(config.discord_organizer_role_id)
 @bot.hybrid_command(description="Manually verify a Discord account for this event (Organizers only)")
 async def overify(ctxt, flags: registerFlag):
     """
@@ -398,11 +376,11 @@ async def overify(ctxt, flags: registerFlag):
     role = flags.role
     user = discord.utils.get(ctxt.guild.members, name=username)
 
-
-    # Check that user is an admin [check role]
-    if not admin_user.guild_permissions.administrator:
+    # Ensure user is an organizer
+    organizer_role = ctxt.guild.get_role(config.discord_organizer_role_id)
+    if not organizer_role in user.roles:
         await ctxt.send(ephemeral=True,
-                        content="You do not have permission to use this command.")
+                        content=f"You do not have permission to run this command")
         return
     
     # Check if user is already verified
@@ -436,6 +414,7 @@ async def overify(ctxt, flags: registerFlag):
 
     await ctxt.send(ephemeral=True,
                     content=f"`<{username}>` has been verified and given the role `<{role}>`.")
+overify.error(handle_permission_error)
 
 @bot.hybrid_command(description="Create a new team for this event")
 async def createteam(ctxt, flags: teamNameFlag):
@@ -512,7 +491,7 @@ async def createteam(ctxt, flags: teamNameFlag):
     await user.add_roles(team_role)
     await user.add_roles(ctxt.guild.get_role(config.discord_team_assigned_role_id))
     await ctxt.send(ephemeral=True,
-                    content=f'Team creation succeeded. {team_role.mention} created. Make sure to add members to your team using the `/addmember` command. Teams with fewer than 2 members will be deleted after {round(TEAM_FORMATION_TIMEOUT/60, 2)} minutes.')
+                    content=f'Team creation succeeded. {team_role.mention} created. Make sure to add members to your team using the `/addmember` command. Teams with fewer than 2 members will be deleted after {round(TEAM_FORMATION_TIMEOUT/60)} minutes.')
 
     # Wait for team timeout
     await asyncio.sleep(TEAM_FORMATION_TIMEOUT)
@@ -636,10 +615,12 @@ async def addmember(ctxt, flags: userFlag):
     - Users are assigned the new role
     - Channel names are changed
 '''
+
+@commands.has_role(config.discord_organizer_role_id)
 @bot.hybrid_command(description="Rename a team") #TODO
 async def renameTeam(ctxt, flags: teamNameFlag):
-    pass
-
+    pass 
+renameteam.error(handle_permission_error)
 '''
 * @requires
     - User calling command is in the team or an admin
@@ -648,7 +629,8 @@ async def renameTeam(ctxt, flags: teamNameFlag):
     - Discord Channels are removed
     - Roles are removed from Users
 '''
-@bot.hybrid_command(description="Remove Team (Organizers only)") #TODO
+@commands.has_role(config.discord_organizer_role_id)
+@bot.hybrid_command(description="Remove Team (Organizers only)") 
 async def deleteteam(ctxt, flags: removeTeamFlag):
     """
     Delete a team and its associated data from the event.
@@ -658,6 +640,7 @@ async def deleteteam(ctxt, flags: removeTeamFlag):
         flags (removeTeamFlag): Flags containing the 'team_role' and 'reason' for removal
     """
     # Retrieve team role, name, and ID
+    user = ctxt.author
     team_role = flags.team_role
     team_name = team_role.name
     team_id = records.get_team_id(team_name)
@@ -665,6 +648,12 @@ async def deleteteam(ctxt, flags: removeTeamFlag):
     # Retrieve reason and team members
     reason = flags.reason
     members = records.get_team_members(team_id)
+
+    # Ensure user is an organizer
+    organizer_role = ctxt.guild.get_role(config.discord_organizer_role_id)
+    if not organizer_role in user.roles:
+        await ctxt.send(ephemeral=True,
+                        content=f"You do not have permission to run this command")
 
     # Remove roles from users
     for member in members:
@@ -680,7 +669,7 @@ async def deleteteam(ctxt, flags: removeTeamFlag):
     for member in members:
         await ctxt.guild.get_member(member).send(
             content=f"Your team has been removed from the event. Reason: {reason}. You may create a new team but continued failure to comply may result in being permanently removed")
-
+deleteteam.error(handle_permission_error)
 
 @bot.command(name="sync", description="Sync bot commands with server (Organizer only)")
 async def sync(ctxt):
@@ -698,23 +687,12 @@ async def sync(ctxt):
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user}')
+    synced_commands = await bot.tree.sync(guild=bot.get_guild(config.discord_guild_id))
+    print(f"Refreshed Channels: [{','.join(synced_commands)}]")
 
-web_app = web.Application()
-web_app.add_routes([web.get('/verify', check_verification_code)])
-
-async def main():
-    ## Prepare GET Request Listener
-    runner = web.AppRunner(web_app)
-    await runner.setup()
-    site = web.TCPSite(runner, "localhost", config.email_get_port)
-    await site.start()
-    print(f"GET Listener open on port {config.email_domain_name}:{config.email_get_port}/verify")
-
-    ## Start Bot
-    await bot.start(config.discord_token)
     
 def start():
-    asyncio.run(main())
+    bot.run(config.discord_token)
 # ------------------------------------------------------------------
 
 
