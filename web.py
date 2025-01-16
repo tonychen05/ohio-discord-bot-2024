@@ -37,30 +37,67 @@ app = Flask(__name__)
 def push_user():
     #Check that API key is correct
     if (request.headers.get('API_KEY') == config.web_api_key):
+       
+        ROLE_MAP = {
+            '1': 'judge',
+            '2': 'mentor'
+        }
         
         #Retrieve Data from Request
         data = request.get_json()
+        
+        # Email is required
+        email = data.get("email").lower()
 
-        email = data['email']
-        roles = data['roles']
-        data = data['data']
+        if not email:
+            return jsonify({"Error": "Email is required"}), 400
+        
+        if data.get("isAdultOrOSU") == 2:
+            return jsonify({"Error": "Participant not allowed"}), 400
+        
+        # Get the 'roles' data from the input, defaulting to an empty string if not found
+        roles_input = data.get("roles").strip()
 
+        # Initialize an empty list to store the roles
+        roles = []
 
+        # Split the input into individual role strings (by comma), and process each one
+        for role in roles_input.split(','):
+            role = role.strip()  # Clean up any extra spaces around the role
+            if role in ROLE_MAP:  # Only consider valid roles
+                roles.append(ROLE_MAP.get(role))  # Add the corresponding role name to the list        
+        
+        # If there is no roles at this point, it is because they're a participant
+        if len(roles) == 0:
+            roles.append('participant')
+        
+        data = {
+            "firstName": data.get("firstName"),
+            "lastName": data.get("lastName"),
+            "university": data.get("university"),
+            "classTeam": data.get("classTeam"),
+            "major": data.get("major"),
+            "gradYear": data.get("gradYear"),
+            # Mentor/Judge Specific Form Data Starts Here
+            "company": data.get("company"),
+            "jobTitle": data.get("jobTitle"),
+        }
+        
         #Append Data to Database 
         try:
             #Add User to registrant list
-            records.add_registered_user(str(data['email']).lower(), data['discord_username'], data['roles'])
+            records.add_registered_user(email, roles, data)
 
             #Send back "Good" Message
-            return jsonify({'email': str(data['email']).lower(), 'discord_username': data['discord_username'], 'role': data['role']})
-        except:
+            return jsonify({"email": email, "roles": role, "data": data}), 200
+        except Exception as e:
             #Send Error that user being added has failed
-            print("ERROR: Not all data in the request was included or error with DB file")
+            print(f"ERROR {e}: Not all data in the request was included or error with DB file")
             abort(400)
     else:
         #Send Error that API_KEY is not correct
         print("ERROR: API_KEY is not correct.")
-        abort(403)
+        abort(401)
 
 #Method to start a server and wait for a request
 def start():
