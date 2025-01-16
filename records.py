@@ -94,7 +94,12 @@ def _initialize_db(cursor: sqlite3.Cursor):
 # ---------- Register Data into Database ------------------------------------------------------------ DONE
 
 def add_registered_user(email: str, roles: list, data: dict):
-   
+
+    #Check that user with the same email is not already verified
+    if verified_email_exists(email):
+        print("User trying to be added is already verified")
+        return
+
     #Check if user with that email already registerd and remove it
     if registered_user_exists(email):
         remove_registered_user(email)
