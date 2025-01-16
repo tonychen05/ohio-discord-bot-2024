@@ -81,7 +81,7 @@ async def remove_roles(user: discord.Member, roles:list):
 
 def generate_random_code(n):
     """
-    Generates random string of specified length using uppercase letters, lowercase letters, and digits.
+    Generates random string of specified length using random digits.
 
     Args:
         length (int): the length of random string to generate
@@ -616,11 +616,11 @@ async def addmember(ctxt, flags: userFlag):
     - Channel names are changed
 '''
 
-@commands.has_role(config.discord_organizer_role_id)
-@bot.hybrid_command(description="Rename a team") #TODO
-async def renameTeam(ctxt, flags: teamNameFlag):
-    pass 
-renameteam.error(handle_permission_error)
+# @commands.has_role(config.discord_organizer_role_id)
+# @bot.hybrid_command(description="Rename a team") #TODO
+# async def renameteam(ctxt, flags: teamNameFlag):
+#     pass 
+# renameteam.error(handle_permission_error)
 '''
 * @requires
     - User calling command is in the team or an admin
