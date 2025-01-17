@@ -36,7 +36,7 @@ app = Flask(__name__)
 @app.route("/post/user", methods=['POST'])
 def push_user():
     #Check that API key is correct
-    if (request.headers.get('API_KEY') == config.web_api_key):
+    if (request.headers.get('Api-Key') == config.web_api_key):
        
         ROLE_MAP = {
             '1': 'judge',
