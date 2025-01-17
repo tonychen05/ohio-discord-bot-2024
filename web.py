@@ -16,7 +16,7 @@ registers for the event. This will keep the db up-to-date with new registrations
 Format for Post Requests JSON
 {
     header: {
-        'API_KEY': str
+        'Api-Key': str
     }
     body: {
         'email': str,
@@ -36,7 +36,7 @@ app = Flask(__name__)
 @app.route("/post/user", methods=['POST'])
 def push_user():
     #Check that API key is correct
-    if (request.headers.get('API_KEY') == config.web_api_key):
+    if (request.headers.get('Api-Key') == config.web_api_key):
        
         ROLE_MAP = {
             '1': 'judge',
@@ -95,8 +95,8 @@ def push_user():
             print(f"ERROR {e}: Not all data in the request was included or error with DB file")
             abort(400)
     else:
-        #Send Error that API_KEY is not correct
-        print("ERROR: API_KEY is not correct.")
+        #Send Error that Api-Key is not correct
+        print("ERROR: Api-Key is not correct.")
         abort(401)
 
 #Method to start a server and wait for a request
