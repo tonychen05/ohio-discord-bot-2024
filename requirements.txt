@@ -5,9 +5,8 @@ attrs==24.2.0
 blinker==1.8.2
 click==8.1.7
 discord.py==2.4.0
-audioop-lts
 dnspython==2.6.1
-eventlet==0.38.2
+eventlet==0.37.0
 Flask==3.0.3
 frozenlist==1.4.1
 greenlet==3.1.1
@@ -27,6 +26,7 @@ asyncio==3.4.3
 attrs==24.2.0
 blinker==1.8.2
 click==8.1.7
+discord.py==2.4.0
 dnspython==2.6.1
 eventlet==0.37.0
 Flask==3.0.3
