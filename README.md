@@ -11,7 +11,7 @@ Then, Mac:
 ```
 Windows: 
 ```bash
-  venv\Scripts\activate
+  source venv/Scripts/activate
 ```
 3. Inside your virtual environment (should say (venv) at the beginning of your terminal line), run the following line to install the dependencies.
 ```bash
