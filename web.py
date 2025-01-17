@@ -72,15 +72,15 @@ def push_user():
             roles.append('participant')
         
         data = {
-            "firstName": data.get("firstName"),
-            "lastName": data.get("lastName"),
+            "first_name": data.get("firstName"),
+            "last_name": data.get("lastName"),
             "university": data.get("university"),
-            "classTeam": data.get("classTeam"),
+            "class_team": data.get("classTeam"),
             "major": data.get("major"),
-            "gradYear": data.get("gradYear"),
+            "grad_year": data.get("gradYear"),
             # Mentor/Judge Specific Form Data Starts Here
             "company": data.get("company"),
-            "jobTitle": data.get("jobTitle"),
+            "job_title": data.get("jobTitle"),
         }
         
         #Append Data to Database 
