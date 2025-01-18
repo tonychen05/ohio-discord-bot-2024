@@ -47,13 +47,15 @@ def push_user():
         data = request.get_json()
         
         # Email is required
-        email = data.get("email").lower()
+        email = data.get("email")
 
         if not email:
             return jsonify({"Error": "Email is required"}), 400
         
         if data.get("isAdultOrOSU") == 2:
             return jsonify({"Error": "Participant not allowed"}), 400
+        
+        email = email.lower()
         
         # Get the 'roles' data from the input, defaulting to an empty string if not found
         roles_input = data.get("roles").strip()
@@ -64,7 +66,7 @@ def push_user():
         # Split the input into individual role strings (by comma), and process each one
         for role in roles_input.split(','):
             role = role.strip()  # Clean up any extra spaces around the role
-            if role in ROLE_MAP:  # Only consider valid roles
+            if role in ROLE_MAP and (role not in roles):  # Only consider valid roles
                 roles.append(ROLE_MAP.get(role))  # Add the corresponding role name to the list        
         
         # If there is no roles at this point, it is because they're a participant
@@ -78,6 +80,7 @@ def push_user():
             "class_team": data.get("classTeam"),
             "major": data.get("major"),
             "grad_year": data.get("gradYear"),
+
             # Mentor/Judge Specific Form Data Starts Here
             "company": data.get("company"),
             "job_title": data.get("jobTitle"),
