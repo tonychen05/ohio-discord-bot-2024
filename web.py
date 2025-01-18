@@ -89,7 +89,6 @@ def push_user():
         #Append Data to Database 
         try:
             #Add User to registrant list
-            print(email,' - ', roles,' - ',data)
             records.add_registered_user(email, roles, data)
 
             #Send back "Good" Message
