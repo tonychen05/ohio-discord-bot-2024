@@ -58,16 +58,18 @@ def push_user():
         email = email.lower()
         
         # Get the 'roles' data from the input, defaulting to an empty string if not found
-        roles_input = data.get("roles").strip()
+        roles_input = data.get("roles", "")
 
         # Initialize an empty list to store the roles
         roles = []
 
-        # Split the input into individual role strings (by comma), and process each one
-        for role in roles_input.split(','):
-            role = role.strip()  # Clean up any extra spaces around the role
-            if role in ROLE_MAP and (role not in roles):  # Only consider valid roles
-                roles.append(ROLE_MAP.get(role))  # Add the corresponding role name to the list        
+        # If role_input is not empty, process the roles
+        if roles_input:
+            # Split the input into individual role strings (by comma), and process each one
+            for role in roles_input.split(','):
+                role = role.strip()  # Clean up any extra spaces around the role
+                if role in ROLE_MAP and (role not in roles):  # Only consider valid roles
+                    roles.append(ROLE_MAP.get(role))  # Add the corresponding role name to the list        
         
         # If there is no roles at this point, it is because they're a participant
         if len(roles) == 0:
