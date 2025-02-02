@@ -16,7 +16,7 @@ A fork is a copy of the repo under your own account. Creating a fork gives you t
 
 First, you should get the URL for the repo by clicking the green **Code** button near the top right of this page.
 
-Now you should open a terminal window. Navigate to a directory where you would like to keep the local copy of the repo. (You should pick a directory that is easy to access from the command line, i.e. a directory that is not nested too deep in your file tree.)
+Now you should open a terminal window. Navigate to a directory where you would like to keep the local repo. (You should pick a directory that is easy to access from the command line, i.e. a directory that is not nested too deep in your file tree.)
 
 Lastly, use the following command
 ```bash
@@ -26,13 +26,13 @@ by replacing `<URL>` with the URL you copied earlier. (If you do not know how to
 
 ### 3. Download the `config.ini` file from the SharedFolder (in Google Drive).
 
-You should now have a folder/directory on your PC that contains your local copy of the repo.
+You should now have a directory on your PC that contains your local repo.
 
 The next step is to go to the tech committee's SharedFolder in Google Drive. If you do not already have access to the SharedFolder, then go to the OHI/O Discord server and check the description for the `#tech-general` text channel. There will be a link that you can use to request access to the SharedFolder.
 
-In the SharedFolder will be a file named `config.ini`. (You might need to check a subdirectory to find the file.) You must download this file to your PC **in the root directory of where you cloned the repo in step 2**.
+In the SharedFolder will be a file named `config.ini`. (You might need to check a subdirectory to find the file.) You must download this file **to the root directory of your local repo**, which you cloned in step 2.
 
-**IMPORTANT:** The `config.ini` file has some sensitive information in it. Do **NOT** share the file with anyone outside of the organization!
+<ins>**IMPORTANT:** The `config.ini` file has some sensitive information in it. Do **NOT** share the file with anyone outside of the organization!</ins>
 
 ### 4. Create a virtual environment.
 
@@ -57,11 +57,9 @@ Once you see that the bot has finished logging in, you can try using some slash 
 
 To terminate the bot, type `CTRL` + `C` in the terminal (regardless of the OS you are using).
 
-### Closing remarks:
+### Additional resources:
 
 And that completes the setup process! You can now edit files, commit and push changes to your fork, and then open a pull request to merge your changes into the production code.
-
-### Additional resources:
 
 To learn more about using Git and GitHub, check out the following resources:
 
