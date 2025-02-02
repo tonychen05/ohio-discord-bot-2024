@@ -12,26 +12,25 @@ A fork is a copy of the repo under your own account. Creating a fork gives you t
 
 "Cloning" is the process of creating a local copy of a repo. Right now, your fork only exists in the cloud on GitHub. If you want to be able to edit the code in your fork on your PC, you need a copy of your fork on your PC.
 
-[The GitHub Docs article on cloning a repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) covers some of the different ways you can clone a repo. Most IDEs also have built-in menus for cloning a repo.
+[The GitHub Docs article on cloning a repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) covers some of the different ways you can clone a repo. The following instructions will tell you how to use the command line to clone a repo, as we will be doing later steps via the command line as well.
 
-Regardless of the method you choose to use, you can get the URL for the repo by clicking the green **Code** button near the top right of this page. You would then paste the URL while following the steps outlined in the GitHub Docs article.
+First, you should get the URL for the repo by clicking the green **Code** button near the top right of this page.
 
-### 3. Download the config.ini file from the SharedFolder (in Google Drive).
+Now you should open a terminal window. Navigate to a directory where you would like to keep the local copy of the repo. (You should pick a directory that is easy to access from the command line, i.e. a directory that is not nested too deep in your file tree.)
+
+Lastly, use the following command
+```bash
+git clone <URL>
+```
+by replacing `<URL>` with the URL you copied earlier. (If you do not know how to paste text into the terminal you are using, you will need to look that up, as it varies depending on the terminal app you are using.)
+
+### 3. Download the `config.ini` file from the SharedFolder (in Google Drive).
 
 You should now have a folder/directory on your PC that contains your local copy of the repo.
 
 The next step is to go to the tech committee's SharedFolder in Google Drive. If you do not already have access to the SharedFolder, then go to the OHI/O Discord server and check the description for the `#tech-general` text channel. There will be a link that you can use to request access to the SharedFolder.
 
 In the SharedFolder will be a file named `config.ini`. (You might need to check a subdirectory to find the file.) You must download this file to your PC **in the root directory of where you cloned the repo in step 2**.
-
-For example, if you cloned the repo to
-```
-/user/some_file_path/ohio-discord-bot-2024/
-```
-then you should save the `config.ini` file to
-```
-/user/some_file_path/ohio-discord-bot-2024/config.ini
-```
 
 **IMPORTANT:** The `config.ini` file has some sensitive information in it. Do **NOT** share the file with anyone outside of the organization!
 
