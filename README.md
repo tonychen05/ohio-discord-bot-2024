@@ -18,7 +18,22 @@ Regardless of the method you choose to use, you can get the URL for the repo by 
 
 ### 3. Download the config.ini file from the SharedFolder (in Google Drive).
 
-TODO explain what this step means
+You should now have a folder/directory on your PC that contains your local copy of the repo.
+
+The next step is to go to the tech committee's SharedFolder in Google Drive. If you do not already have access to the SharedFolder, then go to the OHI/O Discord server and check the description for the `#tech-general` text channel. There will be a link that you can use to request access to the SharedFolder.
+
+In the SharedFolder will be a file named `config.ini`. (You might need to check a subdirectory to find the file.) You must download this file to your PC **in the root directory of where you cloned the repo in step 2**.
+
+For example, if you cloned the repo to
+```
+/user/some_file_path/ohio-discord-bot-2024/
+```
+then you should save the `config.ini` file to
+```
+/user/some_file_path/ohio-discord-bot-2024/config.ini
+```
+
+**IMPORTANT:** The `config.ini` file has some sensitive information in it. Do **NOT** share the file with anyone outside of the organization!
 
 ### 4. Create a virtual environment.
 
