@@ -32,6 +32,17 @@ TODO explain the different commands for Windows and Mac
 
 TODO pip install -r requirements.txt
 
+### 7. Try running the bot.
+
+You should now be able to try running the bot.  In order to start the bot, you need to run the [`start.py`](start.py) script. You can do this by opening a terminal window, navigating to the directory where the repo is, and then typing the following command:
+```bash
+ python start.py
+```
+
+Once you see that the bot has finished logging in, you can try using some slash commands in the test Discord server.
+
+To terminate the bot, type `CTRL` + `C` in the terminal (regardless of the OS you are using).
+
 ### Closing remarks:
 
 And that completes the setup process! You can now edit files, commit and push changes to your fork, and then open a pull request to merge your changes into the production code.
