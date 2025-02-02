@@ -4,14 +4,17 @@ Here are instructions on how to set up the repository on your own machine. Note 
 
 ### 1. Fork this repository ("repo" for short).
 
-This creates a copy of the repo under your own account. This gives you the freedom to play around with the code, since changes won't affect the production code.
+Near the top-right corner of this page will be a button labeled "**Fork**". Click it and follow the on-screen instructions to create a fork of this repo.
+
+A fork is a copy of the repo under your own account. Creating a fork gives you the freedom to play around with the code, since changes won't affect the production code.
 
 ### 2. Clone the repository to your computer.
 
 "Cloning" is the process of creating a local copy of a repo. Right now, your fork only exists in the cloud on GitHub. If you want to be able to edit the code in your fork on your PC, you need a copy of your fork on your PC.
 
-There are several ways you can clone a repo,
-TODO give a link
+[The GitHub Docs article on cloning a repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) covers some of the different ways you can clone a repo. Most IDEs also have built-in menus for cloning a repo.
+
+Regardless of the method you choose to use, you can get the URL for the repo by clicking the green **Code** button near the top right of this page. You would then paste the URL while following the steps outlined in the GitHub Docs article.
 
 ### 3. Download the config.ini file from the SharedFolder (in Google Drive).
 
