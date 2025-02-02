@@ -1,6 +1,6 @@
 ## Welcome to the repository for the OHI/O Discord bot!
 
-Here are instructions on how to set up the repository on your own machine. Note that these instructions assume you have a GitHub account and that you have Git installed. To create a GitHub account, click "sign up" in the top right corner of this webpage. For more info on installing Git, check out [Git's official installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) or see some of [the resources](#additional-resources) at the bottom of this file.
+Here are instructions on how to set up the repository on your own machine. Note that these instructions assume you have a GitHub account and that you have Git installed. To create a GitHub account, click "sign up" in the top right corner of this webpage. For more info on installing Git, check out [Git's official installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) or see some of [the resources](#additional-resources) at the bottom of this README file.
 
 ### 1. Fork this repository ("repo" for short).
 
@@ -29,12 +29,17 @@ TODO explain the different commands for Windows and Mac
 
 TODO pip install -r requirements.txt
 
+### Closing remarks:
+
+And that completes the setup process! You can now edit files, commit and push changes to your fork, and then open a pull request to merge your changes into the production code.
+
 ### Additional resources:
 
-And that completes the setup process! You can now edit files, commit and push changes to your fork, and then open a pull request to merge your changes into the production code. To learn more about using Git and GitHub, check out the following resources:
+To learn more about using Git and GitHub, check out the following resources:
 
 - [An Intro to Git and GitHub for Beginners](https://product.hubspot.com/blog/git-and-github-tutorial-for-beginners) by HubSpot. A good place to start for those with limited prior experience.
 - [git - the simple guide](https://rogerdudler.github.io/git-guide/) covers some basic commands you will use very often.
+- [The GitHub Docs](https://docs.github.com/en) has articles that cover everything you need to know about using GitHub.
 - [The Pro Git ebook](https://git-scm.com/book/en/v2), which is completely free to access online. Has very comprehensive information about Git, but might be hard to follow for beginners.
 
 
