@@ -51,7 +51,7 @@ TODO pip install -r requirements.txt
 
 You should now be able to try running the bot.  In order to start the bot, you need to run the [`start.py`](start.py) script. You can do this by opening a terminal window, navigating to the directory where the repo is, and then typing the following command:
 ```bash
- python start.py
+python start.py
 ```
 
 Once you see that the bot has finished logging in, you can try using some slash commands in the test Discord server.
@@ -69,7 +69,11 @@ To learn more about using Git and GitHub, check out the following resources:
 - [An Intro to Git and GitHub for Beginners](https://product.hubspot.com/blog/git-and-github-tutorial-for-beginners) by HubSpot. A good place to start for those with limited prior experience.
 - [git - the simple guide](https://rogerdudler.github.io/git-guide/) covers some basic commands you will use very often.
 - [The GitHub Docs](https://docs.github.com/en) has articles that cover everything you need to know about using GitHub.
-- [The Pro Git ebook](https://git-scm.com/book/en/v2), which is completely free to access online. Has very comprehensive information about Git, but might be hard to follow for beginners.
+- [The Pro Git ebook](https://git-scm.com/book/en/v2), which is completely free to access online. Has very comprehensive information about Git.
+
+To learn more about using Python, check out the following resources:
+- TODO find more python resources
+- [The Python docs](https://docs.python.org/3/) has comprehensive information about Python, both for the programming language itself and some common tools you will use when working with Python projects.
 
 
 TODO remove old README when done
