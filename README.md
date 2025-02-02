@@ -36,7 +36,15 @@ In the SharedFolder will be a file named `config.ini`. (You might need to check 
 
 ### 4. Create a virtual environment.
 
-TODO explain venv
+In a terminal window, navigate to the root directory of your local repo. (This is where your `config.ini` file should be after step 3.)
+
+You should now run the following command
+```bash
+python -m venv venv
+```
+to create a virtual environment in your local repo.
+
+[The venv article in the Python docs](https://docs.python.org/3/library/venv.html) contains some information that you might find useful for steps 4-6.
 
 ### 5. Activate the venv.
 
