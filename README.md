@@ -12,7 +12,7 @@ A fork is a copy of the repo under your own account. Creating a fork gives you t
 
 "Cloning" is the process of creating a local copy of a repo. Right now, your fork only exists in the cloud on GitHub. If you want to be able to edit the code in your fork on your PC, you need a copy of your fork on your PC.
 
-[The GitHub Docs article on cloning a repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) covers some of the different ways you can clone a repo. The following instructions will tell you how to use the command line to clone a repo, as we will be doing later steps via the command line as well.
+[The GitHub Docs article on cloning a repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) covers some of the different ways you can clone a repo. The following instructions will tell you how to use the command line to clone a repo, as you will be doing later steps via the command line as well.
 
 First, you should get the URL for the repo by clicking the green **Code** button near the top right of this page.
 
@@ -44,11 +44,27 @@ python -m venv venv
 ```
 to create a virtual environment in your local repo.
 
-[The venv article in the Python docs](https://docs.python.org/3/library/venv.html) contains some information that you might find useful for steps 4-6.
+(As an aside, [the venv article in the Python docs](https://docs.python.org/3/library/venv.html) contains some information that you might find useful for steps 4-6.)
+
+A virtual environment ("venv" for short) is a way for us to separate the dependencies of different Python projects from each other. After you create and activate a venv, any libraries you install will be stored in the venv. This helps prevent any issues that might be caused by conflicting dependencies for other Python projects.
 
 ### 5. Activate the venv.
 
-TODO explain the different commands for Windows and Mac
+There should now be a subdirectory named `venv` in your local repo, which will store all of the files related to the venv you created in step 4. You now need to activate the venv in order to use it.
+
+If you are using the Command Prompt (`cmd.exe`) terminal on Windows, use the following command:
+```batch
+venv\Scripts\activate.bat
+```
+
+If you are using the Git Bash terminal on Windows, or are using the default terminal for Mac or Linux, use the following command:
+```bash
+venv/bin/activate
+```
+
+If neither command works for you, you can look at all of the alternate commands at [the Python doc's venv article](https://docs.python.org/3/library/venv.html#how-venvs-work).
+
+If the venv was successfully activated, you should see "`(venv)`" before each terminal prompt.
 
 ### 6. Download dependencies/libraries.
 
