@@ -67,9 +67,9 @@ If you are using the Command Prompt (`cmd.exe`) terminal on Windows, use the fol
 venv\Scripts\activate.bat
 ```
 
-If you are using the Git Bash terminal on Windows, or are using the default terminal for Mac or Linux, use the following command:
+If you are using the default terminal for Mac or Linux, use the following command:
 ```bash
-venv/bin/activate
+source venv/bin/activate
 ```
 
 If neither command works for you, you can look at all of the alternate commands at [the Python doc's venv article](https://docs.python.org/3/library/venv.html#how-venvs-work).
