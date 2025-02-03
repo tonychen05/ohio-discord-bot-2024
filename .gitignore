@@ -7,3 +7,4 @@ __pycache__
 alter_records.py
 /__pycache__
 *.pyc
+*.ppk
