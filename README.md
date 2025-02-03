@@ -66,9 +66,14 @@ If neither command works for you, you can look at all of the alternate commands 
 
 If the venv was successfully activated, you should see "`(venv)`" before each terminal prompt.
 
-### 6. Download dependencies/libraries.
+### 6. Install dependencies/libraries.
 
-TODO pip install -r requirements.txt
+While your venv is activated, you can install all of the dependencies for the bot by running the following command:
+```bash
+pip install -r requirements.txt
+```
+
+Wait a moment for all of the dependencies to be downloaded and installed. You will see your terminal prompt again when the installation process is finished.
 
 ### 7. Try running the bot.
 
@@ -93,9 +98,8 @@ To learn more about using Git and GitHub, check out the following resources:
 - [The Pro Git ebook](https://git-scm.com/book/en/v2), which is completely free to access online. Has very comprehensive information about Git.
 
 To learn more about using Python, check out the following resources:
-- TODO find more python resources
 - [The Python docs](https://docs.python.org/3/) has comprehensive information about Python, both for the programming language itself and some common tools you will use when working with Python projects.
-
+- [Discord.py](https://discordpy.readthedocs.io/en/stable/) is the main library we use for the bot's code. It is worth referencing the library's docs while you are writing code for the bot.
 
 TODO remove old README when done
 
