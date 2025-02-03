@@ -12,13 +12,13 @@ Note that these instructions assume that you already have...
 
 - Some basic command line knowledge. If this is a roadblock for you, then you can ask another tech committee member for help.
 
-### 1. Fork this repository ("repo" for short).
+### Step 1: Fork this repository ("repo" for short).
 
 Near the top-right corner of this repo's GitHub page will be a button labeled **Fork**. Click it and follow the on-screen instructions to create a fork of this repo.
 
 A fork is a copy of the repo under your own account. Creating a fork gives you the freedom to play around with the code, since changes won't affect the production code.
 
-### 2. Clone the repository to your computer.
+### Step 2: Clone the repository to your computer.
 
 "Cloning" is the process of creating a local copy of a repo. Right now, your fork only exists in the cloud on GitHub. If you want to be able to edit the code in your fork on your PC, you need a copy of your fork on your PC.
 
@@ -34,7 +34,7 @@ git clone <URL>
 ```
 by replacing `<URL>` with the URL you copied earlier. (If you do not know how to paste text into the terminal you are using, you will need to look that up, as it varies depending on the terminal app you are using.)
 
-### 3. Download the `config.ini` file from the SharedFolder (in Google Drive).
+### Step 3: Download the `config.ini` file from the SharedFolder (in Google Drive).
 
 You should now have a directory on your PC that contains your local repo.
 
@@ -44,7 +44,7 @@ In the SharedFolder will be a file named `config.ini`. (You might need to check 
 
 <ins>**IMPORTANT:** The `config.ini` file has some sensitive information in it. Do **NOT** share the file with anyone outside of the organization!</ins>
 
-### 4. Create a virtual environment.
+### Step 4: Create a virtual environment.
 
 In a terminal window, navigate to the root directory of your local repo. (This is where your `config.ini` file should be after step 3.)
 
@@ -58,7 +58,7 @@ to create a virtual environment in your local repo.
 
 A virtual environment ("venv" for short) is a way for us to separate the dependencies of different Python projects from each other. After you create and activate a venv, any libraries you install will be stored in the venv. This helps prevent any issues that might be caused by conflicting dependencies for other Python projects.
 
-### 5. Activate the venv.
+### Step 5: Activate the venv.
 
 There should now be a subdirectory named `venv` in your local repo, which will store all of the files related to the venv you created in step 4. You now need to activate the venv in order to use it.
 
@@ -76,7 +76,7 @@ If neither command works for you, you can look at all of the alternate commands 
 
 If the venv was successfully activated, you should see "`(venv)`" before each terminal prompt.
 
-### 6. Install dependencies/libraries.
+### Step 6: Install dependencies/libraries.
 
 While your venv is activated, you can install all of the dependencies for the bot by running the following command:
 ```bash
@@ -85,7 +85,7 @@ pip install -r requirements.txt
 
 Wait a moment for all of the dependencies to be downloaded and installed. You will see your terminal prompt again when the installation process is finished.
 
-### 7. Try running the bot.
+### Step 7: Try running the bot.
 
 You should now be able to try running the bot.  In order to start the bot, you need to run the [`start.py`](start.py) script. You can do this by opening a terminal window, navigating to the directory where the repo is, and then typing the following command:
 ```bash
