@@ -1,10 +1,20 @@
 ## Welcome to the repository for the OHI/O Discord bot!
 
-Here are instructions on how to set up the repository on your own machine. Note that these instructions assume you have a GitHub account and that you have Git installed. To create a GitHub account, click "sign up" in the top right corner of this webpage. For more info on installing Git, check out [Git's official installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) or see some of [the resources](#additional-resources) at the bottom of this README file.
+Here are instructions on how to set up the repository on your own machine.
+
+Note that these instructions assume that you already have...
+
+- A GitHub account. To create a GitHub account, click "sign up" in the top right corner of any page on GitHub.
+
+- Git installed on your PC. You can download the latest version of Git at [git-scm.com/downloads](https://git-scm.com/downloads).
+
+- Python installed on your PC. You can download the latest version of Python at [www.python.org/downloads](https://www.python.org/downloads/).
+
+- Some basic command line knowledge. If this is a roadblock for you, then you can ask another tech committee member for help.
 
 ### 1. Fork this repository ("repo" for short).
 
-Near the top-right corner of this page will be a button labeled "**Fork**". Click it and follow the on-screen instructions to create a fork of this repo.
+Near the top-right corner of this repo's GitHub page will be a button labeled **Fork**. Click it and follow the on-screen instructions to create a fork of this repo.
 
 A fork is a copy of the repo under your own account. Creating a fork gives you the freedom to play around with the code, since changes won't affect the production code.
 
@@ -14,7 +24,7 @@ A fork is a copy of the repo under your own account. Creating a fork gives you t
 
 [The GitHub Docs article on cloning a repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) covers some of the different ways you can clone a repo. The following instructions will tell you how to use the command line to clone a repo, as you will be doing later steps via the command line as well.
 
-First, you should get the URL for the repo by clicking the green **Code** button near the top right of this page.
+First, you should get the URL for the repo by clicking the green **Code** button near the top right of the GitHub page for the fork you created in step 1.
 
 Now you should open a terminal window. Navigate to a directory where you would like to keep the local repo. (You should pick a directory that is easy to access from the command line, i.e. a directory that is not nested too deep in your file tree.)
 
@@ -91,7 +101,6 @@ To terminate the bot, type `CTRL` + `C` in the terminal (regardless of the OS yo
 And that completes the setup process! You can now edit files, commit and push changes to your fork, and then open a pull request to merge your changes into the production code.
 
 To learn more about using Git and GitHub, check out the following resources:
-
 - [An Intro to Git and GitHub for Beginners](https://product.hubspot.com/blog/git-and-github-tutorial-for-beginners) by HubSpot. A good place to start for those with limited prior experience.
 - [git - the simple guide](https://rogerdudler.github.io/git-guide/) covers some basic commands you will use very often.
 - [The GitHub Docs](https://docs.github.com/en) has articles that cover everything you need to know about using GitHub.
@@ -100,31 +109,3 @@ To learn more about using Git and GitHub, check out the following resources:
 To learn more about using Python, check out the following resources:
 - [The Python docs](https://docs.python.org/3/) has comprehensive information about Python, both for the programming language itself and some common tools you will use when working with Python projects.
 - [Discord.py](https://discordpy.readthedocs.io/en/stable/) is the main library we use for the bot's code. It is worth referencing the library's docs while you are writing code for the bot.
-
-TODO remove old README when done
-
-1. Update .env file
-  - The .env file is a sensitive document which contains our bot's token, essentially a key to logging in; Slack DM Dylan Jian for access
-2. Create virtual environment by running:
-```
-  python -m venv venv
-```
-Then, Mac:
-```bash
-  source venv/bin/activate
-```
-Windows: 
-```bash
-  venv\Scripts\activate
-```
-3. Inside your virtual environment (should say (venv) at the beginning of your terminal line), run the following line to install the dependencies.
-```bash
-  pip install -r requirements.txt
-```
-4. Finally, to start the bot, run:
-```bash
-  python start.py
-```
-Note: if commands containing ```python``` didn't work for you, try ```python3 ``` instead.
-
-Once the bot is running, use CTRL + C to stop the bot.
