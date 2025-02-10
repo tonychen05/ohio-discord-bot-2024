@@ -8,7 +8,7 @@ Note that these instructions assume that you already have...
 
 - Git installed on your PC. You can download the latest version of Git at [git-scm.com/downloads](https://git-scm.com/downloads).
 
-- Python installed on your PC. You can download the latest version of Python at [www.python.org/downloads](https://www.python.org/downloads/).
+- Python installed on your PC. You can download the latest version of Python at [www.python.org/downloads](https://www.python.org/downloads/). You must use Python version 3.9 or higher.
 
 - Some basic command line knowledge. If this is a roadblock for you, then you can ask another tech committee member for help.
 
