@@ -61,7 +61,7 @@ with open(FILENAME, 'r') as csv_file:
                         records.add_participant_response_entry(userData['email'].lower(), userData['discord_username'])
                         print(f'Participant {userNum} Added: <{userData["email"]}>')
                     except:
-                        print("Error adding user to DB")
+                        print(f"Error adding participant {userNum} to DB")
                         break
 
             if ('mentor' in userData['role']):
@@ -70,7 +70,7 @@ with open(FILENAME, 'r') as csv_file:
                         records.add_mentor_response_entry(userData['email'].lower(), userData['discord_username'])
                         print(f'Mentor {userNum} Added: <{userData["email"]}>')
                     except:
-                        print("Error adding user to DB")
+                        print(f"Error adding mentor {userNum} to DB")
                         break
 
             if ('judge' in userData['role']):
@@ -79,8 +79,11 @@ with open(FILENAME, 'r') as csv_file:
                         records.add_judge_response_entry(userData['email'].lower(), userData['discord_username'])
                         print(f'Judge {userNum} Added: <{userData["email"]}>')
                     except:
-                        print("Error adding user to DB")
+                        print(f"Error adding judge {userNum} to DB")
                         break
+        else:
+            print(f"Unable to add user {userNum}: Has email? {'email' in userData}.", end=" ")
+            print(f"Has username? {'discord_username' in userData}. Has role? {'role' in userData}.")
         userNum = userNum + 1
         
 
