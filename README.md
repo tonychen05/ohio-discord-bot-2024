@@ -22,7 +22,9 @@ A fork is a copy of the repo under your own account. Creating a fork gives you t
 
 "Cloning" is the process of creating a local copy of a repo. Right now, your fork only exists in the cloud on GitHub. If you want to be able to edit the code in your fork on your PC, you need a copy of your fork on your PC.
 
-[The GitHub Docs article on cloning a repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) covers some of the different ways you can clone a repo. The following instructions will tell you how to use the command line to clone a repo, as you will be doing later steps via the command line as well.
+[The GitHub Docs article on cloning a repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) covers some of the different ways you can clone a repo.
+
+#### Cloning via the command line:
 
 First, you should get the URL for the repo by clicking the green **Code** button near the top right of the GitHub page for the fork you created in step 1.
 
@@ -33,6 +35,18 @@ Lastly, use the following command
 git clone <URL>
 ```
 by replacing `<URL>` with the URL you copied earlier. (If you do not know how to paste text into the terminal you are using, you will need to look that up, as it varies depending on the terminal app you are using.)
+
+#### Cloning via GitHub Desktop:
+
+First, you should [install GitHub Desktop](https://github.com/apps/desktop) on your PC. Then you will need to login to your GitHub account in GitHub Desktop.
+
+Once you are logged in, go to **File -> Clone Repository...** and click the **URL** tab in the **Clone a Repository** window.
+
+You can get the URL for the repo by clicking the green **Code** button near the top right of the GitHub page for the fork you created in step 1. Paste the URL in the repository URL field.
+
+You should now pick a local directory where you would like to keep the local repo by clicking the **Choose...** button. (You should pick a directory that is easy to access from the command line, i.e. a directory that is not nested too deep in your file tree.)
+
+Click the **Clone** button when you are done.
 
 ### Step 3: Download the `config.ini` file from the SharedFolder (in Google Drive).
 
