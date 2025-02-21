@@ -8,3 +8,4 @@ alter_records.py
 /__pycache__
 *.pyc
 *.ppk
+*.csv
