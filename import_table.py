@@ -19,10 +19,26 @@ num_entries = 0
 with open(sys.argv[1], 'r') as csv_file:
     # Try to open the provided file name.
     try:
-        reader = csv.DictReader(csv_file, delimiter=",")
+        reader = csv.DictReader(csv_file, delimiter=',')
     except:
-        raise BaseException("Cannot read/import csv file. Check format and resubmit.")
-    
+        raise BaseException('Cannot read/import CSV file. Check format and resubmit.')
+
+    # Verify that the file has all the attributes we need.
+    attributes = set(reader.fieldnames)
+    try:
+        attributes.remove('Progress')
+        attributes.remove('First Name')
+        attributes.remove('Email')
+    except:
+        raise ValueError('CSV file missing required attributes. Check file contents and resubmit.')
+
+    # Check if we are importing the participant or volunteer form.
+    isParticipant = False
+    try:
+        attributes.remove('Roles')
+    except:
+        isParticipant = True
+
     # For each entry in the CSV file...
     for entry in reader:
         num_entries = num_entries + 1
