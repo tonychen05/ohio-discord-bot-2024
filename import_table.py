@@ -6,16 +6,15 @@ import sys
 import csv
 import records
 
-JUDGE_ROLE_NUM = '1'
-MENTOR_ROLE_NUM = '2'
+# Be sure to check the Qualtrics forms for what these values should be.
+JUDGE_ROLE_NUM = '1' # A string that represents the judge role in the volunteer form.
+MENTOR_ROLE_NUM = '2' # A string that represents the mentor role in the volunteer form.
 
 # Variable to keep track of stats for report at the end.
 num_duplicates = 0
 num_error = 0
 num_unfinished = 0
 num_entries = 0
-
-#TODO this only works with leaders, need to make it work for participants
 
 with open(sys.argv[1], 'r') as csv_file:
     # Try to open the provided file name.
