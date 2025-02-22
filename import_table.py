@@ -30,7 +30,7 @@ with open(sys.argv[1], 'r') as csv_file:
 
         ### Collect data. ###
         # Check that the entry is for a completed response.
-        if entry['Progress'] != '100' or entry['Finished'] != '1':
+        if entry['Progress'] != '100':
             num_unfinished = num_unfinished + 1
             continue
 
@@ -38,7 +38,7 @@ with open(sys.argv[1], 'r') as csv_file:
         if entry['First Name'] == '':
             num_error = num_error + 1
             continue
-        fname = entry['First Name']
+        first_name = entry['First Name']
 
         # Check for and store the entry's email.
         if entry['Email'] == '':
@@ -46,15 +46,23 @@ with open(sys.argv[1], 'r') as csv_file:
             continue
         email = entry['Email']
 
-        # Check for and store the entry's roles.
-        if entry['Roles'] == '':
-            num_error = num_error + 1
-            continue
+        # Check for a roles attribute.
         roles = []
-        if entry['Roles'].find(JUDGE_ROLE_NUM) != -1:
-            roles.append('judge')
-        if entry['Roles'].find(MENTOR_ROLE_NUM) != -1:
-            roles.append('mentor')
+        try:
+            if entry['Roles'] == '':
+                # If the roles attribute exists but is blank,
+                # skip this entry.
+                num_error = num_error + 1
+                continue
+            # Add appropriate roles for the volunteer form.
+            if entry['Roles'].find(JUDGE_ROLE_NUM) != -1:
+                roles.append('judge')
+            if entry['Roles'].find(MENTOR_ROLE_NUM) != -1:
+                roles.append('mentor')
+        except KeyError:
+            # If the roles attribute does not exist,
+            # then we are importing the participant form.
+            roles.append('participant')
 
         ### Add data to database. ###
         #TODO check if entry already exists
