@@ -61,9 +61,11 @@ with open(sys.argv[1], 'r') as csv_file:
             continue
         email = entry['Email']
 
-        # Check for a roles attribute.
+        # Check for and store the entry's roles.
         roles = []
-        try:
+        if isParticipant:
+            roles.append('participant')
+        else:
             if entry['Roles'] == '':
                 # If the roles attribute exists but is blank,
                 # skip this entry.
@@ -74,10 +76,6 @@ with open(sys.argv[1], 'r') as csv_file:
                 roles.append('judge')
             if entry['Roles'].find(MENTOR_ROLE_NUM) != -1:
                 roles.append('mentor')
-        except KeyError:
-            # If the roles attribute does not exist,
-            # then we are importing the participant form.
-            roles.append('participant')
 
         ### Add data to database. ###
         #TODO check if entry already exists
