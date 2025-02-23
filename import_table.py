@@ -43,7 +43,6 @@ with open(sys.argv[1], 'r') as csv_file:
     attributes = set(reader.fieldnames)
     try:
         attributes.remove('Progress')
-        attributes.remove('First Name')
         attributes.remove('Email')
     except:
         raise ValueError('CSV file missing required attributes. Check file contents and resubmit.')
@@ -59,17 +58,10 @@ with open(sys.argv[1], 'r') as csv_file:
     for entry in reader:
         num_entries = num_entries + 1
 
-        ### Collect data. ###
         # Check that the entry is for a completed response.
         if entry['Progress'] != '100':
             num_unfinished = num_unfinished + 1
             continue
-
-        # Check for and store the entry's first name.
-        if entry['First Name'] == '':
-            num_error = num_error + 1
-            continue
-        first_name = entry['First Name']
 
         # Check for and store the entry's email.
         if entry['Email'] == '':
@@ -82,9 +74,8 @@ with open(sys.argv[1], 'r') as csv_file:
         if isParticipant:
             roles.append('participant')
         else:
+            # If the roles attribute exists but is blank, skip this entry.
             if entry['Roles'] == '':
-                # If the roles attribute exists but is blank,
-                # skip this entry.
                 num_error = num_error + 1
                 continue
             # Add appropriate roles for the volunteer form.
@@ -93,7 +84,13 @@ with open(sys.argv[1], 'r') as csv_file:
             if entry['Roles'].find(MENTOR_ROLE_NUM) != -1:
                 roles.append('mentor')
 
-        ### Add data to database. ###
+        # Check for and store all non-essential data.
+        data = {}
+        for attribute in DATA_ATTR.keys():
+            try:
+                data[DATA_ATTR[attribute]] = entry[attribute]
+            except:
+                pass
         #TODO check if entry already exists
         #TODO add entry to DB
 
