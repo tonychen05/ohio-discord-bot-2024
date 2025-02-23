@@ -13,12 +13,33 @@ JUDGE_ROLE_NUM = '1'
 MENTOR_ROLE_NUM = '2'
 """A string that represents the mentor role in the volunteer form's CSV file."""
 
-# If you need to import more data, modify this to include the additional attributes you need.
-DATA_ATTR = {
-    'First Name':'first_name'
+# If you need to import more data,
+# modify these dictionaries to include the additional attributes you need.
+PARTICIPANT_DATA_ATTR = {
+    'First Name':'first_name',
+    'Last Name': 'last_name',
+    'Q24': 'university',
+    'Q25': 'classTeam',
+    'Major': 'major',
+    'Grad Year': 'gradYear'
 }
 """
-A dictionary of attribute names that should be searched for and included as non-essential data.
+A dictionary of attribute names that should be searched for and included as non-essential data
+for the <b>participant form</b>.
+</br>
+The keys of this dictionary are the attribute names used in the CSV file.
+</br>
+The values of this dictionary are the attribute names used elsewhere in the bot code.
+"""
+VOLUNTEER_DATA_ATTR = {
+    'First Name':'first_name',
+    'Last Name': 'last_name',
+    'Company': 'company',
+    'Job Title ': 'jobTitle'
+}
+"""
+A dictionary of attribute names that should be searched for and included as non-essential data
+for the <b>volunteer form</b>.
 </br>
 The keys of this dictionary are the attribute names used in the CSV file.
 </br>
@@ -49,10 +70,12 @@ with open(sys.argv[1], 'r') as csv_file:
 
     # Check if we are importing the participant or volunteer form.
     isParticipant = False
+    data_attr = VOLUNTEER_DATA_ATTR
     try:
         attributes.remove('Roles')
     except:
         isParticipant = True
+        data_attr = PARTICIPANT_DATA_ATTR
 
     # For each entry in the CSV file...
     for entry in reader:
@@ -86,9 +109,9 @@ with open(sys.argv[1], 'r') as csv_file:
 
         # Check for and store all non-essential data.
         data = {}
-        for attribute in DATA_ATTR.keys():
+        for attribute in data_attr.keys():
             try:
-                data[DATA_ATTR[attribute]] = entry[attribute]
+                data[data_attr[attribute]] = entry[attribute]
             except:
                 pass
 
@@ -98,12 +121,12 @@ with open(sys.argv[1], 'r') as csv_file:
             old_entry = records.get_registered_user(email)
             is_duplicate = old_entry['roles'] == roles
 
-            # Check all attributes in DATA_ATTR.
-            for attribute in DATA_ATTR.values():
+            # Check all attributes in data_attr.
+            for attribute in data_attr.values():
                 try:
                     is_duplicate = is_duplicate and old_entry['data'][attribute] == data[attribute]
                 except:
-                    # If a key does not exist, then an attribute was added to DATA_ATTR.
+                    # If a key does not exist, then an attribute was added to data_attr.
                     is_duplicate = False
                     break
 
@@ -112,7 +135,7 @@ with open(sys.argv[1], 'r') as csv_file:
                 try:
                     is_duplicate = is_duplicate and old_entry['data'][attribute] == data[attribute]
                 except:
-                    # If a key does not exist, then an attribute was removed from DATA_ATTR.
+                    # If a key does not exist, then an attribute was removed from data_attr.
                     is_duplicate = False
                     break
 
