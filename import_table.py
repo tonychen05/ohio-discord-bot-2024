@@ -102,7 +102,7 @@ num_unfinished = num_unfinished - 2
 
 # Output statistics to help with any troubleshooting that may come up.
 print(f'Finished importing {sys.argv[1]}')
-print(f'Processing time: {time.time() - start_time:.4f} seconds')
+print(f'Processing time: {time.time() - start_time:.3f} seconds')
 print(f'Total number of entries processed: {num_entries}')
 print(f'-----------------------------------------')
 print(f'Number of entries added to database:', end=' ')
