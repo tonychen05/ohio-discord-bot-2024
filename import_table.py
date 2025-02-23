@@ -8,8 +8,22 @@ import records
 import time
 
 # Be sure to check the Qualtrics forms for what these values should be.
-JUDGE_ROLE_NUM = '1' # A string that represents the judge role in the volunteer form.
-MENTOR_ROLE_NUM = '2' # A string that represents the mentor role in the volunteer form.
+JUDGE_ROLE_NUM = '1'
+"""A string that represents the judge role in the volunteer form's CSV file."""
+MENTOR_ROLE_NUM = '2'
+"""A string that represents the mentor role in the volunteer form's CSV file."""
+
+# If you need to import more data, modify this to include the additional attributes you need.
+DATA_ATTR = {
+    'First Name':'first_name'
+}
+"""
+A dictionary of attribute names that should be searched for and included as non-essential data.
+</br>
+The keys of this dictionary are the attribute names used in the CSV file.
+</br>
+The values of this dictionary are the attribute names used elsewhere in the bot code.
+"""
 
 # Variable to keep track of stats for report at the end.
 num_duplicates = 0
