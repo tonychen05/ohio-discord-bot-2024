@@ -69,12 +69,12 @@ with open(sys.argv[1], 'r') as csv_file:
         raise ValueError('CSV file missing required attributes. Check file contents and resubmit.')
 
     # Check if we are importing the participant or volunteer form.
-    isParticipant = False
+    is_participant = False
     data_attr = VOLUNTEER_DATA_ATTR
     try:
         attributes.remove('Roles')
     except:
-        isParticipant = True
+        is_participant = True
         data_attr = PARTICIPANT_DATA_ATTR
 
     # For each entry in the CSV file...
@@ -94,7 +94,7 @@ with open(sys.argv[1], 'r') as csv_file:
 
         # Check for and store the entry's roles.
         roles = []
-        if isParticipant:
+        if is_participant:
             roles.append('participant')
         else:
             # If the roles attribute exists but is blank, skip this entry.
