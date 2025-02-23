@@ -5,6 +5,7 @@ Any entires already in the database are ignored during the import.
 import sys
 import csv
 import records
+import time
 
 # Be sure to check the Qualtrics forms for what these values should be.
 JUDGE_ROLE_NUM = '1' # A string that represents the judge role in the volunteer form.
@@ -15,6 +16,7 @@ num_duplicates = 0
 num_error = 0
 num_unfinished = 0
 num_entries = 0
+start_time = time.time()
 
 with open(sys.argv[1], 'r') as csv_file:
     # Try to open the provided file name.
@@ -89,6 +91,7 @@ num_unfinished = num_unfinished - 2
 
 # Output statistics to help with any troubleshooting that may come up.
 print(f'Finished importing {sys.argv[1]}')
+print(f'Processing time: {time.time() - start_time:.4f} seconds')
 print(f'Total number of entries processed: {num_entries}')
 print(f'-----------------------------------------')
 print(f'Number of entries added to database:', end=' ')
