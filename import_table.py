@@ -102,9 +102,9 @@ with open(sys.argv[1], 'r') as csv_file:
                 num_error = num_error + 1
                 continue
             # Add appropriate roles for the volunteer form.
-            if entry['Roles'].find(JUDGE_ROLE_NUM) != -1:
+            if JUDGE_ROLE_NUM in entry['Roles']:
                 roles.append('judge')
-            if entry['Roles'].find(MENTOR_ROLE_NUM) != -1:
+            if MENTOR_ROLE_NUM in entry['Roles']:
                 roles.append('mentor')
 
         # Check for and store all non-essential data.
