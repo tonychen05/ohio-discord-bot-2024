@@ -67,7 +67,7 @@ with open(sys.argv[1], 'r') as csv_file:
         if entry['Email'] == '':
             num_error = num_error + 1
             continue
-        email = entry['Email']
+        email = entry['Email'].replace(' ', '')
 
         # Check for and store the entry's roles.
         roles = []
