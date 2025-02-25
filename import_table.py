@@ -53,7 +53,7 @@ num_unfinished = 0
 num_entries = 0
 start_time = time.time()
 
-with open(sys.argv[1], 'r') as csv_file:
+with open(sys.argv[1], 'r', encoding="utf-8") as csv_file:
     # Try to open the provided file name.
     try:
         reader = csv.DictReader(csv_file, delimiter=',')
