@@ -56,16 +56,19 @@ start_time = time.time()
 with open(sys.argv[1], 'r', encoding="utf-8") as csv_file:
     # Try to open the provided file name.
     try:
+        assert sys.argv[1].lower().endswith('.csv')
         reader = csv.DictReader(csv_file, delimiter=',')
-    except:
-        raise BaseException('Cannot read/import CSV file. Check format and resubmit.')
+    except AssertionError:
+        raise BaseException('Not a CSV file. Check format and resubmit.')
 
     # Verify that the file has all the attributes we need.
-    attributes = set(reader.fieldnames)
     try:
+        attributes = set(reader.fieldnames)
         attributes.remove('Progress')
         attributes.remove('Email')
-    except:
+    except TypeError:
+        raise ValueError('CSV file not formatted correctly. Check file contents and resubmit.')
+    except KeyError:
         raise ValueError('CSV file missing required attributes. Check file contents and resubmit.')
 
     # Check if we are importing the participant or volunteer form.
@@ -73,7 +76,7 @@ with open(sys.argv[1], 'r', encoding="utf-8") as csv_file:
     data_attr = VOLUNTEER_DATA_ATTR
     try:
         attributes.remove('Roles')
-    except:
+    except KeyError:
         is_participant = True
         data_attr = PARTICIPANT_DATA_ATTR
 
@@ -112,7 +115,7 @@ with open(sys.argv[1], 'r', encoding="utf-8") as csv_file:
         for attribute in data_attr.keys():
             try:
                 data[data_attr[attribute]] = entry[attribute]
-            except:
+            except KeyError:
                 pass
 
         # Add this entry's data to the database if it is not a duplicate.
@@ -125,7 +128,7 @@ with open(sys.argv[1], 'r', encoding="utf-8") as csv_file:
             for attribute in data_attr.values():
                 try:
                     is_duplicate = is_duplicate and old_entry['data'][attribute] == data[attribute]
-                except:
+                except KeyError:
                     # If a key does not exist, then an attribute was added to data_attr.
                     is_duplicate = False
                     break
@@ -134,7 +137,7 @@ with open(sys.argv[1], 'r', encoding="utf-8") as csv_file:
             for attribute in old_entry['data'].keys():
                 try:
                     is_duplicate = is_duplicate and old_entry['data'][attribute] == data[attribute]
-                except:
+                except KeyError:
                     # If a key does not exist, then an attribute was removed from data_attr.
                     is_duplicate = False
                     break
