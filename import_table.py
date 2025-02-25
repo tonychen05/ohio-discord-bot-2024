@@ -67,7 +67,8 @@ with open(sys.argv[1], 'r', encoding='utf-8') as csv_file:
         assert sys.argv[1].lower().endswith('.csv')
         reader = csv.DictReader(csv_file, delimiter=',')
     except AssertionError:
-        raise BaseException('Not a CSV file. Check format and resubmit.')
+        print('ERROR: Not a CSV file. Check format and resubmit.')
+        sys.exit(2)
 
     # Verify that the file has all the attributes we need.
     try:
@@ -75,9 +76,11 @@ with open(sys.argv[1], 'r', encoding='utf-8') as csv_file:
         attributes.remove('Progress')
         attributes.remove('Email')
     except TypeError:
-        raise ValueError('CSV file not formatted correctly. Check file contents and resubmit.')
+        print('ERROR: CSV file not formatted correctly. Check file contents and resubmit.')
+        sys.exit(2)
     except KeyError:
-        raise ValueError('CSV file missing required attributes. Check file contents and resubmit.')
+        print('ERROR: CSV file missing required attributes. Check file contents and resubmit.')
+        sys.exit(2)
 
     # Check if we are importing the participant or volunteer form.
     is_participant = False
