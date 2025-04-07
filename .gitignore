@@ -9,3 +9,6 @@ alter_records.py
 *.pyc
 *.ppk
 *.csv
+.*
+!.gitignore
+
