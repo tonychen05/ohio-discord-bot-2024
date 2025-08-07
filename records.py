@@ -172,9 +172,11 @@ def get_registered_user(email: str) -> dict:
     # Convert data string to dictionary
     data = {
         'email': data_tuple[0],
-        'roles': json.loads(data_tuple[1]),
-        'data': json.loads(data_tuple[2]),
-        'discord_id': data_tuple[3]
+        'is_participant': data_tuple[1],
+        'is_judge': data_tuple[2],
+        'is_mentor': data_tuple[3],
+        'data': json.loads(data_tuple[4]),
+        'discord_id': data_tuple[5]
     }
 
     return data
