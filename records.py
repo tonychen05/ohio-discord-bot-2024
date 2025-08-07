@@ -247,10 +247,15 @@ def team_exists(team_id: int) -> bool:
 
 def get_roles(email: str) -> list:
     cursor.execute(
-        f'SELECT roles FROM {_REG_RESPONSES_TABLE_NAME} WHERE email = ?',
+        f'SELECT is_participant, is_judge, is_mentor FROM {_REG_RESPONSES_TABLE_NAME} WHERE email = ?',
         (email,)
     )
-    return json.loads(cursor.fetchone()[0])
+    row = cursor.fetchone()
+    roles = []
+    if row[0]: roles.append('participant')
+    if row[1]: roles.append('judge')
+    if row[2]: roles.append('mentor')
+    return roles
 
 def reassign_roles(email: str, roles: list):
     roles = json.dumps(roles)
