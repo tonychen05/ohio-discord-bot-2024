@@ -133,7 +133,9 @@ with open(sys.argv[1], 'r', encoding='utf-8') as csv_file:
         if records.registered_user_exists(email):
             # Get the existing version of this entry.
             old_entry = records.get_registered_user(email)
-            is_duplicate = old_entry['roles'] == roles
+
+            # Check if the roles are the same.
+            is_duplicate = set(records.get_roles(email)) == set(roles)
 
             # Check all attributes in data_attr.
             for attribute in data_attr.values():
