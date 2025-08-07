@@ -258,10 +258,14 @@ def get_roles(email: str) -> list:
     return roles
 
 def reassign_roles(email: str, roles: list):
-    roles = json.dumps(roles)
+    #Extract the roles from the provided role list
+    is_participant = True if 'participant' in roles else False
+    is_judge = True if 'judge' in roles else False
+    is_mentor = True if 'mentor' in roles else False
+
     cursor.execute(
-        f'UPDATE {_REG_RESPONSES_TABLE_NAME} SET roles=? WHERE email=?',
-        (roles, email)
+        f'UPDATE {_REG_RESPONSES_TABLE_NAME} SET is_participant=?, is_judge=?, is_mentor=? WHERE email=?',
+        (is_participant, is_judge, is_mentor, email)
     )
 
 def get_first_name(email: str) -> str:
