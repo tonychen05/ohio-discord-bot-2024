@@ -58,7 +58,9 @@ def _initialize_db(cursor: sqlite3.Cursor):
     cursor.execute(
         f"""CREATE TABLE {_REG_RESPONSES_TABLE_NAME} ( 
             email TEXT NOT NULL, 
-            roles TEXT NOT NULL, 
+            is_participant BOOLEAN NOT NULL,
+            is_judge BOOLEAN NOT NULL,
+            is_mentor BOOLEAN NOT NULL,
             data TEXT,
             discord_id INTEGER
             )
