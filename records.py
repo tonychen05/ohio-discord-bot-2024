@@ -109,13 +109,19 @@ def add_registered_user(email: str, roles: list, data: dict):
     if registered_user_exists(email):
         remove_registered_user(email)
     
-    roles = json.dumps(roles)
+    #Extract the roles from the provided role list
+    is_participant = True if 'participant' in roles else False
+    is_judge = True if 'judge' in roles else False
+    is_mentor = True if 'mentor' in roles else False
+
+    #Convert the data dictionary into a string
     data = json.dumps(data)
 
     #Add Registered user back with newest form submission information
     cursor.execute(
-        f'INSERT INTO {_REG_RESPONSES_TABLE_NAME} (email, roles, data) VALUES (?, ?, ?)',
-        (email, roles, data)
+        f'INSERT INTO {_REG_RESPONSES_TABLE_NAME} (email, is_participant, is_judge, is_mentor, data)'
+        + ' VALUES (?, ?, ?, ?, ?)',
+        (email, is_participant, is_judge, is_mentor, data)
     )
 
 def add_verified_user(discord_id: int, email: str, username: str):
