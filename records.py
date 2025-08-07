@@ -305,7 +305,7 @@ def verified_email_exists(email: str) -> bool:
     }).fetchone() is not None
 
 def user_is_participant(user_id: int) -> bool:
-    roles = get_registered_user(get_verified_email(user_id))['roles']
+    roles = get_roles(get_verified_email(user_id))
     return 'participant' in roles
 
 
