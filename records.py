@@ -7,6 +7,9 @@ _DATABASE_FILE = 'records.db'
 """
 Registrant Scheme {
     EMAIL: TEXT*,
+    IS_PARTICIPANT: BOOLEAN,
+    IS_JUDGE: BOOLEAN,
+    IS_MENTOR, BOOLEAN,
     DATA: TEXT (JSON parsed){
         FIRST_NAME: TEXT,
         LAST_NAME: TEXT,
@@ -16,7 +19,6 @@ Registrant Scheme {
         ... (other fields)
         header_name: contents
     }
-    ROLES: TEXT (Array parsed)
     DISCORD_ID: TEXT (Used during email verification, ties email to user_id before adding to verification table)
 }
 
