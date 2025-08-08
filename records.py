@@ -194,6 +194,13 @@ def remove_registered_user(email: str):
         f'DELETE FROM {_REG_RESPONSES_TABLE_NAME} WHERE email = ?',
         (email,)
     )
+    remove_user_data(email)
+
+def remove_user_data(email: str):
+    cursor.execute(
+        f'DELETE FROM {_REG_DATA_TABLE_NAME} WHERE email = ?',
+        (email,)
+    )
 
 def remove_verified_user(discord_id: int):
     cursor.execute(
