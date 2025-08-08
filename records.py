@@ -10,16 +10,20 @@ Registrant Scheme {
     IS_PARTICIPANT: BOOLEAN,
     IS_JUDGE: BOOLEAN,
     IS_MENTOR, BOOLEAN,
-    DATA: TEXT (JSON parsed){
-        FIRST_NAME: TEXT,
-        LAST_NAME: TEXT,
-        UNIVERSITY: TEXT,
-        MAJOR: TEXT,
-        GRAD_YEAR: INTEGER,
-        ... (other fields)
-        header_name: contents
-    }
     DISCORD_ID: TEXT (Used during email verification, ties email to user_id before adding to verification table)
+}
+
+Data Scheme {
+    email: TEXT REFERENCES {_REG_RESPONSES_TABLE_NAME}(email),
+    first_name: TEXT,
+    last_name: TEXT,
+    university: TEXT,
+    class_time: TEXT,
+    major: TEXT,
+    grad_year: INTEGER,
+    company: TEXT,
+    job_title: TEXT,
+    ... (other fields as needed)
 }
 
 Verified Scheme {
@@ -49,6 +53,7 @@ Code Scheme {
 """
 
 _REG_RESPONSES_TABLE_NAME = 'registration'
+_REG_DATA_TABLE_NAME = 'data'
 _VERIFIED_TABLE_NAME = 'verified'
 _TEAM_TABLE_NAME = 'teams'
 _CODE_TABLE_NAME = 'codes'
@@ -63,8 +68,22 @@ def _initialize_db(cursor: sqlite3.Cursor):
             is_participant BOOLEAN NOT NULL,
             is_judge BOOLEAN NOT NULL,
             is_mentor BOOLEAN NOT NULL,
-            data TEXT,
             discord_id INTEGER
+            )
+        """)
+
+    # Table for registrant data
+    cursor.execute(
+        f"""CREATE TABLE {_REG_DATA_TABLE_NAME} (
+            email TEXT NOT NULL REFERENCES {_REG_RESPONSES_TABLE_NAME}(email),
+            first_name TEXT,
+            last_name TEXT,
+            university TEXT,
+            class_team TEXT,
+            major TEXT,
+            grad_year INTEGER,
+            company TEXT,
+            job_title TEXT
             )
         """)
 
