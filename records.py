@@ -143,6 +143,36 @@ def add_registered_user(email: str, roles: list, data: dict):
         (email, is_participant, is_judge, is_mentor, data)
     )
 
+def add_user_data(email: str, data: dict):
+
+    #Define an empty data dictionary
+    user_data = {
+        'first_name': None,
+        'last_name': None,
+        'university': None,
+        'class_team': None,
+        'major': None,
+        'grad_year': None,
+        'company': None,
+        'job_title': None
+    }
+
+    #Extract data from the dictionary
+    for attribute in data:
+        try:
+            user_data[attribute] = data[attribute]
+        except KeyError:
+            pass
+
+    #Insert user data into the database
+    cursor.execute(
+        f'INSERT INTO {_REG_DATA_TABLE_NAME} (email, first_name, last_name, university, class_team, '
+        + 'major, grad_year, company, job_title)'
+        + ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        (email, user_data['first_name'], user_data['last_name'], user_data['university'], user_data['class_team'],
+         user_data['major'], user_data['grad_year'], user_data['company'], user_data['job_title'])
+    )
+
 def add_verified_user(discord_id: int, email: str, username: str):
     cursor.execute(
         f'INSERT INTO {_VERIFIED_TABLE_NAME} (discord_id, email, username) VALUES (?, ?, ?)',
