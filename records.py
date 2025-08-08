@@ -72,7 +72,7 @@ def _initialize_db(cursor: sqlite3.Cursor):
             )
         """)
 
-    # Table for registrant data
+    # Table for registrant/user data
     cursor.execute(
         f"""CREATE TABLE {_REG_DATA_TABLE_NAME} (
             email TEXT NOT NULL REFERENCES {_REG_RESPONSES_TABLE_NAME}(email),
@@ -133,14 +133,14 @@ def add_registered_user(email: str, roles: list, data: dict):
     is_judge = True if 'judge' in roles else False
     is_mentor = True if 'mentor' in roles else False
 
-    #Convert the data dictionary into a string
-    data = json.dumps(data)
+    #Add user data to the data table
+    add_user_data(email, data)
 
     #Add Registered user back with newest form submission information
     cursor.execute(
-        f'INSERT INTO {_REG_RESPONSES_TABLE_NAME} (email, is_participant, is_judge, is_mentor, data)'
-        + ' VALUES (?, ?, ?, ?, ?)',
-        (email, is_participant, is_judge, is_mentor, data)
+        f'INSERT INTO {_REG_RESPONSES_TABLE_NAME} (email, is_participant, is_judge, is_mentor)'
+        + ' VALUES (?, ?, ?, ?)',
+        (email, is_participant, is_judge, is_mentor)
     )
 
 def add_user_data(email: str, data: dict):
