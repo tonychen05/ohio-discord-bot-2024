@@ -285,6 +285,13 @@ def registered_user_exists(email: str) -> bool:
     )
     return cursor.fetchone() is not None
 
+def user_data_exists(email: str) -> bool:
+    cursor.execute(
+        f'SELECT * FROM {_REG_DATA_TABLE_NAME} WHERE email = ?',
+        (email,)
+    )
+    return cursor.fetchone() is not None
+
 def verified_user_exists(discord_id: int) -> bool:
     cursor.execute(
         f'SELECT * FROM {_VERIFIED_TABLE_NAME} WHERE discord_id = ?',
