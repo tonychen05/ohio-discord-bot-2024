@@ -231,8 +231,7 @@ def get_registered_user(email: str) -> dict:
         'is_participant': data_tuple[1],
         'is_judge': data_tuple[2],
         'is_mentor': data_tuple[3],
-        'data': json.loads(data_tuple[4]),
-        'discord_id': data_tuple[5]
+        'discord_id': data_tuple[4]
     }
 
     return data
