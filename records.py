@@ -237,6 +237,30 @@ def get_registered_user(email: str) -> dict:
 
     return data
 
+def get_user_data(email: str) -> dict:
+    cursor.execute(
+        f'SELECT * FROM {_REG_DATA_TABLE_NAME} WHERE email = ?',
+        (email,)
+    )
+    data_tuple = cursor.fetchone()
+    if data_tuple is None:
+        return None
+    
+    # Convert data string to dictionary
+    data = {
+        'email': data_tuple[0],
+        'first_name': data_tuple[1],
+        'last_name': data_tuple[2],
+        'university': data_tuple[3],
+        'class_team': data_tuple[4],
+        'major': data_tuple[5],
+        'grad_year': data_tuple[6],
+        'company': data_tuple[7],
+        'job_title': data_tuple[8]
+    }
+
+    return data
+
 def get_verified_user(discord_id: int) -> dict:
     cursor.execute(
         f'SELECT * FROM {_VERIFIED_TABLE_NAME} WHERE discord_id = ?',
