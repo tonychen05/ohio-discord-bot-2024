@@ -39,6 +39,9 @@ num_unfinished = 0
 num_entries = 0
 start_time = time.time()
 
+# Print a startup message.
+print(f'Started importing {sys.argv[1]}, please wait...')
+
 # Check that the correct number of command line arguments were given.
 try:
     assert len(sys.argv) == 2
