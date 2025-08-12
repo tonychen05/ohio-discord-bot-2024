@@ -81,7 +81,7 @@ def _initialize_db(cursor: sqlite3.Cursor):
             university TEXT,
             class_team TEXT,
             major TEXT,
-            grad_year INTEGER,
+            grad_year TEXT,
             company TEXT,
             job_title TEXT
             )
