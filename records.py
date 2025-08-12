@@ -362,11 +362,6 @@ def get_first_name(email: str) -> str:
     else:
         return first_name
 
-
-def has_first_name(email:str) -> bool:
-    userData = get_registered_user(email)
-    return 'first_name' in userData['data']
-
 def update_reg_discord_id(email:str, discord_id:int):
     cursor.execute(f"UPDATE {_REG_RESPONSES_TABLE_NAME} SET discord_id=:discord_id where email=:email", {
         'discord_id':discord_id,
