@@ -355,10 +355,13 @@ def reassign_roles(email: str, roles: list):
     )
 
 def get_first_name(email: str) -> str:
-    if not has_first_name(email):
+    first_name = get_user_data(email)['first_name']
+    if not first_name:
+        # Empty strings and None have a truth value of False.
         return "Hackathon Registrant"
     else:
-        return get_registered_user(email)['data']['first_name']
+        return first_name
+
 
 def has_first_name(email:str) -> bool:
     userData = get_registered_user(email)
