@@ -106,7 +106,7 @@ with open(sys.argv[1], 'r', encoding='utf-8') as csv_file:
                 roles.append('mentor')
 
         # Check for and store all user data.
-        data = {}
+        data = {'email': email}
         for attribute in DATA_ATTR.keys():
             try:
                 data[DATA_ATTR[attribute]] = entry[attribute]
