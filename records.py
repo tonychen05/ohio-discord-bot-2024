@@ -18,7 +18,7 @@ Data Scheme {
     first_name: TEXT,
     last_name: TEXT,
     university: TEXT,
-    class_time: TEXT,
+    class_team: TEXT,
     major: TEXT,
     grad_year: INTEGER,
     company: TEXT,
