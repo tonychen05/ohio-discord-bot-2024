@@ -7,17 +7,23 @@ _DATABASE_FILE = 'records.db'
 """
 Registrant Scheme {
     EMAIL: TEXT*,
-    DATA: TEXT (JSON parsed){
-        FIRST_NAME: TEXT,
-        LAST_NAME: TEXT,
-        UNIVERSITY: TEXT,
-        MAJOR: TEXT,
-        GRAD_YEAR: INTEGER,
-        ... (other fields)
-        header_name: contents
-    }
-    ROLES: TEXT (Array parsed)
+    IS_PARTICIPANT: BOOLEAN,
+    IS_JUDGE: BOOLEAN,
+    IS_MENTOR, BOOLEAN,
     DISCORD_ID: TEXT (Used during email verification, ties email to user_id before adding to verification table)
+}
+
+Data Scheme {
+    email: TEXT REFERENCES {_REG_RESPONSES_TABLE_NAME}(email),
+    first_name: TEXT,
+    last_name: TEXT,
+    university: TEXT,
+    class_team: TEXT,
+    major: TEXT,
+    grad_year: INTEGER,
+    company: TEXT,
+    job_title: TEXT,
+    ... (other fields as needed)
 }
 
 Verified Scheme {
@@ -47,6 +53,7 @@ Code Scheme {
 """
 
 _REG_RESPONSES_TABLE_NAME = 'registration'
+_REG_DATA_TABLE_NAME = 'data'
 _VERIFIED_TABLE_NAME = 'verified'
 _TEAM_TABLE_NAME = 'teams'
 _CODE_TABLE_NAME = 'codes'
@@ -58,9 +65,25 @@ def _initialize_db(cursor: sqlite3.Cursor):
     cursor.execute(
         f"""CREATE TABLE {_REG_RESPONSES_TABLE_NAME} ( 
             email TEXT NOT NULL, 
-            roles TEXT NOT NULL, 
-            data TEXT,
+            is_participant BOOLEAN NOT NULL,
+            is_judge BOOLEAN NOT NULL,
+            is_mentor BOOLEAN NOT NULL,
             discord_id INTEGER
+            )
+        """)
+
+    # Table for registrant/user data
+    cursor.execute(
+        f"""CREATE TABLE {_REG_DATA_TABLE_NAME} (
+            email TEXT NOT NULL REFERENCES {_REG_RESPONSES_TABLE_NAME}(email),
+            first_name TEXT,
+            last_name TEXT,
+            university TEXT,
+            class_team TEXT,
+            major TEXT,
+            grad_year TEXT,
+            company TEXT,
+            job_title TEXT
             )
         """)
 
@@ -105,13 +128,49 @@ def add_registered_user(email: str, roles: list, data: dict):
     if registered_user_exists(email):
         remove_registered_user(email)
     
-    roles = json.dumps(roles)
-    data = json.dumps(data)
+    #Extract the roles from the provided role list
+    is_participant = True if 'participant' in roles else False
+    is_judge = True if 'judge' in roles else False
+    is_mentor = True if 'mentor' in roles else False
+
+    #Add user data to the data table
+    add_user_data(email, data)
 
     #Add Registered user back with newest form submission information
     cursor.execute(
-        f'INSERT INTO {_REG_RESPONSES_TABLE_NAME} (email, roles, data) VALUES (?, ?, ?)',
-        (email, roles, data)
+        f'INSERT INTO {_REG_RESPONSES_TABLE_NAME} (email, is_participant, is_judge, is_mentor)'
+        + ' VALUES (?, ?, ?, ?)',
+        (email, is_participant, is_judge, is_mentor)
+    )
+
+def add_user_data(email: str, data: dict):
+
+    #Define an empty data dictionary
+    user_data = {
+        'first_name': None,
+        'last_name': None,
+        'university': None,
+        'class_team': None,
+        'major': None,
+        'grad_year': None,
+        'company': None,
+        'job_title': None
+    }
+
+    #Extract data from the dictionary
+    for attribute in data:
+        try:
+            user_data[attribute] = data[attribute]
+        except KeyError:
+            pass
+
+    #Insert user data into the database
+    cursor.execute(
+        f'INSERT INTO {_REG_DATA_TABLE_NAME} (email, first_name, last_name, university, class_team, '
+        + 'major, grad_year, company, job_title)'
+        + ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        (email, user_data['first_name'], user_data['last_name'], user_data['university'], user_data['class_team'],
+         user_data['major'], user_data['grad_year'], user_data['company'], user_data['job_title'])
     )
 
 def add_verified_user(discord_id: int, email: str, username: str):
@@ -133,6 +192,13 @@ def create_team(team_name: str, channels: dict) -> int:
 def remove_registered_user(email: str):
     cursor.execute(
         f'DELETE FROM {_REG_RESPONSES_TABLE_NAME} WHERE email = ?',
+        (email,)
+    )
+    remove_user_data(email)
+
+def remove_user_data(email: str):
+    cursor.execute(
+        f'DELETE FROM {_REG_DATA_TABLE_NAME} WHERE email = ?',
         (email,)
     )
 
@@ -162,9 +228,34 @@ def get_registered_user(email: str) -> dict:
     # Convert data string to dictionary
     data = {
         'email': data_tuple[0],
-        'roles': json.loads(data_tuple[1]),
-        'data': json.loads(data_tuple[2]),
-        'discord_id': data_tuple[3]
+        'is_participant': data_tuple[1],
+        'is_judge': data_tuple[2],
+        'is_mentor': data_tuple[3],
+        'discord_id': data_tuple[4]
+    }
+
+    return data
+
+def get_user_data(email: str) -> dict:
+    cursor.execute(
+        f'SELECT * FROM {_REG_DATA_TABLE_NAME} WHERE email = ?',
+        (email,)
+    )
+    data_tuple = cursor.fetchone()
+    if data_tuple is None:
+        return None
+    
+    # Convert data string to dictionary
+    data = {
+        'email': data_tuple[0],
+        'first_name': data_tuple[1],
+        'last_name': data_tuple[2],
+        'university': data_tuple[3],
+        'class_team': data_tuple[4],
+        'major': data_tuple[5],
+        'grad_year': data_tuple[6],
+        'company': data_tuple[7],
+        'job_title': data_tuple[8]
     }
 
     return data
@@ -217,6 +308,13 @@ def registered_user_exists(email: str) -> bool:
     )
     return cursor.fetchone() is not None
 
+def user_data_exists(email: str) -> bool:
+    cursor.execute(
+        f'SELECT * FROM {_REG_DATA_TABLE_NAME} WHERE email = ?',
+        (email,)
+    )
+    return cursor.fetchone() is not None
+
 def verified_user_exists(discord_id: int) -> bool:
     cursor.execute(
         f'SELECT * FROM {_VERIFIED_TABLE_NAME} WHERE discord_id = ?',
@@ -235,27 +333,34 @@ def team_exists(team_id: int) -> bool:
 
 def get_roles(email: str) -> list:
     cursor.execute(
-        f'SELECT roles FROM {_REG_RESPONSES_TABLE_NAME} WHERE email = ?',
+        f'SELECT is_participant, is_judge, is_mentor FROM {_REG_RESPONSES_TABLE_NAME} WHERE email = ?',
         (email,)
     )
-    return json.loads(cursor.fetchone()[0])
+    row = cursor.fetchone()
+    roles = []
+    if row[0]: roles.append('participant')
+    if row[1]: roles.append('judge')
+    if row[2]: roles.append('mentor')
+    return roles
 
 def reassign_roles(email: str, roles: list):
-    roles = json.dumps(roles)
+    #Extract the roles from the provided role list
+    is_participant = True if 'participant' in roles else False
+    is_judge = True if 'judge' in roles else False
+    is_mentor = True if 'mentor' in roles else False
+
     cursor.execute(
-        f'UPDATE {_REG_RESPONSES_TABLE_NAME} SET roles=? WHERE email=?',
-        (roles, email)
+        f'UPDATE {_REG_RESPONSES_TABLE_NAME} SET is_participant=?, is_judge=?, is_mentor=? WHERE email=?',
+        (is_participant, is_judge, is_mentor, email)
     )
 
 def get_first_name(email: str) -> str:
-    if not has_first_name(email):
+    first_name = get_user_data(email)['first_name']
+    if not first_name:
+        # Empty strings and None have a truth value of False.
         return "Hackathon Registrant"
     else:
-        return get_registered_user(email)['data']['first_name']
-
-def has_first_name(email:str) -> bool:
-    userData = get_registered_user(email)
-    return 'first_name' in userData['data']
+        return first_name
 
 def update_reg_discord_id(email:str, discord_id:int):
     cursor.execute(f"UPDATE {_REG_RESPONSES_TABLE_NAME} SET discord_id=:discord_id where email=:email", {
@@ -284,7 +389,7 @@ def verified_email_exists(email: str) -> bool:
     }).fetchone() is not None
 
 def user_is_participant(user_id: int) -> bool:
-    roles = get_registered_user(get_verified_email(user_id))['roles']
+    roles = get_roles(get_verified_email(user_id))
     return 'participant' in roles
 
 

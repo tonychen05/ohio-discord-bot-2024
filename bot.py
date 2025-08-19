@@ -388,7 +388,10 @@ async def overify(ctxt, flags: registerFlag): #TESTED
         await ctxt.send(ephemeral=True,
                         content=f"`<{role}>` is not a valid role. \nPlease chose either `participant`, `mentor`, or `judge`")
         return
-    
+
+    # If User is not registered, add a registered user with no data
+    if not records.registered_user_exists(email):
+        records.add_registered_user(email, [role], {})
 
     # Check if user is already verified
     if records.verified_user_exists(user.id):
@@ -412,10 +415,6 @@ async def overify(ctxt, flags: registerFlag): #TESTED
         await ctxt.send(ephemeral=True,
                         content=f"`<{user.name}>` is already verified but has been given the role `<{role}>`.")
         return
-
-    # If User is not registered, add a registered user with no data
-    if not records.registered_user_exists(email):
-        records.add_registered_user(email, [role], {})
     
     # Add user to verified database
     records.add_verified_user(user.id, email, user.name)
