@@ -5,50 +5,50 @@ import json
 _DATABASE_FILE = 'records.db'
 
 """
-Registrant Scheme {
-    EMAIL: TEXT*,
-    IS_PARTICIPANT: BOOLEAN,
-    IS_JUDGE: BOOLEAN,
-    IS_MENTOR, BOOLEAN,
-    DISCORD_ID: TEXT (Used during email verification, ties email to user_id before adding to verification table)
+Registration Scheme {
+    email TEXT NOT NULL,
+    is_participant BOOLEAN NOT NULL,
+    is_judge BOOLEAN NOT NULL,
+    is_mentor BOOLEAN NOT NULL,
+    discord_id INTEGER (Used during email verification, ties email to user_id before adding to verification table)
 }
 
 Data Scheme {
-    email: TEXT REFERENCES {_REG_RESPONSES_TABLE_NAME}(email),
-    first_name: TEXT,
-    last_name: TEXT,
-    university: TEXT,
-    class_team: TEXT,
-    major: TEXT,
-    grad_year: INTEGER,
-    company: TEXT,
-    job_title: TEXT,
+    email TEXT NOT NULL REFERENCES {_REG_RESPONSES_TABLE_NAME}(email),
+    first_name TEXT,
+    last_name TEXT,
+    university TEXT,
+    class_team TEXT,
+    major TEXT,
+    grad_year TEXT,
+    company TEXT,
+    job_title TEXT,
     ... (other fields as needed)
 }
 
 Verified Scheme {
-    DISCORD_ID: INTEGER* PRIMARY KEY,
-    EMAIL: TEXT*,
-    TEAM_ID: INTEGER REFERENCES {_TEAM_TABLE_NAME}(id)
-    USERNAME: TEXT*
+    discord_id INTEGER UNIQUE PRIMARY KEY,
+    team_id REFERENCES {_TEAM_TABLE_NAME}(id),
+    email TEXT UNIQUE NOT NULL,
+    username TEXT UNIQUE NOT NULL
 }
 
-- Channels is a JSON object that can have a variable number of channels, 
-  Channel Keys are (TEXT, VOICE, CATEGORY*)
-
 Team Scheme {
-    ID: INTEGER PRIMARY KEY AUTOINCREMENT,
-    NAME: TEXT UNIQUE,
-    CHANNELS: TEXT* (JSON parsed) {
-        CATEGORY: INTEGER*,
-        TEXT: INTEGER,
-        VOICE: INTEGER
-    }
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    role INTEGER UNIQUE NOT NULL,
+    category INTEGER
+}
+
+Channels Scheme {
+    channel_id INTEGER PRIMARY KEY,
+    team_id INTEGER REFERENCES {_TEAM_TABLE_NAME}(id),
+    type TEXT NOT NULL
 }
 
 Code Scheme {
-    CODE: TEXT* PRIMARY KEY
-    USER_ID: INTEGER*
+    code TEXT PRIMARY KEY NOT NULL,
+    value INTEGER NOT NULL (Contains the Discord ID associated with this code.)
 }
 """
 
