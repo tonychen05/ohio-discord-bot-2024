@@ -448,6 +448,7 @@ async def createteam(ctxt, flags: teamNameFlag): #TESTED
     if not records.verified_user_exists(user.id):
         await ctxt.send(ephemeral=True,
                         content="You are not verified! Please verify yourself with the /verify command")
+        return
 
     # Check that user is not in another team
     if records.is_member_on_team(user.id):
