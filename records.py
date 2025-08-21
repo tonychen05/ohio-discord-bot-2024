@@ -27,7 +27,7 @@ Data Scheme {
 }
 
 Verified Scheme {
-    discord_id INTEGER UNIQUE PRIMARY KEY,
+    discord_id INTEGER PRIMARY KEY,
     team_id REFERENCES {_TEAM_TABLE_NAME}(id),
     email TEXT UNIQUE NOT NULL,
     username TEXT UNIQUE NOT NULL
@@ -65,7 +65,7 @@ def _initialize_db(cursor: sqlite3.Cursor):
     # Registration form responses
     cursor.execute(
         f"""CREATE TABLE {_REG_RESPONSES_TABLE_NAME} ( 
-            email TEXT NOT NULL, 
+            email TEXT NOT NULL,
             is_participant BOOLEAN NOT NULL,
             is_judge BOOLEAN NOT NULL,
             is_mentor BOOLEAN NOT NULL,
@@ -91,9 +91,9 @@ def _initialize_db(cursor: sqlite3.Cursor):
     # Verified users
     cursor.execute(
         f"""CREATE TABLE {_VERIFIED_TABLE_NAME} ( 
-            discord_id INTEGER UNIQUE PRIMARY KEY, 
-            team_id REFERENCES {_TEAM_TABLE_NAME}(id), 
-            email TEXT UNIQUE NOT NULL, 
+            discord_id INTEGER PRIMARY KEY,
+            team_id REFERENCES {_TEAM_TABLE_NAME}(id),
+            email TEXT UNIQUE NOT NULL,
             username TEXT UNIQUE NOT NULL
             )
         """)
