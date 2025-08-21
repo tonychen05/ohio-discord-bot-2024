@@ -197,6 +197,12 @@ def create_team(name: str, role: int, category: int) -> int:
     )
     return cursor.lastrowid
 
+def add_channel(channel_id: int, team_id: int, channel_type: str):
+    cursor.execute(
+        f'INSERT INTO {_CHANNEL_TABLE_NAME} (channel_id, team_id, type) VALUES (?,?,?)',
+        (channel_id, team_id, channel_type)
+    )
+
 # ------------ Remove Entries from Tables -------------------------------------------------------------------------- DONE
 
 def remove_registered_user(email: str):
@@ -404,15 +410,6 @@ def user_is_participant(user_id: int) -> bool:
 
 
 # ----------- Team Methods ---------------------------------------------------------------------------- 
-
-def add_channel(team_id, channel):
-    channels = get_channels(team_id)
-    channels.append(channel)
-
-    cursor.execute(f"UPDATE {_TEAM_TABLE_NAME} SET channels=:channels WHERE id=:team_id", {
-        'team_id': team_id,
-        'channels': channels
-    })
 
 def get_channels(team_id):
     channels_text = cursor.execute(
