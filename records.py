@@ -56,6 +56,7 @@ _REG_RESPONSES_TABLE_NAME = 'registration'
 _REG_DATA_TABLE_NAME = 'data'
 _VERIFIED_TABLE_NAME = 'verified'
 _TEAM_TABLE_NAME = 'teams'
+_CHANNEL_TABLE_NAME = 'channels'
 _CODE_TABLE_NAME = 'codes'
 
 
@@ -100,12 +101,22 @@ def _initialize_db(cursor: sqlite3.Cursor):
     # Teams
     cursor.execute(
         f"""CREATE TABLE {_TEAM_TABLE_NAME} ( 
-            id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            name TEXT UNIQUE NOT NULL, 
-            channels TEXT
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL,
+            role INTEGER UNIQUE NOT NULL,
+            category INTEGER
             )
         """)
-    
+
+    # Channels
+    cursor.execute(
+        f"""CREATE TABLE {_CHANNEL_TABLE_NAME} ( 
+            channel_id INTEGER PRIMARY KEY,
+            team_id INTEGER REFERENCES {_TEAM_TABLE_NAME}(id),
+            type TEXT NOT NULL
+            )
+        """)
+
     # Verification Codes
     cursor.execute(
         f"""CREATE TABLE {_CODE_TABLE_NAME} (
