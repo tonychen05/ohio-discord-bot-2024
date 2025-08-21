@@ -1,7 +1,7 @@
 import os
-import records
+import core.records as records
 import config
-import web
+import core.web as web
 
 import discord
 from discord.ext import commands
@@ -115,7 +115,7 @@ async def handle_team_formation_timeout(ctxt: discord.Interaction, team_id: int)
         # Remove Role and team_id from each user on team
         for member in records.get_team_members(team_id):
             await remove_roles(ctxt.guild.get_member(member[0]), [ctxt.guild.get_role(config.discord_team_assigned_role_id)])
-            records.drop_team(member[0])
+            records.remove_from_team(member[0])
             
         # Remove all Channels
         await delete_team_channels(team_id)
@@ -275,7 +275,7 @@ async def verify(ctxt, flags: verifyFlag):
             return
             
         # Retrieve Message ID or Verification message
-        user_id = records.get_value_from_code(code)
+        user_id = records.get_registrant_from_code(code)
 
         # Check that user_id matches user entering the code
         if user_id != user.id:
@@ -285,7 +285,7 @@ async def verify(ctxt, flags: verifyFlag):
 
         """ Happy Case """
 
-        email = records.get_email_from_reg(user.id)
+        email = records.get_user_email(user.id)
 
         # Add user to verified database
         records.add_verified_user(user.id, email, user.name)
@@ -388,7 +388,10 @@ async def overify(ctxt, flags: registerFlag): #TESTED
         await ctxt.send(ephemeral=True,
                         content=f"`<{role}>` is not a valid role. \nPlease chose either `participant`, `mentor`, or `judge`")
         return
-    
+
+    # If User is not registered, add a registered user with no data
+    if not records.registered_user_exists(email):
+        records.add_registered_user(email, [role], {})
 
     # Check if user is already verified
     if records.verified_user_exists(user.id):
@@ -412,10 +415,6 @@ async def overify(ctxt, flags: registerFlag): #TESTED
         await ctxt.send(ephemeral=True,
                         content=f"`<{user.name}>` is already verified but has been given the role `<{role}>`.")
         return
-
-    # If User is not registered, add a registered user with no data
-    if not records.registered_user_exists(email):
-        records.add_registered_user(email, [role], {})
     
     # Add user to verified database
     records.add_verified_user(user.id, email, user.name)
@@ -494,7 +493,7 @@ async def createteam(ctxt, flags: teamNameFlag): #TESTED
     }
 
     team_id = records.create_team(team_name, channels)
-    records.join_team(team_id, user.id) # Add user to team
+    records.add_to_team(team_id, user.id) # Add user to team
 
     # Assign role to user and send confirmation message
     await category_channel.edit(name=f"Team {team_id} - {team_name}")
@@ -537,7 +536,7 @@ async def leaveteam(ctxt): #TESTED
     team_text_channel = ctxt.guild.get_channel(records.get_team(team_id)['channels']['text'])
 
     # Remove user from team in Database
-    records.drop_team(user.id)
+    records.remove_from_team(user.id)
 
     # Remove role from user
     await remove_roles(user, [team_role, team_assigned_role])
@@ -598,7 +597,7 @@ async def addmember(ctxt, flags: userFlag): #TESTED
         return
     
     # Add the member to the team
-    records.join_team(team_id, added_user.id)
+    records.add_to_team(team_id, added_user.id)
 
     # Retrieve the team text channel and role
     text_channel = ctxt.guild.get_channel(records.get_team(team_id)['channels']['text'])
@@ -670,7 +669,7 @@ async def deleteteam(ctxt, flags: removeTeamFlag):
     for member in members:
         curr_user = ctxt.guild.get_member(member[0])
         await remove_roles(curr_user, [team_role, ctxt.guild.get_role(config.discord_team_assigned_role_id)])
-        records.drop_team(curr_user.id)
+        records.remove_from_team(curr_user.id)
 
     # Delete team channels and db
     await delete_team_channels(team_id)

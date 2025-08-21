@@ -1,5 +1,5 @@
 import csv
-import records
+import core.records as records
 import os
 import pandas as pd
 import discord

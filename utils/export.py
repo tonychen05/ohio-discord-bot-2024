@@ -30,23 +30,28 @@ def get_teams_dataframe(conn) -> pd.DataFrame:
     return df_final
 
 def get_participants_dataframe(conn) -> pd.DataFrame:
-    query = """
+    main_query = """
     SELECT 
         CAST(v.discord_id AS TEXT) AS discord_id, 
         v.username, 
         v.email, 
-        v.team_id, 
-        r.data
+        v.team_id
     FROM verified v
     JOIN registration r ON v.discord_id = r.discord_id
-    WHERE r.roles like '%participant%';
+    WHERE is_participant;
+    """
+    data_query = """
+    SELECT *
+    FROM data d
+    JOIN registration r USING(email)
+    WHERE is_participant;
     """
 
-    df = pd.read_sql_query(query, conn)
-    df_parsed = pd.json_normalize(df['data'].apply(json.loads))
-    df_final = pd.concat([df_parsed['first_name'], df_parsed['last_name'], 
+    df = pd.read_sql_query(main_query, conn)
+    data_df = pd.read_sql_query(data_query, conn)
+    df_final = pd.concat([data_df['first_name'], data_df['last_name'], 
                         df['email'], df['team_id'], df['username'], 
-                        df_parsed['major'], df_parsed['grad_year']], axis=1)
+                        data_df['major'], data_df['grad_year']], axis=1)
     df_final.columns = ['First Name', 'Last Name', 'Email', 'Team Number', 
                 'Username', 'Major', 'Grad Year']
 

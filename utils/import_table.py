@@ -4,7 +4,7 @@ Any entires already in the database are ignored during the import.
 """
 import sys
 import csv
-import records
+import core.records as records
 import time
 
 # Be sure to check the Qualtrics forms for what these values should be.
@@ -13,37 +13,23 @@ JUDGE_ROLE_NUM = '1'
 MENTOR_ROLE_NUM = '2'
 """A string that represents the mentor role in the volunteer form's CSV file."""
 
-# If you need to import more data,
-# modify these dictionaries to include the additional attributes you need.
-PARTICIPANT_DATA_ATTR = {
+DATA_ATTR = {
     'First Name':'first_name',
     'Last Name': 'last_name',
     'Q24': 'university',
-    'Q25': 'classTeam',
+    'Q25': 'class_team',
     'Major': 'major',
-    'Grad Year': 'gradYear'
-}
-"""
-A dictionary of attribute names that should be searched for and included as non-essential data
-for the <b>participant form</b>.
-</br>
-The keys of this dictionary are the attribute names used in the CSV file.
-</br>
-The values of this dictionary are the attribute names used elsewhere in the bot code.
-"""
-VOLUNTEER_DATA_ATTR = {
-    'First Name':'first_name',
-    'Last Name': 'last_name',
+    'Grad Year': 'grad_year',
     'Company': 'company',
-    'Job Title ': 'jobTitle'
+    'Job Title ': 'job_title'
 }
 """
-A dictionary of attribute names that should be searched for and included as non-essential data
-for the <b>volunteer form</b>.
+A dictionary of attribute names that should be searched for and included as user data,
+<b>regardless of which form is being imported</b>.
 </br>
 The keys of this dictionary are the attribute names used in the CSV file.
 </br>
-The values of this dictionary are the attribute names used elsewhere in the bot code.
+The values of this dictionary are the attribute names used in the user data database table.
 """
 
 # Variable to keep track of stats for report at the end.
@@ -52,6 +38,9 @@ num_error = 0
 num_unfinished = 0
 num_entries = 0
 start_time = time.time()
+
+# Print a startup message.
+print(f'Started importing {sys.argv[1]}, please wait...')
 
 # Check that the correct number of command line arguments were given.
 try:
@@ -84,12 +73,10 @@ with open(sys.argv[1], 'r', encoding='utf-8') as csv_file:
 
     # Check if we are importing the participant or volunteer form.
     is_participant = False
-    data_attr = VOLUNTEER_DATA_ATTR
     try:
         attributes.remove('Roles')
     except KeyError:
         is_participant = True
-        data_attr = PARTICIPANT_DATA_ATTR
 
     # For each entry in the CSV file...
     for entry in reader:
@@ -121,35 +108,28 @@ with open(sys.argv[1], 'r', encoding='utf-8') as csv_file:
             if MENTOR_ROLE_NUM in entry['Roles']:
                 roles.append('mentor')
 
-        # Check for and store all non-essential data.
-        data = {}
-        for attribute in data_attr.keys():
+        # Check for and store all user data.
+        data = {'email': email}
+        for attribute in DATA_ATTR.keys():
             try:
-                data[data_attr[attribute]] = entry[attribute]
+                data[DATA_ATTR[attribute]] = entry[attribute]
             except KeyError:
-                pass
+                data[DATA_ATTR[attribute]] = None
 
         # Add this entry's data to the database if it is not a duplicate.
-        if records.registered_user_exists(email):
-            # Get the existing version of this entry.
-            old_entry = records.get_registered_user(email)
-            is_duplicate = old_entry['roles'] == roles
+        if records.registered_user_exists(email) and records.user_data_exists(email):
+            # Get the existing version of this entry's data.
+            old_data = records.get_user_data(email)
 
-            # Check all attributes in data_attr.
-            for attribute in data_attr.values():
-                try:
-                    is_duplicate = is_duplicate and old_entry['data'][attribute] == data[attribute]
-                except KeyError:
-                    # If a key does not exist, then an attribute was added to data_attr.
-                    is_duplicate = False
-                    break
+            # Check if the roles are the same.
+            is_duplicate = set(records.get_roles(email)) == set(roles)
 
-            # Check all attributes in the old entry's data JSON.
-            for attribute in old_entry['data'].keys():
+            # Check all data attributes.
+            for attribute in data:
                 try:
-                    is_duplicate = is_duplicate and old_entry['data'][attribute] == data[attribute]
+                    is_duplicate = is_duplicate and old_data[attribute] == data[attribute]
                 except KeyError:
-                    # If a key does not exist, then an attribute was removed from data_attr.
+                    # If a key does not exist in old_data, then this entry is not a duplicate.
                     is_duplicate = False
                     break
 

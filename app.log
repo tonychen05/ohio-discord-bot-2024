@@ -1,0 +1,63 @@
+2025-08-21 14:52:26,905 - MainProcess - root - INFO - Logging configured successfully.
+2025-08-21 14:52:26,906 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-21 14:52:26,906 - MainProcess - discord.client - INFO - logging in using static token
+2025-08-21 14:52:27,766 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 04b0968581b296e7a6d9ab10b80ec1e1).
+2025-08-21 14:52:29,771 - MainProcess - __main__ - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-08-21 14:52:29,771 - MainProcess - __main__ - INFO - ------
+2025-08-21 14:58:11,983 - MainProcess - root - INFO - Logging configured successfully.
+2025-08-21 14:58:11,984 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-21 14:58:11,984 - MainProcess - discord.client - INFO - logging in using static token
+2025-08-21 14:58:12,599 - MainProcess - cogs.verify - INFO - VerifyCog loaded with Super-Bot#7059
+2025-08-21 14:58:12,912 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 54e8c1a8ad554767bd4250356516bd93).
+2025-08-21 14:58:14,915 - MainProcess - __main__ - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-08-21 14:58:14,915 - MainProcess - __main__ - INFO - ------
+2025-08-21 16:17:32,350 - MainProcess - root - INFO - Logging configured successfully.
+2025-08-21 16:17:32,351 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-21 16:24:29,839 - MainProcess - root - INFO - Logging configured successfully.
+2025-08-21 16:24:29,839 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-21 16:24:42,131 - MainProcess - root - INFO - Logging configured successfully.
+2025-08-21 16:24:42,131 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-21 16:24:51,489 - MainProcess - root - INFO - Logging configured successfully.
+2025-08-21 16:24:51,489 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-21 16:24:51,505 - Process-1 - discord.client - INFO - logging in using static token
+2025-08-21 16:24:52,046 - Process-1 - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-08-21 16:24:52,380 - Process-1 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 2eb58de887784a6acf4be6ef6ca7cfcd).
+2025-08-21 16:24:54,383 - Process-1 - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-08-21 16:24:54,383 - Process-1 - bot - INFO - ------
+2025-08-21 16:25:11,409 - MainProcess - root - INFO - Logging configured successfully.
+2025-08-21 16:25:11,409 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-21 16:25:11,413 - Process-1 - discord.client - INFO - logging in using static token
+2025-08-21 16:25:11,860 - Process-1 - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-08-21 16:25:11,862 - Process-1 - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-08-21 16:25:12,156 - Process-1 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: efc844b56d502d97548bd84f29b0bc9c).
+2025-08-21 16:25:14,164 - Process-1 - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-08-21 16:25:14,164 - Process-1 - bot - INFO - ------
+2025-08-21 16:25:14,691 - Process-1 - bot - INFO - Synced 5 command(s)
+2025-08-21 16:26:04,303 - Process-1 - discord.app_commands.tree - ERROR - Ignoring exception in command 'overify'
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.venv/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/zhchen/ohio-discord-bot-2024/.venv/lib/python3.12/site-packages/discord/app_commands/commands.py", line 879, in _invoke_with_namespace
+    if not await self._check_can_run(interaction):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.venv/lib/python3.12/site-packages/discord/app_commands/commands.py", line 1017, in _check_can_run
+    return await async_all(f(interaction) for f in predicates)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.venv/lib/python3.12/site-packages/discord/utils.py", line 704, in async_all
+    for elem in gen:
+  File "/home/zhchen/ohio-discord-bot-2024/.venv/lib/python3.12/site-packages/discord/app_commands/commands.py", line 1017, in <genexpr>
+    return await async_all(f(interaction) for f in predicates)
+                           ^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.venv/lib/python3.12/site-packages/discord/app_commands/checks.py", line 232, in predicate
+    raise MissingRole(item)
+discord.app_commands.errors.MissingRole: Role 1324770244241260615 is required to run this command.
+2025-08-21 16:31:42,854 - Process-1 - discord.app_commands.tree - ERROR - Ignoring exception in command tree
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.venv/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/home/zhchen/ohio-discord-bot-2024/.venv/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1283, in _call
+    command, options = self._get_app_command_options(data)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.venv/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
+    raise CommandNotFound(name, parents)
+discord.app_commands.errors.CommandNotFound: Application command 'test' not found
