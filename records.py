@@ -36,8 +36,7 @@ Verified Scheme {
 Team Scheme {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL,
-    role INTEGER UNIQUE NOT NULL,
-    category INTEGER
+    role INTEGER UNIQUE NOT NULL
 }
 
 Channels Scheme {
@@ -103,8 +102,7 @@ def _initialize_db(cursor: sqlite3.Cursor):
         f"""CREATE TABLE {_TEAM_TABLE_NAME} ( 
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT UNIQUE NOT NULL,
-            role INTEGER UNIQUE NOT NULL,
-            category INTEGER
+            role INTEGER UNIQUE NOT NULL
             )
         """)
 
@@ -190,10 +188,10 @@ def add_verified_user(discord_id: int, email: str, username: str):
         (discord_id, email, username)
     )
 
-def create_team(name: str, role: int, category: int) -> int:
+def create_team(name: str, role: int) -> int:
     cursor.execute(
-        f'INSERT INTO {_TEAM_TABLE_NAME} (name, role, category) VALUES (?,?,?)',
-        (name, role, category)
+        f'INSERT INTO {_TEAM_TABLE_NAME} (name, role) VALUES (?, ?)',
+        (name, role)
     )
     return cursor.lastrowid
 

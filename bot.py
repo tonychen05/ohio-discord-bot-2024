@@ -485,7 +485,8 @@ async def createteam(ctxt, flags: teamNameFlag): #TESTED
     voice_channel = await category_channel.create_voice_channel(f"{team_name.replace(' ','-')}-voice", overwrites=voice_channel_perms)
 
     # Create Team and Channels in Database
-    team_id = records.create_team(team_name, team_role.id, category_channel.id)
+    team_id = records.create_team(team_name, team_role.id)
+    records.add_channel(category_channel.id, team_id, 'category')
     records.add_channel(text_channel.id, team_id, 'text')
     records.add_channel(voice_channel.id, team_id, 'voice')
     records.join_team(team_id, user.id) # Add user to team
