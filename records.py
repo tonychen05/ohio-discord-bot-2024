@@ -190,11 +190,10 @@ def add_verified_user(discord_id: int, email: str, username: str):
         (discord_id, email, username)
     )
 
-def create_team(team_name: str, channels: dict) -> int:
-    channels_text = json.dumps(channels)
+def create_team(name: str, role: int, category: int) -> int:
     cursor.execute(
-        f'INSERT INTO {_TEAM_TABLE_NAME} (name, channels) VALUES (?,?)',
-        (team_name,channels_text)
+        f'INSERT INTO {_TEAM_TABLE_NAME} (name, role, category) VALUES (?,?,?)',
+        (name, role, category)
     )
     return cursor.lastrowid
 
