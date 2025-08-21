@@ -230,6 +230,12 @@ def remove_team(team_id: int):
         (team_id,)
     )
 
+def remove_channel(channel_id: int):
+    cursor.execute(
+        f'DELETE FROM {_CHANNEL_TABLE_NAME} WHERE channel_id = ?',
+        (channel_id,)
+    )
+
 # ------------ Retrieve Individual Entry ------------------------------------------------------------------------ DONE
 
 def get_registered_user(email: str) -> dict:
