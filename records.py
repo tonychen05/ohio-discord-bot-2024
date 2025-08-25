@@ -473,12 +473,6 @@ def team_name_exists(team_name: str) -> bool:
     })
     return cursor.fetchone() is not None
 
-def update_channels(team_id: int, channels: list):
-    channels_text = json.dumps(channels)
-    cursor.execute(f"UPDATE {_TEAM_TABLE_NAME} SET channels=:channels WHERE id=:team_id", {
-        'channels': channels_text,
-        'team_id': team_id
-    })
 
 # ----------- Verification Code Methods ----------------------------------------------------------------------
 
