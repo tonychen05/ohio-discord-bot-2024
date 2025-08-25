@@ -526,11 +526,11 @@ async def leaveteam(ctxt):
         return
 
     team_id = records.get_user_team_id(user.id)
-    role_id = records.get_team(team_id)['channels']['role']
+    role_id = records.get_team(team_id)['role']
 
     team_assigned_role = ctxt.guild.get_role(config.discord_team_assigned_role_id)
     team_role = ctxt.guild.get_role(role_id)
-    team_text_channel = ctxt.guild.get_channel(records.get_team(team_id)['channels']['text'])
+    team_text_channel = ctxt.guild.get_channel(records.get_channels_for_team(team_id)['text'])
 
     # Remove user from team in Database
     records.drop_team(user.id)
