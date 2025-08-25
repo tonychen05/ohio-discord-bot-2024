@@ -422,11 +422,12 @@ def user_is_participant(user_id: int) -> bool:
 
 # ----------- Team Methods ---------------------------------------------------------------------------- 
 
-def get_channels(team_id):
-    channels_text = cursor.execute(
-        f"SELECT channels FROM {_TEAM_TABLE_NAME} WHERE id=:team_id", {
-            'team_id': team_id})
-    return json.loads(channels_text)
+def get_channels_for_team(team_id: int) -> dict:
+    channels = cursor.execute(
+        f"SELECT type, channel_id FROM {_CHANNEL_TABLE_NAME} WHERE team_id=:team_id", {
+            'team_id': team_id}).fetchall()
+    # fetchall() returns a list of tuples, convert to a dict and return.
+    return dict(channels)
 
 def drop_team(discord_id: int):
     cursor.execute(
