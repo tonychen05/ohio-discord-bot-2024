@@ -349,6 +349,13 @@ def team_exists(team_id: int) -> bool:
     )
     return cursor.fetchone() is not None
 
+def channel_exists(channel_id: int) -> bool:
+    cursor.execute(
+        f'SELECT * FROM {_CHANNEL_TABLE_NAME} WHERE channel_id = ?',
+        (channel_id,)
+    )
+    return cursor.fetchone() is not None
+
 # ------- Registered User Methods ----------------------------------------------------------------------------
 
 def get_roles(email: str) -> list:
