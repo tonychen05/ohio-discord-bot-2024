@@ -597,8 +597,8 @@ async def addmember(ctxt, flags: userFlag):
     records.join_team(team_id, added_user.id)
 
     # Retrieve the team text channel and role
-    text_channel = ctxt.guild.get_channel(records.get_team(team_id)['channels']['text'])
-    team_role = ctxt.guild.get_role(records.get_team(team_id)['channels']['role'])
+    text_channel = ctxt.guild.get_channel(records.get_channels_for_team(team_id)['text'])
+    team_role = ctxt.guild.get_role(records.get_team(team_id)['role'])
 
     # Assign added user team and team_assigned role
     await added_user.add_roles(team_role)
