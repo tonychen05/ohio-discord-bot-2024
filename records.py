@@ -312,9 +312,8 @@ def get_team(team_id: int) -> dict:
     data = {
         'id': data_tuple[0],
         'name': data_tuple[1],
-        'channels': json.loads(data_tuple[2])
+        'role': data_tuple[2]
     }
-
 
     return data
 
