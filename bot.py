@@ -97,7 +97,7 @@ def generate_random_code(n):
     return ''.join(random.choices(characters, k=n))    
 
 
-async def handle_team_formation_timeout(ctxt: discord.Interaction, team_id: int): #TESTED 
+async def handle_team_formation_timeout(ctxt: discord.Interaction, team_id: int): 
     """
     Handles the timeout of team formation when team doesn't meet minimum size requirement
     
@@ -186,7 +186,7 @@ async def delete_team_channels(team_id: int):
     for channel in channels:
         records.remove_channel(channels[channel])
 
-async def handle_permission_error(ctxt: discord.Interaction, error: discord.errors): #TESTED 
+async def handle_permission_error(ctxt: discord.Interaction, error: discord.errors): 
     await ctxt.send(ephemeral=True,
                                content='You do not have permission to use this command.')
 
