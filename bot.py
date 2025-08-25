@@ -171,19 +171,20 @@ async def delete_team_channels(team_id: int):
     Requires:
         team_id exists and associated with a team
     """
-    # Get all channels from database
+    # Get all channels and role from database
     guild = bot.get_guild(config.discord_guild_id)
-    channels = records.get_team(team_id)['channels']
+    channels = records.get_channels_for_team(team_id)
+    team = records.get_team(team_id)
 
     #Delete all channels and role
     for channel in channels:
-        if(channel == 'role'):
-            await guild.get_role(channels[channel]).delete()
-        else:
-            await guild.get_channel(channels[channel]).delete()
+        await guild.get_channel(channels[channel]).delete()
+    await guild.get_role(team['role']).delete()
 
-    # Remove team from database
+    # Remove team and channels from database
     records.remove_team(team_id)
+    for channel in channels:
+        records.remove_channel(channels[channel])
 
 async def handle_permission_error(ctxt: discord.Interaction, error: discord.errors): #TESTED 
     await ctxt.send(ephemeral=True,
