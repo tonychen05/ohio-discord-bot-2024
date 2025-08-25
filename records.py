@@ -467,7 +467,7 @@ def get_team_members(team_id: int) -> list:
     members = cursor.fetchall()
     return members
 
-def team_name_exists(team_name: int) -> bool:
+def team_name_exists(team_name: str) -> bool:
     cursor.execute(f"SELECT * FROM {_TEAM_TABLE_NAME} WHERE name=:team_name", {
         'team_name': team_name
     })
