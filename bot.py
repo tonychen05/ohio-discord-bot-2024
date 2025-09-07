@@ -41,7 +41,7 @@ role_map = {
 }
 
 # --------------------Helper Methods-------------------
-async def assign_user_roles(user, roles: list): #TESTED 
+async def assign_user_roles(user, roles: list): 
     """
     Assigns specified roles to the user based on provided role names.
 
@@ -60,7 +60,7 @@ async def assign_user_roles(user, roles: list): #TESTED
         else:
             print(f"Invalid role name '{role_name}' provided.")
 
-async def remove_roles(user: discord.Member, roles:list): #TESTED 
+async def remove_roles(user: discord.Member, roles:list): 
     """
     Removes specified roles from a Discord user.
 
@@ -80,7 +80,7 @@ async def remove_roles(user: discord.Member, roles:list): #TESTED
     # Update user with new roles
     await user.edit(roles=new_roles)
 
-def generate_random_code(n): #TESTED
+def generate_random_code(n):
     """
     Generates random string of specified length using uppercase letters, lowercase letters, and digits.
 
@@ -97,7 +97,7 @@ def generate_random_code(n): #TESTED
     return ''.join(random.choices(characters, k=n))    
 
 
-async def handle_team_formation_timeout(ctxt: discord.Interaction, team_id: int): #TESTED 
+async def handle_team_formation_timeout(ctxt: discord.Interaction, team_id: int): 
     """
     Handles the timeout of team formation when team doesn't meet minimum size requirement
     
@@ -122,7 +122,7 @@ async def handle_team_formation_timeout(ctxt: discord.Interaction, team_id: int)
         await ctxt.send(ephemeral=True,
                         content=f'Team formation timed out. Teams must have at least two members {round(TEAM_FORMATION_TIMEOUT/60)} minutes after creation to be saved. You must re-create your team and use the `/addmember` command to add members to your team within one minute of using the `/createteam` command.')
 
-async def send_verification_email(recipient, CODE, username): #TESTED 
+async def send_verification_email(recipient, CODE, username): 
     """
     Sends verification email to recipientwith one-time use link for verifying Discord account
     
@@ -161,7 +161,7 @@ async def send_verification_email(recipient, CODE, username): #TESTED
         print(f"ERROR: Message not to {recipient} not sent. ERROR: {e}")
         return False
 
-async def delete_team_channels(team_id: int): #TESTED 
+async def delete_team_channels(team_id: int):
     """
     Deletes all channels and role associateed with a team, and removes the team from database
 
@@ -171,21 +171,22 @@ async def delete_team_channels(team_id: int): #TESTED
     Requires:
         team_id exists and associated with a team
     """
-    # Get all channels from database
+    # Get all channels and role from database
     guild = bot.get_guild(config.discord_guild_id)
-    channels = records.get_team(team_id)['channels']
+    channels = records.get_channels_for_team(team_id)
+    team = records.get_team(team_id)
 
     #Delete all channels and role
     for channel in channels:
-        if(channel == 'role'):
-            await guild.get_role(channels[channel]).delete()
-        else:
-            await guild.get_channel(channels[channel]).delete()
+        await guild.get_channel(channels[channel]).delete()
+    await guild.get_role(team['role']).delete()
 
-    # Remove team from database
+    # Remove team and channels from database
     records.remove_team(team_id)
+    for channel in channels:
+        records.remove_channel(channels[channel])
 
-async def handle_permission_error(ctxt: discord.Interaction, error: discord.errors): #TESTED 
+async def handle_permission_error(ctxt: discord.Interaction, error: discord.errors): 
     await ctxt.send(ephemeral=True,
                                content='You do not have permission to use this command.')
 
@@ -215,7 +216,7 @@ class removeTeamFlag(commands.FlagConverter):
 #-------------------"/" Command Methods-----------------------------
 
 #Test Greet Command - Anyone can run
-@bot.tree.command(description="Recieve a random affirmation for encouragement") # TESTED
+@bot.tree.command(description="Recieve a random affirmation for encouragement")
 async def affirm(ctxt):
     affirmations = {
         "You're doing amazing—every line of code is one step closer to something great!",
@@ -243,7 +244,7 @@ async def affirm(ctxt):
     await ctxt.response.send_message(ephemeral=True, content=f'{random_affirm}')
 
 # ----------- Email/Account Verification ----------------------------------------------
-@bot.hybrid_command(description="Verify your Discord account for this Event") # TESTED
+@bot.hybrid_command(description="Verify your Discord account for this Event")
 async def verify(ctxt, flags: verifyFlag):
     """
     Verifies a user's Discord account by linking it with their reg email
@@ -357,7 +358,7 @@ async def verify(ctxt, flags: verifyFlag):
 '''
 @commands.has_role(config.discord_organizer_role_id)
 @bot.hybrid_command(description="Manually verify a Discord account for this event (Organizers only)") 
-async def overify(ctxt, flags: registerFlag): #TESTED
+async def overify(ctxt, flags: registerFlag):
     """
     Manually verifies a Discord account for the event, allowing organizers to assign roles and verify users.
 
@@ -426,7 +427,7 @@ async def overify(ctxt, flags: registerFlag): #TESTED
 overify.error(handle_permission_error)
 
 @bot.hybrid_command(description="Create a new team for this event")
-async def createteam(ctxt, flags: teamNameFlag): #TESTED 
+async def createteam(ctxt, flags: teamNameFlag):
     """
     Creates a new team, assigning user to team and creating necessary roles and channels
 
@@ -448,6 +449,7 @@ async def createteam(ctxt, flags: teamNameFlag): #TESTED
     if not records.verified_user_exists(user.id):
         await ctxt.send(ephemeral=True,
                         content="You are not verified! Please verify yourself with the /verify command")
+        return
 
     # Check that user is not in another team
     if records.is_member_on_team(user.id):
@@ -484,15 +486,11 @@ async def createteam(ctxt, flags: teamNameFlag): #TESTED
     text_channel = await category_channel.create_text_channel(f"{team_name.replace(' ','-')}-text") # Inherit perms from Category
     voice_channel = await category_channel.create_voice_channel(f"{team_name.replace(' ','-')}-voice", overwrites=voice_channel_perms)
 
-    # Create Team in Database
-    channels = {
-        'category': category_channel.id,
-        'text': text_channel.id,
-        'voice': voice_channel.id,
-        'role': team_role.id
-    }
-
-    team_id = records.create_team(team_name, channels)
+    # Create Team and Channels in Database
+    team_id = records.create_team(team_name, team_role.id)
+    records.add_channel(category_channel.id, team_id, 'category')
+    records.add_channel(text_channel.id, team_id, 'text')
+    records.add_channel(voice_channel.id, team_id, 'voice')
     records.join_team(team_id, user.id) # Add user to team
 
     # Assign role to user and send confirmation message
@@ -507,7 +505,7 @@ async def createteam(ctxt, flags: teamNameFlag): #TESTED
     await handle_team_formation_timeout(ctxt, team_id)
 
 @bot.hybrid_command(description="Leave your current team")
-async def leaveteam(ctxt): #TESTED 
+async def leaveteam(ctxt): 
     """
     Command for a user to leave their current team. 
     The user will:
@@ -529,11 +527,11 @@ async def leaveteam(ctxt): #TESTED
         return
 
     team_id = records.get_user_team_id(user.id)
-    role_id = records.get_team(team_id)['channels']['role']
+    role_id = records.get_team(team_id)['role']
 
     team_assigned_role = ctxt.guild.get_role(config.discord_team_assigned_role_id)
     team_role = ctxt.guild.get_role(role_id)
-    team_text_channel = ctxt.guild.get_channel(records.get_team(team_id)['channels']['text'])
+    team_text_channel = ctxt.guild.get_channel(records.get_channels_for_team(team_id)['text'])
 
     # Remove user from team in Database
     records.drop_team(user.id)
@@ -561,7 +559,7 @@ async def leaveteam(ctxt): #TESTED
     - Send message to team channel
 '''
 @bot.hybrid_command(description="Add a member to your team")
-async def addmember(ctxt, flags: userFlag): #TESTED
+async def addmember(ctxt, flags: userFlag):
     """
     Adds a specified member to the team of the user who invokes the command.
 
@@ -600,8 +598,8 @@ async def addmember(ctxt, flags: userFlag): #TESTED
     records.join_team(team_id, added_user.id)
 
     # Retrieve the team text channel and role
-    text_channel = ctxt.guild.get_channel(records.get_team(team_id)['channels']['text'])
-    team_role = ctxt.guild.get_role(records.get_team(team_id)['channels']['role'])
+    text_channel = ctxt.guild.get_channel(records.get_channels_for_team(team_id)['text'])
+    team_role = ctxt.guild.get_role(records.get_team(team_id)['role'])
 
     # Assign added user team and team_assigned role
     await added_user.add_roles(team_role)

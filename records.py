@@ -5,50 +5,49 @@ import json
 _DATABASE_FILE = 'records.db'
 
 """
-Registrant Scheme {
-    EMAIL: TEXT*,
-    IS_PARTICIPANT: BOOLEAN,
-    IS_JUDGE: BOOLEAN,
-    IS_MENTOR, BOOLEAN,
-    DISCORD_ID: TEXT (Used during email verification, ties email to user_id before adding to verification table)
+Registration Scheme {
+    email TEXT NOT NULL,
+    is_participant BOOLEAN NOT NULL,
+    is_judge BOOLEAN NOT NULL,
+    is_mentor BOOLEAN NOT NULL,
+    discord_id INTEGER (Used during email verification, ties email to user_id before adding to verification table)
 }
 
 Data Scheme {
-    email: TEXT REFERENCES {_REG_RESPONSES_TABLE_NAME}(email),
-    first_name: TEXT,
-    last_name: TEXT,
-    university: TEXT,
-    class_team: TEXT,
-    major: TEXT,
-    grad_year: INTEGER,
-    company: TEXT,
-    job_title: TEXT,
+    email TEXT NOT NULL REFERENCES {_REG_RESPONSES_TABLE_NAME}(email),
+    first_name TEXT,
+    last_name TEXT,
+    university TEXT,
+    class_team TEXT,
+    major TEXT,
+    grad_year TEXT,
+    company TEXT,
+    job_title TEXT,
     ... (other fields as needed)
 }
 
 Verified Scheme {
-    DISCORD_ID: INTEGER* PRIMARY KEY,
-    EMAIL: TEXT*,
-    TEAM_ID: INTEGER REFERENCES {_TEAM_TABLE_NAME}(id)
-    USERNAME: TEXT*
+    discord_id INTEGER PRIMARY KEY,
+    team_id REFERENCES {_TEAM_TABLE_NAME}(id),
+    email TEXT UNIQUE NOT NULL,
+    username TEXT UNIQUE NOT NULL
 }
 
-- Channels is a JSON object that can have a variable number of channels, 
-  Channel Keys are (TEXT, VOICE, CATEGORY*)
-
 Team Scheme {
-    ID: INTEGER PRIMARY KEY AUTOINCREMENT,
-    NAME: TEXT UNIQUE,
-    CHANNELS: TEXT* (JSON parsed) {
-        CATEGORY: INTEGER*,
-        TEXT: INTEGER,
-        VOICE: INTEGER
-    }
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    role INTEGER UNIQUE NOT NULL
+}
+
+Channels Scheme {
+    channel_id INTEGER PRIMARY KEY,
+    team_id INTEGER REFERENCES {_TEAM_TABLE_NAME}(id),
+    type TEXT NOT NULL
 }
 
 Code Scheme {
-    CODE: TEXT* PRIMARY KEY
-    USER_ID: INTEGER*
+    code TEXT PRIMARY KEY NOT NULL,
+    value INTEGER NOT NULL (Contains the Discord ID associated with this code.)
 }
 """
 
@@ -56,6 +55,7 @@ _REG_RESPONSES_TABLE_NAME = 'registration'
 _REG_DATA_TABLE_NAME = 'data'
 _VERIFIED_TABLE_NAME = 'verified'
 _TEAM_TABLE_NAME = 'teams'
+_CHANNEL_TABLE_NAME = 'channels'
 _CODE_TABLE_NAME = 'codes'
 
 
@@ -64,7 +64,7 @@ def _initialize_db(cursor: sqlite3.Cursor):
     # Registration form responses
     cursor.execute(
         f"""CREATE TABLE {_REG_RESPONSES_TABLE_NAME} ( 
-            email TEXT NOT NULL, 
+            email TEXT NOT NULL,
             is_participant BOOLEAN NOT NULL,
             is_judge BOOLEAN NOT NULL,
             is_mentor BOOLEAN NOT NULL,
@@ -90,9 +90,9 @@ def _initialize_db(cursor: sqlite3.Cursor):
     # Verified users
     cursor.execute(
         f"""CREATE TABLE {_VERIFIED_TABLE_NAME} ( 
-            discord_id INTEGER UNIQUE PRIMARY KEY, 
-            team_id REFERENCES {_TEAM_TABLE_NAME}(id), 
-            email TEXT UNIQUE NOT NULL, 
+            discord_id INTEGER PRIMARY KEY,
+            team_id REFERENCES {_TEAM_TABLE_NAME}(id),
+            email TEXT UNIQUE NOT NULL,
             username TEXT UNIQUE NOT NULL
             )
         """)
@@ -100,12 +100,21 @@ def _initialize_db(cursor: sqlite3.Cursor):
     # Teams
     cursor.execute(
         f"""CREATE TABLE {_TEAM_TABLE_NAME} ( 
-            id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            name TEXT UNIQUE NOT NULL, 
-            channels TEXT
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL,
+            role INTEGER UNIQUE NOT NULL
             )
         """)
-    
+
+    # Channels
+    cursor.execute(
+        f"""CREATE TABLE {_CHANNEL_TABLE_NAME} ( 
+            channel_id INTEGER PRIMARY KEY,
+            team_id INTEGER REFERENCES {_TEAM_TABLE_NAME}(id),
+            type TEXT NOT NULL
+            )
+        """)
+
     # Verification Codes
     cursor.execute(
         f"""CREATE TABLE {_CODE_TABLE_NAME} (
@@ -179,13 +188,18 @@ def add_verified_user(discord_id: int, email: str, username: str):
         (discord_id, email, username)
     )
 
-def create_team(team_name: str, channels: dict) -> int:
-    channels_text = json.dumps(channels)
+def create_team(name: str, role: int) -> int:
     cursor.execute(
-        f'INSERT INTO {_TEAM_TABLE_NAME} (name, channels) VALUES (?,?)',
-        (team_name,channels_text)
+        f'INSERT INTO {_TEAM_TABLE_NAME} (name, role) VALUES (?, ?)',
+        (name, role)
     )
     return cursor.lastrowid
+
+def add_channel(channel_id: int, team_id: int, channel_type: str):
+    cursor.execute(
+        f'INSERT INTO {_CHANNEL_TABLE_NAME} (channel_id, team_id, type) VALUES (?,?,?)',
+        (channel_id, team_id, channel_type)
+    )
 
 # ------------ Remove Entries from Tables -------------------------------------------------------------------------- DONE
 
@@ -212,6 +226,12 @@ def remove_team(team_id: int):
     cursor.execute(
         f'DELETE FROM {_TEAM_TABLE_NAME} WHERE id = ?',
         (team_id,)
+    )
+
+def remove_channel(channel_id: int):
+    cursor.execute(
+        f'DELETE FROM {_CHANNEL_TABLE_NAME} WHERE channel_id = ?',
+        (channel_id,)
     )
 
 # ------------ Retrieve Individual Entry ------------------------------------------------------------------------ DONE
@@ -292,9 +312,8 @@ def get_team(team_id: int) -> dict:
     data = {
         'id': data_tuple[0],
         'name': data_tuple[1],
-        'channels': json.loads(data_tuple[2])
+        'role': data_tuple[2]
     }
-
 
     return data
 
@@ -326,6 +345,13 @@ def team_exists(team_id: int) -> bool:
     cursor.execute(
         f'SELECT * FROM {_TEAM_TABLE_NAME} WHERE id = ?',
         (team_id,)
+    )
+    return cursor.fetchone() is not None
+
+def channel_exists(channel_id: int) -> bool:
+    cursor.execute(
+        f'SELECT * FROM {_CHANNEL_TABLE_NAME} WHERE channel_id = ?',
+        (channel_id,)
     )
     return cursor.fetchone() is not None
 
@@ -395,20 +421,12 @@ def user_is_participant(user_id: int) -> bool:
 
 # ----------- Team Methods ---------------------------------------------------------------------------- 
 
-def add_channel(team_id, channel):
-    channels = get_channels(team_id)
-    channels.append(channel)
-
-    cursor.execute(f"UPDATE {_TEAM_TABLE_NAME} SET channels=:channels WHERE id=:team_id", {
-        'team_id': team_id,
-        'channels': channels
-    })
-
-def get_channels(team_id):
-    channels_text = cursor.execute(
-        f"SELECT channels FROM {_TEAM_TABLE_NAME} WHERE id=:team_id", {
-            'team_id': team_id})
-    return json.loads(channels_text)
+def get_channels_for_team(team_id: int) -> dict:
+    channels = cursor.execute(
+        f"SELECT type, channel_id FROM {_CHANNEL_TABLE_NAME} WHERE team_id=:team_id", {
+            'team_id': team_id}).fetchall()
+    # fetchall() returns a list of tuples, convert to a dict and return.
+    return dict(channels)
 
 def drop_team(discord_id: int):
     cursor.execute(
@@ -449,18 +467,12 @@ def get_team_members(team_id: int) -> list:
     members = cursor.fetchall()
     return members
 
-def team_name_exists(team_name: int) -> bool:
+def team_name_exists(team_name: str) -> bool:
     cursor.execute(f"SELECT * FROM {_TEAM_TABLE_NAME} WHERE name=:team_name", {
         'team_name': team_name
     })
     return cursor.fetchone() is not None
 
-def update_channels(team_id: int, channels: list):
-    channels_text = json.dumps(channels)
-    cursor.execute(f"UPDATE {_TEAM_TABLE_NAME} SET channels=:channels WHERE id=:team_id", {
-        'channels': channels_text,
-        'team_id': team_id
-    })
 
 # ----------- Verification Code Methods ----------------------------------------------------------------------
 
