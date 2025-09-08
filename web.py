@@ -1,6 +1,6 @@
 import records
 import config
-import bot
+# import bot
 
 from flask import Flask, abort, request, jsonify
 from eventlet import wsgi

@@ -129,18 +129,15 @@ def _initialize_db(cursor: sqlite3.Cursor):
 def add_registered_user(email: str, roles: list, data: dict):
    
     #Check if user is not verified
-    if verified_email_exists(email):
-        print(f"The email ({email}) is already verified. Registered user is not added")
-        return
+    if verified_email_exists(email): print(f"The email ({email}) is already verified. Registered user is not added"); return
 
     #Check if user with that email already registerd and remove it
-    if registered_user_exists(email):
-        remove_registered_user(email)
+    if registered_user_exists(email): remove_registered_user(email)
     
     #Extract the roles from the provided role list
-    is_participant = True if 'participant' in roles else False
-    is_judge = True if 'judge' in roles else False
-    is_mentor = True if 'mentor' in roles else False
+    is_participant = 'participant' in roles
+    is_judge = 'judge' in roles
+    is_mentor = 'mentor' in roles
 
     #Add user data to the data table
     add_user_data(email, data)
