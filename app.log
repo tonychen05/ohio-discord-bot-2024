@@ -61,3 +61,1115 @@ Traceback (most recent call last):
   File "/home/zhchen/ohio-discord-bot-2024/.venv/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1187, in _get_app_command_options
     raise CommandNotFound(name, parents)
 discord.app_commands.errors.CommandNotFound: Application command 'test' not found
+2025-09-10 17:49:15,588 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 17:49:15,589 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 17:50:20,949 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 17:50:20,949 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 17:50:20,952 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 17:50:21,448 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 17:50:21,451 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 17:50:21,452 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 17:50:21,453 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 17:50:22,048 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 9bcfa15df5470ed00574fc5611af1546).
+2025-09-10 17:50:24,078 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 17:50:24,078 - MainProcess - bot - INFO - ------
+2025-09-10 18:02:58,576 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 18:02:58,576 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 18:02:58,588 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 18:02:58,994 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 18:04:09,238 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 18:04:09,238 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 18:04:09,241 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 18:04:09,725 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 18:04:09,728 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 18:04:09,736 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 18:04:09,737 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 18:04:10,456 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: a103f9072f69ee35ddeceb3eb13b9409).
+2025-09-10 18:04:12,457 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 18:04:12,458 - MainProcess - bot - INFO - ------
+2025-09-10 18:04:19,533 - MainProcess - bot - INFO - Synced 6 commands globally
+2025-09-10 18:05:09,110 - MainProcess - discord.app_commands.tree - ERROR - Ignoring exception in command 'createteam'
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 879, in _invoke_with_namespace
+    if not await self._check_can_run(interaction):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 1017, in _check_can_run
+    return await async_all(f(interaction) for f in predicates)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/utils.py", line 704, in async_all
+    for elem in gen:
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 1017, in <genexpr>
+    return await async_all(f(interaction) for f in predicates)
+                           ^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/checks.py", line 284, in predicate
+    raise MissingAnyRole(list(items))
+discord.app_commands.errors.MissingAnyRole: You are missing at least one of the required roles: '1324770690980773990' or 'Verified'
+2025-09-10 18:06:27,423 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 18:06:27,424 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 18:06:27,426 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 18:06:27,927 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 18:06:27,928 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 18:06:27,928 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 18:06:27,929 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 18:06:28,248 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 58178a2454da04705431e253dec96fbd).
+2025-09-10 18:06:30,287 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 18:06:30,287 - MainProcess - bot - INFO - ------
+2025-09-10 18:07:03,789 - MainProcess - discord.app_commands.tree - ERROR - Ignoring exception in command 'createteam'
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 879, in _invoke_with_namespace
+    if not await self._check_can_run(interaction):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 1017, in _check_can_run
+    return await async_all(f(interaction) for f in predicates)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/utils.py", line 704, in async_all
+    for elem in gen:
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 1017, in <genexpr>
+    return await async_all(f(interaction) for f in predicates)
+                           ^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/checks.py", line 284, in predicate
+    raise MissingAnyRole(list(items))
+discord.app_commands.errors.MissingAnyRole: You are missing at least one of the required roles: '1324770690980773990' or 'Verified'
+2025-09-10 18:08:38,765 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 18:08:38,765 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 18:08:38,768 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 18:08:39,297 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 18:08:39,298 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 18:08:39,298 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 18:08:39,298 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 18:08:39,672 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 3ab5fb1d5cb2c1a517b95d15e26b0271).
+2025-09-10 18:08:41,683 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 18:08:41,683 - MainProcess - bot - INFO - ------
+2025-09-10 18:08:46,911 - MainProcess - discord.app_commands.tree - ERROR - Ignoring exception in command 'createteam'
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 879, in _invoke_with_namespace
+    if not await self._check_can_run(interaction):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 1017, in _check_can_run
+    return await async_all(f(interaction) for f in predicates)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/utils.py", line 704, in async_all
+    for elem in gen:
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 1017, in <genexpr>
+    return await async_all(f(interaction) for f in predicates)
+                           ^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/checks.py", line 284, in predicate
+    raise MissingAnyRole(list(items))
+discord.app_commands.errors.MissingAnyRole: You are missing at least one of the required roles: '1324770690980773990' or 'Verified'
+2025-09-10 18:18:47,786 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 18:18:47,786 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 18:18:47,788 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 18:18:48,192 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 18:18:48,192 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 18:18:48,193 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 18:18:48,193 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 18:18:48,487 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 126a9339ca3b39da08b79075734b7ad9).
+2025-09-10 18:18:50,527 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 18:18:50,528 - MainProcess - bot - INFO - ------
+2025-09-10 18:21:46,123 - MainProcess - bot - INFO - Attempting to create team: amy by zhchen_
+2025-09-10 18:21:46,378 - MainProcess - bot - ERROR - Command 'createteam' raised an exception: AttributeError: module 'asqlite' has no attribute 'Error'
+2025-09-10 18:23:01,305 - MainProcess - bot - INFO - Attempting to create team: asdfasd by zhchen_
+2025-09-10 18:23:01,577 - MainProcess - bot - ERROR - Command 'createteam' raised an exception: AttributeError: module 'asqlite' has no attribute 'Error'
+2025-09-10 18:27:56,344 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 18:27:56,345 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 18:27:56,347 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 18:27:56,746 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 18:27:56,747 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 18:27:56,747 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 18:27:56,747 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 18:27:57,317 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: ccead1b8e395dc03086cf943ca8ee7e8).
+2025-09-10 18:27:59,347 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 18:27:59,347 - MainProcess - bot - INFO - ------
+2025-09-10 18:28:40,136 - MainProcess - bot - INFO - Attempting to create team: amy by zhchen_
+2025-09-10 18:28:40,386 - MainProcess - bot - ERROR - Command 'createteam' raised an exception: AttributeError: module 'asqlite' has no attribute 'Error'
+2025-09-10 18:33:42,509 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 18:33:42,509 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 18:33:42,515 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 18:33:43,006 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 18:33:43,007 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 18:33:43,007 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 18:33:43,007 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 18:33:43,489 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: e1d7b3b69d21fa662d6eb6986858cea3).
+2025-09-10 18:33:45,492 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 18:33:45,493 - MainProcess - bot - INFO - ------
+2025-09-10 18:33:51,202 - MainProcess - bot - INFO - Attempting to create team: am by zhchen_
+2025-09-10 18:33:51,204 - MainProcess - records - ERROR - Database error while checking if verified user exists with discord_id 282547899508850689: no such table: VERIFIED
+2025-09-10 18:35:49,089 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 18:35:49,089 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 18:35:49,115 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 18:35:49,115 - MainProcess - records - ERROR - An error occurred while creating tables: unknown column "team_id" in foreign key definition
+2025-09-10 18:39:06,505 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 18:39:06,505 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 18:39:06,516 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 18:39:06,522 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 18:39:06,525 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 18:39:06,532 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 18:39:06,964 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 18:39:06,965 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 18:39:06,966 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 18:39:06,966 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 18:39:07,334 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 42eb12e2e7d2c563dc8dd4791a47ff4a).
+2025-09-10 18:39:09,336 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 18:39:09,336 - MainProcess - bot - INFO - ------
+2025-09-10 18:39:17,078 - MainProcess - bot - INFO - Attempting to create team: amy by zhchen_
+2025-09-10 20:14:57,042 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:14:57,043 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:14:57,066 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:14:57,068 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:14:57,072 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:14:57,083 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:14:57,088 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:14:57,093 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:14:57,097 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 123456789
+2025-09-10 20:14:57,100 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:14:57,105 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:14:57,108 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 20:14:57,112 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:14:57,115 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:14:57,128 - MainProcess - records - INFO - Code 768e3fd72d5d42ec added for registrant_id 1, expiring at 2025-09-11T00:29:57.121760+00:00.
+2025-09-10 20:15:42,573 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:15:42,573 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:15:44,757 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:15:44,757 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:16:33,985 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:16:33,986 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:16:34,005 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:16:34,007 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:16:34,011 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:16:34,023 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:16:34,028 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:16:34,033 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:16:34,037 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 123456789
+2025-09-10 20:16:34,040 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:16:34,044 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:16:34,047 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 20:16:34,051 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:16:34,054 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:16:34,066 - MainProcess - records - INFO - Code 33ff3268f2024c78 added for registrant_id 1, expiring at 2025-09-11T00:31:34.060746+00:00.
+2025-09-10 20:17:06,545 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:17:06,545 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:17:06,560 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:17:06,563 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:17:06,566 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:17:06,577 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:17:06,583 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:17:06,587 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:17:06,591 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 123456789
+2025-09-10 20:17:06,594 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:17:06,598 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:17:06,601 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 20:17:06,605 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:17:06,608 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:17:06,621 - MainProcess - records - INFO - Code 84819fa14ad9cf3c added for registrant_id 1, expiring at 2025-09-11T00:32:06.615026+00:00.
+2025-09-10 20:17:06,626 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:17:07,627 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:17:07,629 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:17:07,630 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:17:07,630 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:17:08,292 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: ab1f175176c486e4b0827813e33101a0).
+2025-09-10 20:17:10,295 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:17:10,295 - MainProcess - bot - INFO - ------
+2025-09-10 20:17:48,865 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 84819fa14ad9cf3c
+2025-09-10 20:18:38,091 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:18:38,091 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:18:38,119 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:18:38,121 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:18:38,127 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:18:38,145 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:18:38,152 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:18:38,158 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:18:38,164 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 123456789
+2025-09-10 20:18:38,169 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:18:38,175 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:18:38,180 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 20:18:38,185 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:18:38,188 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:18:38,206 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T00:33:38.196801+00:00.
+2025-09-10 20:18:38,215 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:18:38,657 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:18:38,658 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:18:38,658 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:18:38,658 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:18:38,979 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 910a074b65d7d619a023a207076d9c08).
+2025-09-10 20:18:41,009 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:18:41,009 - MainProcess - bot - INFO - ------
+2025-09-10 20:18:50,013 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:18:50,162 - MainProcess - bot - ERROR - Command 'verify' raised an exception: TypeError: verify_code() missing 1 required positional argument: 'discord_id'
+2025-09-10 20:19:57,269 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:19:57,269 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:19:57,294 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:19:57,297 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:19:57,300 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:19:57,312 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:19:57,317 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:19:57,321 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:19:57,325 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 123456789
+2025-09-10 20:19:57,328 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:19:57,332 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:19:57,335 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 20:19:57,339 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:19:57,342 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:19:57,356 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T00:34:57.348465+00:00.
+2025-09-10 20:19:57,362 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:19:57,883 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:19:57,884 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:19:57,884 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:19:57,884 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:19:58,191 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 20fa6dd4bb3e222b7547849f9351293d).
+2025-09-10 20:20:00,666 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:20:00,666 - MainProcess - bot - INFO - ------
+2025-09-10 20:20:05,212 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:20:30,086 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:20:30,087 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:20:30,104 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:20:30,107 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:20:30,111 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:20:30,123 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:20:30,129 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:20:30,133 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:20:30,138 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 123456789
+2025-09-10 20:20:30,142 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:20:30,146 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:20:30,149 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 20:20:30,154 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:20:30,157 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:20:30,171 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T00:35:30.164741+00:00.
+2025-09-10 20:20:30,177 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:20:31,032 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:20:31,033 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:20:31,034 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:20:31,034 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:20:31,387 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: bd70728f36aacf1cb8edc13c9e1340c7).
+2025-09-10 20:20:33,902 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:20:33,902 - MainProcess - bot - INFO - ------
+2025-09-10 20:20:41,751 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:20:41,752 - MainProcess - records - WARNING - Code 123456 is invalid or expired for discord_id 282547899508850689.
+2025-09-10 20:22:02,688 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:22:02,689 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:22:02,714 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:22:02,716 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:22:02,720 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:22:02,732 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:22:02,737 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:22:02,741 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:22:02,746 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:22:02,749 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:22:02,753 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:22:02,756 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 20:22:02,760 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:22:02,763 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:22:02,776 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T00:37:02.770352+00:00.
+2025-09-10 20:22:02,782 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:22:03,269 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:22:03,270 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:22:03,270 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:22:03,270 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:22:03,568 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 331b7f06f8b17c639b7d257cf7fb738a).
+2025-09-10 20:22:05,571 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:22:05,572 - MainProcess - bot - INFO - ------
+2025-09-10 20:22:12,804 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:22:12,814 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:22:33,337 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:22:33,338 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:22:33,362 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:22:33,365 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:22:33,368 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:22:33,379 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:22:33,385 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:22:33,389 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:22:33,393 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:22:33,397 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:22:33,400 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:22:33,403 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 20:22:33,407 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:22:33,410 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:22:33,423 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T00:37:33.416472+00:00.
+2025-09-10 20:22:33,428 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:22:33,922 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:22:33,923 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:22:33,923 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:22:33,923 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:22:34,349 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 0add3a8d7a6d46ed0bbbf13c49feadde).
+2025-09-10 20:22:36,351 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:22:36,351 - MainProcess - bot - INFO - ------
+2025-09-10 20:22:40,097 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:22:40,113 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:22:58,343 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:22:58,343 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:22:58,376 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:22:58,381 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:22:58,386 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:22:58,403 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:22:58,410 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:22:58,416 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:22:58,421 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:22:58,424 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:22:58,428 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:22:58,434 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 20:22:58,440 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:22:58,445 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:22:58,461 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T00:37:58.454360+00:00.
+2025-09-10 20:22:58,466 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:22:59,037 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:22:59,038 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:22:59,038 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:22:59,039 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:22:59,388 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 3e85c0ae0f969e81843d1523a92b87c6).
+2025-09-10 20:23:01,391 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:23:01,391 - MainProcess - bot - INFO - ------
+2025-09-10 20:23:25,474 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:23:25,484 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:23:25,490 - MainProcess - records - INFO - Discord ID for user with registrant_id None updated to 282547899508850689
+2025-09-10 20:23:25,491 - MainProcess - records - ERROR - Database error while adding verified user with discord_id 282547899508850689: NOT NULL constraint failed: VERIFIED.registrant_id
+2025-09-10 20:23:25,817 - MainProcess - bot - ERROR - Command 'verify' raised an exception: TypeError: 'NoneType' object is not subscriptable
+2025-09-10 20:23:35,633 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:23:35,634 - MainProcess - records - WARNING - Code 123456 is invalid or expired for discord_id 282547899508850689.
+2025-09-10 20:24:50,058 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:24:50,058 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:24:50,089 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:24:50,093 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:24:50,098 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:24:50,116 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:24:50,123 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:24:50,129 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:24:50,132 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:24:50,137 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:24:50,142 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:24:50,148 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 20:24:50,153 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:24:50,158 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:24:50,176 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T00:39:50.166928+00:00.
+2025-09-10 20:24:50,184 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:24:50,683 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:24:50,684 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:24:50,684 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:24:50,685 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:24:51,215 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 338822e0c35e452bf7d46aa248c32d42).
+2025-09-10 20:24:53,217 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:24:53,218 - MainProcess - bot - INFO - ------
+2025-09-10 20:24:58,278 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:24:58,288 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:24:58,292 - MainProcess - records - INFO - Discord ID for user with registrant_id None updated to 282547899508850689
+2025-09-10 20:24:58,293 - MainProcess - records - ERROR - Database error while adding verified user with discord_id 282547899508850689: NOT NULL constraint failed: VERIFIED.registrant_id
+2025-09-10 20:24:58,522 - MainProcess - bot - ERROR - Command 'verify' raised an exception: AttributeError: module 'core.records' has no attribute 'get_user_email_by_id'
+2025-09-10 20:27:53,802 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:27:53,803 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:27:53,825 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:27:53,829 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:27:53,834 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:27:53,851 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:27:53,856 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:27:53,860 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:27:53,865 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:27:53,871 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:27:53,876 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:27:53,881 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 20:27:53,887 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:27:53,892 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:27:53,919 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T00:42:53.910797+00:00.
+2025-09-10 20:27:53,928 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:27:54,707 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:27:54,708 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:27:54,709 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:27:54,709 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:27:55,077 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 20451aa4128a8f31c2769d93ee3b23bb).
+2025-09-10 20:27:57,080 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:27:57,080 - MainProcess - bot - INFO - ------
+2025-09-10 20:28:03,620 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:28:03,639 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:28:03,644 - MainProcess - records - INFO - Discord ID for user with registrant_id None updated to 282547899508850689
+2025-09-10 20:28:03,645 - MainProcess - records - ERROR - Database error while adding verified user with discord_id 282547899508850689: NOT NULL constraint failed: VERIFIED.registrant_id
+2025-09-10 20:28:03,646 - MainProcess - records - ERROR - Unexpected error while fetching roles for user with email None: 'NoneType' object is not subscriptable
+2025-09-10 20:28:03,866 - MainProcess - bot - ERROR - Command 'verify' raised an exception: AttributeError: 'NoneType' object has no attribute 'id'
+2025-09-10 20:32:14,328 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:32:14,328 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:32:14,349 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:32:14,352 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:32:14,357 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:32:14,375 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:32:14,380 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:32:14,384 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:32:14,390 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:32:14,394 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:32:14,400 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:32:14,405 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:32:14,410 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:32:14,424 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T00:47:14.416395+00:00.
+2025-09-10 20:32:14,431 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:32:14,945 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:32:14,946 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:32:14,947 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:32:14,947 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:32:15,247 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 9c895cdfd31e8b1d82fc497fab1d15da).
+2025-09-10 20:32:17,262 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:32:17,262 - MainProcess - bot - INFO - ------
+2025-09-10 20:32:22,872 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:32:22,883 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:32:22,889 - MainProcess - records - INFO - Discord ID for user with registrant_id None updated to 282547899508850689
+2025-09-10 20:32:22,890 - MainProcess - records - ERROR - Database error while adding verified user with discord_id 282547899508850689: NOT NULL constraint failed: VERIFIED.registrant_id
+2025-09-10 20:32:22,891 - MainProcess - records - ERROR - Unexpected error while fetching roles for user with email None: 'NoneType' object is not subscriptable
+2025-09-10 20:32:23,063 - MainProcess - bot - ERROR - Command 'verify' raised an exception: AttributeError: 'NoneType' object has no attribute 'id'
+2025-09-10 20:35:52,065 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:35:52,065 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:35:52,090 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:35:52,094 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:35:52,096 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:35:52,109 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:35:52,113 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:35:52,118 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:35:52,121 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:35:52,125 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:35:52,128 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:35:52,132 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:35:52,135 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:35:52,147 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T00:50:52.141388+00:00.
+2025-09-10 20:35:52,152 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:35:52,933 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:35:52,933 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:35:52,934 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:35:52,934 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:35:53,206 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: dadff9d3215bf9fc29ff6e8315eae3d3).
+2025-09-10 20:35:55,215 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:35:55,215 - MainProcess - bot - INFO - ------
+2025-09-10 20:35:58,760 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:35:58,777 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:35:58,950 - MainProcess - records - INFO - Discord ID for user with registrant_id None updated to 282547899508850689
+2025-09-10 20:35:58,950 - MainProcess - records - ERROR - Database error while adding verified user with discord_id 282547899508850689: NOT NULL constraint failed: VERIFIED.registrant_id
+2025-09-10 20:35:58,951 - MainProcess - records - ERROR - Unexpected error while fetching roles for user with email None: 'NoneType' object is not subscriptable
+2025-09-10 20:35:58,952 - MainProcess - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='CommandTree-invoker' coro=<CommandTree._from_interaction.<locals>.wrapper() done, defined at /home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py:1149> exception=InteractionResponded('This interaction has already been responded to before')>
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 857, in _do_call
+    return await self._callback(self.binding, interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/cogs/verify.py", line 172, in verify
+    await self.verify_user(interaction, registrant_id)
+  File "/home/zhchen/ohio-discord-bot-2024/cogs/verify.py", line 98, in verify_user
+    await interaction.user.add_roles(*[discord.utils.get(interaction.guild.roles, id=self.role_map[role]) for role in roles if role in self.role_map])
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'verify' raised an exception: AttributeError: 'NoneType' object has no attribute 'id'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1314, in _call
+    await self.on_error(interaction, e)
+  File "/home/zhchen/ohio-discord-bot-2024/core/bot.py", line 35, in on_app_command_error
+    await interaction.response.send_message(
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/interactions.py", line 827, in send_message
+    raise InteractionResponded(self._parent)
+discord.errors.InteractionResponded: This interaction has already been responded to before
+2025-09-10 20:37:59,447 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:37:59,447 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:37:59,464 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:37:59,466 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:37:59,470 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:37:59,481 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:37:59,486 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:37:59,491 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:37:59,495 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:37:59,498 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:37:59,502 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:37:59,505 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:37:59,509 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:37:59,522 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T00:52:59.516375+00:00.
+2025-09-10 20:37:59,527 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:38:00,172 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:38:00,173 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:38:00,174 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:38:00,174 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:38:01,147 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: a3a83170e33ea0311c37b93e93f1bdc4).
+2025-09-10 20:38:03,150 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:38:03,150 - MainProcess - bot - INFO - ------
+2025-09-10 20:38:09,377 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:38:09,394 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:38:09,539 - MainProcess - records - INFO - Discord ID for user with registrant_id None updated to 282547899508850689
+2025-09-10 20:38:09,540 - MainProcess - records - ERROR - Database error while adding verified user with discord_id 282547899508850689: NOT NULL constraint failed: VERIFIED.registrant_id
+2025-09-10 20:38:09,541 - MainProcess - records - ERROR - Unexpected error while fetching roles for user with email None: 'NoneType' object is not subscriptable
+2025-09-10 20:38:09,541 - MainProcess - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='CommandTree-invoker' coro=<CommandTree._from_interaction.<locals>.wrapper() done, defined at /home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py:1149> exception=InteractionResponded('This interaction has already been responded to before')>
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 857, in _do_call
+    return await self._callback(self.binding, interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/cogs/verify.py", line 173, in verify
+    await self.verify_user(interaction, registrant_id)
+  File "/home/zhchen/ohio-discord-bot-2024/cogs/verify.py", line 99, in verify_user
+    await interaction.user.add_roles(*[discord.utils.get(interaction.guild.roles, id=self.role_map[role]) for role in roles if role in self.role_map])
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'verify' raised an exception: AttributeError: 'NoneType' object has no attribute 'id'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1314, in _call
+    await self.on_error(interaction, e)
+  File "/home/zhchen/ohio-discord-bot-2024/core/bot.py", line 35, in on_app_command_error
+    await interaction.response.send_message(
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/interactions.py", line 827, in send_message
+    raise InteractionResponded(self._parent)
+discord.errors.InteractionResponded: This interaction has already been responded to before
+2025-09-10 20:40:54,788 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:40:54,789 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:40:54,813 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:40:54,817 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:40:54,821 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:40:54,834 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:40:54,839 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:40:54,844 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:40:54,847 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:40:54,851 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:40:54,855 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:40:54,859 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:40:54,862 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:40:54,874 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T00:55:54.868405+00:00.
+2025-09-10 20:40:54,879 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:40:55,381 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:40:55,382 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:40:55,383 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:40:55,383 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:40:55,709 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 74a322cc291b44b888074c0daf8c300e).
+2025-09-10 20:40:57,717 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:40:57,718 - MainProcess - bot - INFO - ------
+2025-09-10 20:41:07,247 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:41:07,254 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:41:07,424 - MainProcess - records - ERROR - Unexpected error while fetching registrant_id for code 123456: 'NoneType' object is not subscriptable
+2025-09-10 20:41:07,424 - MainProcess - records - INFO - Discord ID for user with registrant_id None updated to 282547899508850689
+2025-09-10 20:41:07,425 - MainProcess - records - ERROR - Database error while adding verified user with discord_id 282547899508850689: NOT NULL constraint failed: VERIFIED.registrant_id
+2025-09-10 20:41:07,426 - MainProcess - records - ERROR - Unexpected error while fetching roles for user with email None: 'NoneType' object is not subscriptable
+2025-09-10 20:41:07,426 - MainProcess - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='CommandTree-invoker' coro=<CommandTree._from_interaction.<locals>.wrapper() done, defined at /home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py:1149> exception=InteractionResponded('This interaction has already been responded to before')>
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 857, in _do_call
+    return await self._callback(self.binding, interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/cogs/verify.py", line 173, in verify
+    await self.verify_user(interaction, registrant_id)
+  File "/home/zhchen/ohio-discord-bot-2024/cogs/verify.py", line 99, in verify_user
+    await interaction.user.add_roles(*[discord.utils.get(interaction.guild.roles, id=self.role_map[role]) for role in roles if role in self.role_map])
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'verify' raised an exception: AttributeError: 'NoneType' object has no attribute 'id'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1314, in _call
+    await self.on_error(interaction, e)
+  File "/home/zhchen/ohio-discord-bot-2024/core/bot.py", line 35, in on_app_command_error
+    await interaction.response.send_message(
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/interactions.py", line 827, in send_message
+    raise InteractionResponded(self._parent)
+discord.errors.InteractionResponded: This interaction has already been responded to before
+2025-09-10 20:43:46,188 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:43:46,189 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:43:46,223 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:43:46,227 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:43:46,232 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:43:46,243 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:43:46,250 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:43:46,256 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:43:46,262 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:43:46,268 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:43:46,273 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:43:46,279 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:43:46,284 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:43:46,302 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T00:58:46.294264+00:00.
+2025-09-10 20:43:46,306 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:43:46,794 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:43:46,795 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:43:46,796 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:43:46,796 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:43:47,071 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 56548344586b6c8311693a4b1f07c718).
+2025-09-10 20:43:49,075 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:43:49,075 - MainProcess - bot - INFO - ------
+2025-09-10 20:43:56,643 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:43:56,663 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:43:56,809 - MainProcess - records - ERROR - Unexpected error while fetching registrant_id for code 123456: 'NoneType' object is not subscriptable
+2025-09-10 20:43:56,810 - MainProcess - records - INFO - Discord ID for user with registrant_id None updated to 282547899508850689
+2025-09-10 20:43:56,811 - MainProcess - records - ERROR - Database error while adding verified user with discord_id 282547899508850689: NOT NULL constraint failed: VERIFIED.registrant_id
+2025-09-10 20:43:56,812 - MainProcess - records - ERROR - Unexpected error while fetching roles for user with email None: 'NoneType' object is not subscriptable
+2025-09-10 20:43:56,812 - MainProcess - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='CommandTree-invoker' coro=<CommandTree._from_interaction.<locals>.wrapper() done, defined at /home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py:1149> exception=InteractionResponded('This interaction has already been responded to before')>
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 857, in _do_call
+    return await self._callback(self.binding, interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/cogs/verify.py", line 173, in verify
+    await self.verify_user(interaction, registrant_id)
+  File "/home/zhchen/ohio-discord-bot-2024/cogs/verify.py", line 99, in verify_user
+    await interaction.user.add_roles(*[discord.utils.get(interaction.guild.roles, id=self.role_map[role]) for role in roles if role in self.role_map])
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'verify' raised an exception: AttributeError: 'NoneType' object has no attribute 'id'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1314, in _call
+    await self.on_error(interaction, e)
+  File "/home/zhchen/ohio-discord-bot-2024/core/bot.py", line 35, in on_app_command_error
+    await interaction.response.send_message(
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/interactions.py", line 827, in send_message
+    raise InteractionResponded(self._parent)
+discord.errors.InteractionResponded: This interaction has already been responded to before
+2025-09-10 20:45:20,789 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:45:20,789 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:45:20,813 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:45:20,817 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:45:20,819 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:45:20,833 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:45:20,838 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:45:20,843 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:45:20,846 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:45:20,850 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:45:20,853 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:45:20,857 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:45:20,860 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:45:20,873 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T01:00:20.867044+00:00.
+2025-09-10 20:45:20,878 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:45:21,405 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:45:21,406 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:45:21,406 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:45:21,407 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:45:21,866 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: b356449ac77d9d9059e7ce5b6a931b22).
+2025-09-10 20:45:23,869 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:45:23,869 - MainProcess - bot - INFO - ------
+2025-09-10 20:45:50,771 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:45:50,787 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:45:51,013 - MainProcess - records - ERROR - Unexpected error while fetching registrant_id for code 123456: 'NoneType' object is not subscriptable
+2025-09-10 20:45:51,014 - MainProcess - records - INFO - Discord ID for user with registrant_id None updated to 282547899508850689
+2025-09-10 20:45:51,014 - MainProcess - records - ERROR - Database error while adding verified user with discord_id 282547899508850689: NOT NULL constraint failed: VERIFIED.registrant_id
+2025-09-10 20:45:51,016 - MainProcess - records - ERROR - Unexpected error while fetching roles for user with email None: 'NoneType' object is not subscriptable
+2025-09-10 20:45:51,016 - MainProcess - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='CommandTree-invoker' coro=<CommandTree._from_interaction.<locals>.wrapper() done, defined at /home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py:1149> exception=InteractionResponded('This interaction has already been responded to before')>
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 857, in _do_call
+    return await self._callback(self.binding, interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/cogs/verify.py", line 173, in verify
+    await self.verify_user(interaction, registrant_id)
+  File "/home/zhchen/ohio-discord-bot-2024/cogs/verify.py", line 99, in verify_user
+    await interaction.user.add_roles(*[discord.utils.get(interaction.guild.roles, id=self.role_map[role]) for role in roles if role in self.role_map])
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'verify' raised an exception: AttributeError: 'NoneType' object has no attribute 'id'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1151, in wrapper
+    await self._call(interaction)
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1314, in _call
+    await self.on_error(interaction, e)
+  File "/home/zhchen/ohio-discord-bot-2024/core/bot.py", line 35, in on_app_command_error
+    await interaction.response.send_message(
+  File "/home/zhchen/ohio-discord-bot-2024/.desktop/lib/python3.12/site-packages/discord/interactions.py", line 827, in send_message
+    raise InteractionResponded(self._parent)
+discord.errors.InteractionResponded: This interaction has already been responded to before
+2025-09-10 20:46:54,445 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:46:54,445 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:46:54,474 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:46:54,478 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:46:54,483 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:46:54,499 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:46:54,504 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:46:54,509 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:46:54,515 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:46:54,520 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:46:54,526 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:46:54,531 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:46:54,535 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:46:54,550 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T01:01:54.542101+00:00.
+2025-09-10 20:46:54,558 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:46:55,013 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:46:55,014 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:46:55,014 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:46:55,015 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:46:55,364 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 59144e0ac5772531af5015b4ab0dc34d).
+2025-09-10 20:46:57,367 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:46:57,367 - MainProcess - bot - INFO - ------
+2025-09-10 20:47:05,209 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:47:05,220 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:47:05,224 - MainProcess - records - ERROR - Unexpected error while fetching registrant_id for code 123456: 'NoneType' object is not subscriptable
+2025-09-10 20:47:05,225 - MainProcess - records - INFO - Discord ID for user with registrant_id None updated to 282547899508850689
+2025-09-10 20:47:05,226 - MainProcess - records - ERROR - Database error while adding verified user with discord_id 282547899508850689: NOT NULL constraint failed: VERIFIED.registrant_id
+2025-09-10 20:47:05,227 - MainProcess - records - ERROR - Unexpected error while fetching roles for user with email None: 'NoneType' object is not subscriptable
+2025-09-10 20:47:05,451 - MainProcess - bot - ERROR - Command 'verify' raised an exception: AttributeError: 'NoneType' object has no attribute 'id'
+2025-09-10 20:48:51,815 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:48:51,815 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:48:51,837 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:48:51,840 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:48:51,843 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:48:51,855 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:48:51,861 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:48:51,865 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:48:51,869 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:48:51,873 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:48:51,877 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:48:51,880 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:48:51,885 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:48:51,899 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T01:03:51.892079+00:00.
+2025-09-10 20:48:51,903 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:48:52,360 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:48:52,362 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:48:52,363 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:48:52,363 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:48:52,681 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: ead5399afdde844fc912573a8f786f46).
+2025-09-10 20:48:54,683 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:48:54,684 - MainProcess - bot - INFO - ------
+2025-09-10 20:49:05,188 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:49:05,195 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:49:05,197 - MainProcess - records - ERROR - Unexpected error while fetching registrant_id for code 123456: 'NoneType' object is not subscriptable
+2025-09-10 20:49:05,198 - MainProcess - records - INFO - Discord ID for user with registrant_id None updated to 282547899508850689
+2025-09-10 20:49:05,200 - MainProcess - records - ERROR - Database error while adding verified user with discord_id 282547899508850689: NOT NULL constraint failed: VERIFIED.registrant_id
+2025-09-10 20:49:05,203 - MainProcess - records - ERROR - Unexpected error while fetching roles for user with email None: 'NoneType' object is not subscriptable
+2025-09-10 20:49:05,372 - MainProcess - bot - ERROR - Command 'verify' raised an exception: AttributeError: 'NoneType' object has no attribute 'id'
+2025-09-10 20:51:24,576 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:51:24,576 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:51:24,604 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:51:24,608 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:51:24,613 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:51:24,628 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:51:24,633 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:51:24,640 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:51:24,646 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:51:24,651 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:51:24,657 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:51:24,662 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:51:24,668 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:51:24,682 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T01:06:24.675329+00:00.
+2025-09-10 20:51:24,690 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:51:25,125 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:51:25,126 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:51:25,126 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:51:25,127 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:51:25,465 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 5819328606397ff1d48137dcce6125fe).
+2025-09-10 20:51:27,467 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:51:27,467 - MainProcess - bot - INFO - ------
+2025-09-10 20:51:31,083 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:51:31,099 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:51:31,102 - MainProcess - records - ERROR - Unexpected error while fetching registrant_id for code 123456: 'NoneType' object is not subscriptable
+2025-09-10 20:51:31,103 - MainProcess - records - INFO - Discord ID for user with registrant_id None updated to 282547899508850689
+2025-09-10 20:51:31,103 - MainProcess - records - ERROR - Database error while adding verified user with discord_id 282547899508850689: NOT NULL constraint failed: VERIFIED.registrant_id
+2025-09-10 20:51:31,105 - MainProcess - records - ERROR - Unexpected error while fetching roles for user with email None: 'NoneType' object is not subscriptable
+2025-09-10 20:51:31,276 - MainProcess - bot - ERROR - Command 'verify' raised an exception: AttributeError: 'NoneType' object has no attribute 'id'
+2025-09-10 20:52:35,120 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:52:35,120 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:52:35,147 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:52:35,149 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:52:35,153 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:52:35,164 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:52:35,169 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:52:35,173 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:52:35,177 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:52:35,180 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:52:35,184 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:52:35,187 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:52:35,191 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:52:35,204 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T01:07:35.197768+00:00.
+2025-09-10 20:52:35,208 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:52:35,786 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:52:35,787 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:52:35,787 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:52:35,787 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:52:36,070 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 48d98d0fea7a8a11fcf57ca43ad2d158).
+2025-09-10 20:52:38,074 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:52:38,074 - MainProcess - bot - INFO - ------
+2025-09-10 20:52:40,276 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:52:40,284 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:52:40,287 - MainProcess - records - ERROR - Unexpected error in test_records.db while fetching registrant_id for code 123456: 'NoneType' object is not subscriptable
+2025-09-10 20:52:40,288 - MainProcess - records - INFO - Discord ID for user with registrant_id None updated to 282547899508850689
+2025-09-10 20:52:40,288 - MainProcess - records - ERROR - Database error while adding verified user with discord_id 282547899508850689: NOT NULL constraint failed: VERIFIED.registrant_id
+2025-09-10 20:52:40,290 - MainProcess - records - ERROR - Unexpected error while fetching roles for user with email None: 'NoneType' object is not subscriptable
+2025-09-10 20:52:40,527 - MainProcess - bot - ERROR - Command 'verify' raised an exception: AttributeError: 'NoneType' object has no attribute 'id'
+2025-09-10 20:56:47,940 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:56:47,941 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:56:47,969 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:56:47,974 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:56:47,979 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:56:47,992 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:56:47,999 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:56:48,005 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:56:48,010 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:56:48,016 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:56:48,020 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:56:48,023 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:56:48,027 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:56:48,047 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T01:11:48.037768+00:00.
+2025-09-10 20:56:48,054 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:56:48,593 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:56:48,594 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:56:48,595 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:56:48,595 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:56:48,877 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 78afa1ee05f6ee015cd8061d2efd3403).
+2025-09-10 20:56:50,889 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:56:50,889 - MainProcess - bot - INFO - ------
+2025-09-10 20:56:56,022 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:56:56,023 - MainProcess - records - INFO - Fetched registrant_id 1 for code 123456.
+2025-09-10 20:56:56,034 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:56:56,038 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:56:56,045 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 20:56:56,282 - MainProcess - bot - ERROR - Command 'verify' raised an exception: AttributeError: 'NoneType' object has no attribute 'id'
+2025-09-10 20:58:39,597 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:58:39,597 - MainProcess - records - WARNING - Code 123456 is invalid or expired for discord_id 282547899508850689.
+2025-09-10 20:58:46,326 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 20:58:46,326 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 20:58:46,352 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 20:58:46,355 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 20:58:46,358 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 20:58:46,370 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 20:58:46,375 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 20:58:46,379 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 20:58:46,384 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:58:46,387 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 20:58:46,391 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 20:58:46,395 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 20:58:46,399 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 20:58:46,412 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T01:13:46.405904+00:00.
+2025-09-10 20:58:46,416 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 20:58:47,001 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 20:58:47,002 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 20:58:47,003 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 20:58:47,003 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 20:58:47,393 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 76d5e59e390600e597cc8bc94e14e311).
+2025-09-10 20:58:50,039 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 20:58:50,040 - MainProcess - bot - INFO - ------
+2025-09-10 20:58:54,444 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 20:58:54,445 - MainProcess - records - INFO - Fetched registrant_id 1 for code 123456.
+2025-09-10 20:58:54,460 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 20:58:54,463 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 20:58:54,470 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 20:58:54,713 - MainProcess - bot - INFO - User zhchen_ (ID: 282547899508850689) has been verified and assigned roles: participant, Verified.
+2025-09-10 21:00:13,744 - MainProcess - bot - INFO - Attempting to create team: amy by zhchen_
+2025-09-10 21:01:17,145 - MainProcess - bot - ERROR - Command 'leaveteam' raised an exception: TypeError: 'coroutine' object is not subscriptable
+2025-09-10 21:04:41,243 - MainProcess - bot - ERROR - Command 'leaveteam' raised an exception: TypeError: 'coroutine' object is not subscriptable
+2025-09-10 21:04:52,675 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 21:04:52,675 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 21:04:52,694 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 21:04:52,697 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 21:04:52,701 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 21:04:52,712 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 21:04:52,718 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 21:04:52,722 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 21:04:52,726 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 21:04:52,729 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 21:04:52,733 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 21:04:52,737 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 21:04:52,741 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 21:04:52,753 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T01:19:52.747425+00:00.
+2025-09-10 21:04:52,758 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 21:04:53,217 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 21:04:53,219 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 21:04:53,219 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 21:04:53,220 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 21:04:53,544 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 9fc2ac80993973127ce434fc8f0a6281).
+2025-09-10 21:04:55,568 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 21:04:55,568 - MainProcess - bot - INFO - ------
+2025-09-10 21:05:00,349 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 21:05:00,360 - MainProcess - records - INFO - Fetched registrant_id 1 for code 123456.
+2025-09-10 21:05:00,367 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 21:05:00,370 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 21:05:00,376 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 21:05:00,585 - MainProcess - bot - ERROR - Command 'verify' raised an exception: AttributeError: 'int' object has no attribute 'id'
+2025-09-10 21:05:59,327 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 21:05:59,327 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 21:05:59,346 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 21:05:59,350 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 21:05:59,355 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 21:05:59,368 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 21:05:59,374 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 21:05:59,378 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 21:05:59,384 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 21:05:59,387 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 21:05:59,391 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 21:05:59,394 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 21:05:59,399 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 21:05:59,413 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T01:20:59.406000+00:00.
+2025-09-10 21:05:59,418 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 21:05:59,974 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 21:05:59,975 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 21:05:59,976 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 21:05:59,976 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 21:06:00,439 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 48cf8829beff5489ecd7ee28bc9d5d1a).
+2025-09-10 21:06:02,443 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 21:06:02,443 - MainProcess - bot - INFO - ------
+2025-09-10 21:06:11,844 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 21:06:11,845 - MainProcess - records - INFO - Fetched registrant_id 1 for code 123456.
+2025-09-10 21:06:11,860 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 21:06:11,862 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 21:06:11,870 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 21:06:12,082 - MainProcess - bot - INFO - User zhchen_ (ID: 282547899508850689) has been verified and assigned roles: participant, verified.
+2025-09-10 21:06:44,147 - MainProcess - bot - ERROR - Command 'leaveteam' raised an exception: TypeError: 'coroutine' object is not subscriptable
+2025-09-10 21:07:33,853 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 21:07:33,853 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 21:07:33,870 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 21:07:33,872 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 21:07:33,876 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 21:07:33,887 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 21:07:33,892 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 21:07:33,896 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 21:07:33,901 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 21:07:33,904 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 21:07:33,908 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 21:07:33,911 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 21:07:33,915 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 21:07:33,927 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T01:22:33.921855+00:00.
+2025-09-10 21:07:33,932 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 21:07:34,959 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 21:07:34,962 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 21:07:34,963 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 21:07:34,963 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 21:07:35,302 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 8889a2a4d1c92a3cd6ed5939c75e0726).
+2025-09-10 21:07:37,305 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 21:07:37,305 - MainProcess - bot - INFO - ------
+2025-09-10 21:07:39,326 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 21:07:39,328 - MainProcess - records - INFO - Fetched registrant_id 1 for code 123456.
+2025-09-10 21:07:39,335 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 21:07:39,338 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 21:07:39,344 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 21:07:39,561 - MainProcess - bot - INFO - User zhchen_ (ID: 282547899508850689) has been verified and assigned roles: participant, verified.
+2025-09-10 21:07:41,758 - MainProcess - records - INFO - User with discord_id 282547899508850689 has been removed from their team.
+2025-09-10 21:07:41,906 - MainProcess - bot - ERROR - Command 'leaveteam' raised an exception: AttributeError: 'NoneType' object has no attribute 'id'
+2025-09-10 21:08:22,847 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 21:08:22,847 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 21:08:22,872 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 21:08:22,875 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 21:08:22,878 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 21:08:22,890 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 21:08:22,896 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 21:08:22,900 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 21:08:22,904 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 21:08:22,907 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 21:08:22,911 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 21:08:22,914 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 21:08:22,918 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 21:08:22,930 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T01:23:22.924030+00:00.
+2025-09-10 21:08:22,935 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 21:08:23,361 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 21:08:23,363 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 21:08:23,363 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 21:08:23,364 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 21:08:23,686 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: be4c337c6b004a14dc04f02be9aaf289).
+2025-09-10 21:08:25,695 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 21:08:25,695 - MainProcess - bot - INFO - ------
+2025-09-10 21:08:31,159 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 21:08:31,160 - MainProcess - records - INFO - Fetched registrant_id 1 for code 123456.
+2025-09-10 21:08:31,175 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 21:08:31,178 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 21:08:31,185 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 21:08:31,343 - MainProcess - bot - INFO - User zhchen_ (ID: 282547899508850689) has been verified and assigned roles: participant, verified.
+2025-09-10 21:08:33,599 - MainProcess - records - INFO - User with discord_id 282547899508850689 has been removed from their team.
+2025-09-10 21:08:33,741 - MainProcess - bot - ERROR - Command 'leaveteam' raised an exception: AttributeError: 'NoneType' object has no attribute 'id'
+2025-09-10 21:09:10,688 - MainProcess - root - INFO - Logging configured successfully.
+2025-09-10 21:09:10,689 - MainProcess - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-09-10 21:09:10,713 - MainProcess - records - INFO - REGISTRANT table created successfully.
+2025-09-10 21:09:10,716 - MainProcess - records - INFO - TEAM table created successfully.
+2025-09-10 21:09:10,719 - MainProcess - records - INFO - VERIFIED table created successfully.
+2025-09-10 21:09:10,731 - MainProcess - records - INFO - User with email me@example.com added to REGISTRANT with roles ['participant']
+2025-09-10 21:09:10,736 - MainProcess - records - INFO - User with email alice@example.com added to REGISTRANT with roles ['judge']
+2025-09-10 21:09:10,740 - MainProcess - records - INFO - User with email bob@example.com added to REGISTRANT with roles ['mentor']
+2025-09-10 21:09:10,745 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 21:09:10,748 - MainProcess - records - INFO - Discord ID for user with registrant_id 2 updated to 987654321
+2025-09-10 21:09:10,752 - MainProcess - records - INFO - Discord ID for user with registrant_id 3 updated to 456789123
+2025-09-10 21:09:10,755 - MainProcess - records - INFO - User with discord_id 987654321 added to VERIFIED
+2025-09-10 21:09:10,759 - MainProcess - records - INFO - User with discord_id 456789123 added to VERIFIED
+2025-09-10 21:09:10,772 - MainProcess - records - INFO - Code 123456 added for registrant_id 1, expiring at 2025-09-11T01:24:10.765437+00:00.
+2025-09-10 21:09:10,776 - MainProcess - discord.client - INFO - logging in using static token
+2025-09-10 21:09:11,200 - MainProcess - bot - INFO - VerifyCog initialized with Super-Bot#7059
+2025-09-10 21:09:11,202 - MainProcess - bot - INFO - TeamsCog initialized with Super-Bot#7059
+2025-09-10 21:09:11,202 - MainProcess - bot - INFO - FunCog initialized with Super-Bot#7059
+2025-09-10 21:09:11,203 - MainProcess - bot - INFO - AdminCog initialized with Super-Bot#7059
+2025-09-10 21:09:11,513 - MainProcess - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: c2ca034853d2c38414e9a493c0908bf3).
+2025-09-10 21:09:14,163 - MainProcess - bot - INFO - Logged in as Super-Bot#7059 (ID: 320288328639578113)
+2025-09-10 21:09:14,163 - MainProcess - bot - INFO - ------
+2025-09-10 21:09:17,947 - MainProcess - bot - INFO - Verification attempt by zhchen_ (ID: 282547899508850689) with input: 123456
+2025-09-10 21:09:17,948 - MainProcess - records - INFO - Fetched registrant_id 1 for code 123456.
+2025-09-10 21:09:17,956 - MainProcess - records - INFO - Code 123456 verified for discord_id 282547899508850689.
+2025-09-10 21:09:17,958 - MainProcess - records - INFO - Discord ID for user with registrant_id 1 updated to 282547899508850689
+2025-09-10 21:09:17,966 - MainProcess - records - INFO - User with discord_id 282547899508850689 added to VERIFIED
+2025-09-10 21:09:18,157 - MainProcess - bot - INFO - User zhchen_ (ID: 282547899508850689) has been verified and assigned roles: participant, verified.
+2025-09-10 21:09:20,829 - MainProcess - records - INFO - User with discord_id 282547899508850689 has been removed from their team.
+2025-09-10 21:09:20,962 - MainProcess - bot - ERROR - Command 'leaveteam' raised an exception: AttributeError: 'NoneType' object has no attribute 'mention'
+2025-09-10 21:09:58,873 - MainProcess - bot - INFO - Attempting to create team: amy by zhchen_

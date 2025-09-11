@@ -73,8 +73,8 @@ class VerifyCog(commands.Cog):
         except Exception as e:
             self.logger.error(f"ERROR: Message not to {recipient} not sent. ERROR: {e}")
             return False
-    
-    async def verify_user(self, registrant_id: int, discord_id: int, username: str):
+
+    async def verify_user(self, interaction: discord.Interaction, registrant_id: int):
         """
         Verifies a user by adding them to the verified users table and assigning roles.
 
@@ -83,15 +83,19 @@ class VerifyCog(commands.Cog):
             discord_id (int): The Discord ID of the user to be verified.
             username (str): The Discord username of the user to be verified.
         """
+        discord_id = interaction.user.id
+        username = interaction.user.name
+
+        await records.update_reg_discord_id(registrant_id, discord_id)
         await records.add_verified_user(registrant_id, discord_id, username)
 
         # Assign roles to the user
-        registrant = await records.get_registered_user_by_id(registrant_id)
-        member = self.bot.get_member(discord_id)
-        roles = records.get_roles(registrant['email'])
+        registrant_email = await records.get_email_by_registrant_id(registrant_id)
+        roles: list = await records.get_roles(registrant_email)
         roles.append('verified')  # Ensure 'verified' role is always included
-
-        await member.add_roles(*[discord.utils.get(member.guild.roles, id=self.role_map[role]) for role in roles if role in self.role_map])
+        discord_roles = [interaction.guild.get_role(role_id) for role_id in roles if interaction.guild.get_role(role_id)]
+        await interaction.user.add_roles(*discord_roles)
+        await interaction.response.send_message(content="You have been verified! Welcome to the event!", ephemeral=True)
         self.logger.info(f"User {username} (ID: {discord_id}) has been verified and assigned roles: {', '.join(roles)}.")
         
     @app_commands.command(name='verify', description="Verify yourself to participate in the event")
@@ -156,21 +160,21 @@ class VerifyCog(commands.Cog):
         elif (email_or_code.isdigit()):
             code = email_or_code.strip()
 
-            if not records.verify_code(code):
+            is_valid, registrant_id = await records.verify_code(code, interaction.user.id)
+            if not is_valid:
                 await interaction.response.send_message(
                     content="Your Verification Code is either not valid or has expired. Please request a new one.", 
                     ephemeral=True
                 )
             else:
-                registrant_id = await records.get_registrant_from_code(code)
-                self.verify_user(registrant_id, interaction.user.id, interaction.user.name)
+                await self.verify_user(interaction, registrant_id)
                 
         else:
-                await interaction.response.send_message(
-                    content="Please enter a valid email address or a verification code.",
-                    ephemeral=True
-                )
-                return
+            await interaction.response.send_message(
+                content="Please enter a valid email address or a verification code.",
+                ephemeral=True
+            )
+            return
 
     @app_commands.command(name='overify', description="Manually verify a user and assign roles")
     @app_commands.describe(

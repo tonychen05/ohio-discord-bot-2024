@@ -15,24 +15,23 @@ class TeamsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.logger = bot.logger
-        self.check_expired_teams.start()
         self.logger.info(f'TeamsCog initialized with {bot.user}')
 
-    def cog_unload(self):
-        self.check_expired_teams.cancel()
-
-    async def delete_team_channels(self, guild, team_id: int):
+    async def delete_team(self, guild, team_id: int):
         """
-        Deletes all channels and role associateed with a team, and removes the team from database
+        Deletes all channels and role associated with a team, and removes the team from database
 
         Args:
+            guild (discord.Guild): The Discord guild where the team exists.
             team_id (int): The unique ID of the team to delete.
-            
+
         Requires:
             team_id exists and associated with a team
         """
         team = await records.get_team(team_id)
+
         if not team:
+            self.logger.error(f'Team {team_id} not found in database.')
             return
 
         category_id = team.get('category_id')
@@ -55,79 +54,31 @@ class TeamsCog(commands.Cog):
             except discord.HTTPException as e:
                 self.logger.error(f'HTTPException while deleting channel {channel.name}: {e}')
             await asyncio.sleep(0.5)  # Small delay to avoid rate limits
-        await category.delete()  # Delete the category itself
+        
+        # Delete the category itself
+        await category.delete()  
         self.logger.info(f'Deleted category and channels {category.name} for team {team_id}')
 
         # Remove team from database
         await records.remove_team(team_id)
 
-    async def handle_team_formation_timeout(self, guild, team_id: int): 
-        """
-        Handles the timeout of team formation when team doesn't meet minimum size requirement
-        
-        If team has fewer than two members when timeout, this function will:
-            1. remove team assigned role from all current members of team.
-            2. remove team association from members in database
-            3. delete team associated channels
-            4. sends message explaining timeout and team re-creation process
-
-        Args:
-            guild (discord.Guild): The guild where the team exists.
-            team_id (int): The unique ID of the team
-        """
-        if await records.team_exists(team_id) and await records.get_team_size(team_id) <= 1:
-            # Remove Role and team_id from each user on team
-            team_members = await records.get_team_members(team_id)
-            team = await records.get_team(team_id)
-            if not team:
-                return
-
-            for member_id in team_members:
-                member = guild.get_member(member_id)
-                if not member:
-                    continue
-                await member.remove_roles(
-                    guild.get_role(team['role_id']),
-                    guild.get_role(config.discord_team_assigned_role_id)
-                )
-                await records.remove_from_team(member_id)
-                try:
-                    await member.send(
-                        content = (
-                            f'Team formation timed out.'
-                            f'Teams must have at least two members in {round(TEAM_FORMATION_TIMEOUT/60)} minutes'
-                            f'after creation to be saved. '
-                            f'You may re-create your team and use the `/addmember` command to add'
-                            f'members to your team within {round(TEAM_FORMATION_TIMEOUT/60)} minutes of using the `/createteam` command.'
-                    ))
-                except discord.Forbidden:
-                    self.logger.warning(f'Could not send timeout message to {member}. User may have DMs disabled.')
-
-            await self.delete_team_channels(guild, team_id)
-
-    @tasks.loop(seconds=60)
-    async def check_expired_teams(self):
-        expired_teams = await records.get_expired_teams(TEAM_FORMATION_TIMEOUT)
-        for team_id in expired_teams:
-            guild = self.bot.get_guild(config.discord_guild_id)
-            if not guild:
-                self.logger.error(f"Could not find guild with id {config.discord_guild_id}")
-                continue
-            await self.handle_team_formation_timeout(guild, team_id)
-
-    @check_expired_teams.before_loop
-    async def before_check_expired_teams(self):
-        await self.bot.wait_until_ready()
-
-    @app_commands.checks.has_any_role(config.discord_verified_role_id, 'Verified')
     @app_commands.command(name='createteam', description="Create a new team for this event")
-    async def create_team(self, interaction: discord.Interaction, team_name: str):
+    @app_commands.checks.has_any_role(config.discord_verified_role_id, 'Verified')
+    @app_commands.describe(team_name="The name of your team", member_to_add="A member to add to your team (not yourself)")
+    async def create_team(self, interaction: discord.Interaction, team_name: str, member_to_add: discord.Member):
         self.logger.info(f'Attempting to create team: {team_name} by {interaction.user}')
-        
-        # Check that user is verified
+
+        # Check that user is verified (shouldn't happen due to @app_commands.checks.has_any_role)
         if not await records.verified_user_exists(interaction.user.id):
             await interaction.response.send_message(
                 content="You are not verified! Please verify yourself with the /verify command",
+                ephemeral=True)
+            return
+        
+        # Ensure team member 1 is not the user
+        if member_to_add.id == interaction.user.id:
+            await interaction.response.send_message(
+                content="You cannot add yourself to the team. Teams must have at least 2 members.",
                 ephemeral=True)
             return
 
@@ -138,13 +89,27 @@ class TeamsCog(commands.Cog):
                 ephemeral=True)
             return
 
-        # Check that team doesn't already exist
+        # Check that member to add is not in another team
+        if await records.is_member_on_team(member_to_add.id):
+            await interaction.response.send_message(
+                content="That user is already on a team.",
+                ephemeral=True)
+            return
+        
+        # Check that member to add is verified
+        if not await records.verified_user_exists(member_to_add.id):
+            await interaction.response.send_message(
+                content="That user is not verified.",
+                ephemeral=True)
+            return
+
+        # Check that team name used doesn't already exist
         if await records.team_name_exists(team_name):
             await interaction.response.send_message(
                 content="That team name is already in use. Please chose a different name",
                 ephemeral=True)
             return
-
+        
         # Create Team Role create channel permissions
         everyone_role = interaction.guild.default_role
         team_role = await interaction.guild.create_role(name=team_name)
@@ -198,6 +163,7 @@ class TeamsCog(commands.Cog):
                 async with db.transaction():
                     team_id = await records.create_team(team_name, channels)
                     await records.add_to_team(team_id, interaction.user.id) # Add user to team
+                    await records.add_to_team(team_id, member_to_add.id) # Add member to team
         except Exception as e:
             self.logger.error(f"Error creating team in database: {e}")
             await interaction.response.send_message(
@@ -206,22 +172,27 @@ class TeamsCog(commands.Cog):
             return
 
         # Assign role to user and send confirmation message
+        team_assigned_role = interaction.guild.get_role(config.discord_team_assigned_role_id)
+        if not team_assigned_role:
+            # Fallback to searching by name
+            team_assigned_role = interaction.guild.get_role(discord.utils.get(interaction.guild.roles, name='Team Assigned').id)
+
         await category_channel.edit(name=f"Team {team_id} - {team_name}")
-        await interaction.user.add_roles(team_role)
-        await interaction.user.add_roles(interaction.guild.get_role(config.discord_team_assigned_role_id))
+        await interaction.user.add_roles(team_role, team_assigned_role) # Add role to user
+        await member_to_add.add_roles(team_role, team_assigned_role)    # Add role to member
+
         await interaction.response.send_message(
             content = (
                 f'Team creation succeeded. {team_role.mention} created. '
-                f'Make sure to add members to your team using the `/addmember` command. '
-                f'Teams with fewer than 2 members will be deleted after '
-                f'{round(TEAM_FORMATION_TIMEOUT/60)} minutes.'
+                f'Add more members to your team using the `/addmember` command. '
             ))
         self.logger.info(f'Team {team_name} created with ID {team_id} by {interaction.user}')
 
     @app_commands.command(name='leaveteam', description="Leave your current team")
     @app_commands.checks.has_any_role(config.discord_team_assigned_role_id, 'Team Assigned')
     async def leave_team(self, interaction: discord.Interaction):
-        # Ensure user is on a team
+
+        # Ensure user is on a team (shouldn't happen due to @app_commands.checks.has_any_role)
         if not await records.is_member_on_team(interaction.user.id):
             await interaction.response.send_message(
                 content="You cannot leave a team since you are not assigned to one!",
@@ -229,11 +200,15 @@ class TeamsCog(commands.Cog):
             return
 
         team_id = await records.get_user_team_id(interaction.user.id)
-        role_id = await records.get_team(team_id)['team_role_id']
+        role_id = await records.get_team_role_id(team_id)
 
         team_assigned_role = interaction.guild.get_role(config.discord_team_assigned_role_id)
+        if not team_assigned_role:
+            # Fallback to searching by name
+            team_assigned_role = interaction.guild.get_role(discord.utils.get(interaction.guild.roles, name='Team Assigned').id)
+
         team_role = interaction.guild.get_role(role_id)
-        team_text_channel = interaction.guild.get_channel(await records.get_team(team_id)['text_channel_id'])
+        team_text_channel = interaction.guild.get_channel(await records.get_team_text_id(team_id))
 
         try:
             async with asqlite.connect(records._DATABASE_FILE) as db:
@@ -248,8 +223,8 @@ class TeamsCog(commands.Cog):
             return
 
         # Remove role from user
-        await interaction.user.remove_roles(team_role, team_assigned_role)
-        
+        await interaction.user.remove_roles(*[team_role, team_assigned_role])
+
         # Send message back confirming removal
         await interaction.response.send_message(
             content=f"You have successfully been removed from the team {team_role.mention}",
@@ -261,7 +236,7 @@ class TeamsCog(commands.Cog):
         
         # Delete team if no one is left
         if await records.get_team_size(team_id) == 0:
-            await self.delete_team_channels(interaction.guild, team_id)
+            await self.delete_team(interaction.guild, team_id)
             self.logger.info(f'Team {team_id} ({team_role.name}) deleted due to no members left.')
 
 
@@ -272,7 +247,7 @@ class TeamsCog(commands.Cog):
         team_user = interaction.user # User who invoked the command
         user_to_add = member
 
-        # Check that team_user is in a team
+        # Check that team_user is in a team (shouldn't happen due to @app_commands.checks.has_any_role)
         if not await records.is_member_on_team(team_user.id):
             await interaction.response.send_message(
                 content='Failed to add team member. You are not currently in a team. You must be in a team to add a team member. Please use `/createteam` to create a team or have another participant use `/addmember` to add you to their team',
@@ -289,7 +264,7 @@ class TeamsCog(commands.Cog):
                 )
             return
         
-        # Check that added_user is verified and a participant
+        # Check that user_to_add is verified and a participant
         if not (await records.verified_user_exists(user_to_add.id) and await records.user_is_participant(user_to_add.id)):
             await interaction.response.send_message(
                 content=f'Failed to add team member. `@{user_to_add.name}` is not a verified participant. All team members must be verified participants.',
@@ -297,7 +272,7 @@ class TeamsCog(commands.Cog):
                 )
             return
         
-        # Check that added_user is not on a team
+        # Check that user_to_add is not on a team
         if await records.is_member_on_team(user_to_add.id):
             await interaction.response.send_message(
                 content=f'Failed to add team member. {user_to_add.mention} is already in a team. To join your team, they must leave their current team.',
@@ -319,8 +294,8 @@ class TeamsCog(commands.Cog):
 
         # Retrieve the team text channel and role
         team = await records.get_team(team_id)
-        text_channel = interaction.guild.get_channel(team['text_id'])
-        team_role = interaction.guild.get_role(team['role_id'])
+        text_channel = interaction.guild.get_channel(team.get('text_id'))
+        team_role = interaction.guild.get_role(team.get('role_id'))
 
         # Assign added user team and team_assigned role
         await user_to_add.add_roles(team_role)

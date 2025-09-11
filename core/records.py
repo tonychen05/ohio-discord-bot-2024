@@ -1,5 +1,6 @@
 from typing import Optional, Dict, Any
 import asqlite
+import sqlite3
 import datetime
 from datetime import timedelta
 
@@ -9,54 +10,6 @@ import logging
 from utils.logger import setup_logging
 
 _DATABASE_FILE = os.getenv('DATABASE_FILE', 'records.db')
-
-"""
-Registrant Scheme {
-    EMAIL: TEXT*,
-    IS_PARTICIPANT: BOOLEAN,
-    IS_JUDGE: BOOLEAN,
-    IS_MENTOR, BOOLEAN,
-    DISCORD_ID: TEXT (Used during email verification, ties email to user_id before adding to verification table)
-}
-
-Data Scheme {
-    email: TEXT REFERENCES {_REG_RESPONSES_TABLE_NAME}(email),
-    first_name: TEXT,
-    last_name: TEXT,
-    university: TEXT,
-    class_team: TEXT,
-    major: TEXT,
-    grad_year: INTEGER,
-    company: TEXT,
-    job_title: TEXT,
-    ... (other fields as needed)
-}
-
-Verified Scheme {
-    DISCORD_ID: INTEGER* PRIMARY KEY,
-    EMAIL: TEXT*,
-    TEAM_ID: INTEGER REFERENCES {_TEAM_TABLE_NAME}(id)
-    USERNAME: TEXT*
-}
-
-- Channels is a JSON object that can have a variable number of channels, 
-  Channel Keys are (TEXT, VOICE, CATEGORY*)
-
-Team Scheme {
-    ID: INTEGER PRIMARY KEY AUTOINCREMENT,
-    NAME: TEXT UNIQUE,
-    CHANNELS: TEXT* (JSON parsed) {
-        CATEGORY: INTEGER*,
-        TEXT: INTEGER,
-        VOICE: INTEGER
-    }
-}
-
-Code Scheme {
-    CODE: TEXT* PRIMARY KEY
-    USER_ID: INTEGER*
-}
-"""
 
 # Initialize logger
 db_logger = logging.getLogger('records')
@@ -71,7 +24,6 @@ async def _initialize_db():
         await _create_tables(db)
         # Commit the changes
         await db.commit()
-    # Registration form responses
 
 async def _create_tables(db) -> None:
     try:
@@ -88,13 +40,6 @@ async def _create_tables(db) -> None:
                 is_mentor INTEGER NOT NULL,      -- Boolean (0 or 1)
                 first_name TEXT NOT NULL,
                 last_name TEXT NOT NULL,
-                university TEXT NOT NULL,
-                class_team INTEGER NOT NULL,     -- Boolean (0 or 1)
-                major TEXT NOT NULL,
-                grad_year INTEGER NOT NULL,
-                company TEXT,
-                job_title TEXT,
-                other_fields TEXT,               -- Storing JSON as TEXT
                 verification_code TEXT UNIQUE,
                 discord_id BIGINT,              -- Discord ID for verification
                 code_expires_at TEXT,            -- Storing TIMESTAMP as TEXT (ISO8601 format)
@@ -102,20 +47,6 @@ async def _create_tables(db) -> None:
             );
         """)
         db_logger.info("REGISTRANT table created successfully.")
-
-        # Table for verified users' data
-        await db.execute(f"""
-            CREATE TABLE IF NOT EXISTS {_VERIFIED_TABLE_NAME} (
-                verified_id INTEGER PRIMARY KEY,
-                discord_id BIGINT NOT NULL,
-                registrant_id INTEGER NOT NULL,
-                FOREIGN KEY (team_id) REFERENCES {_TEAM_TABLE_NAME} (team_id) ON DELETE SET NULL,
-                username TEXT NOT NULL,
-                FOREIGN KEY (registrant_id) REFERENCES {_REG_TABLE_NAME} (registrant_id) ON DELETE CASCADE,
-                FOREIGN KEY (team_id) REFERENCES {_TEAM_TABLE_NAME} (team_id) ON DELETE SET NULL
-            );
-        """)
-        db_logger.info("VERIFIED table created successfully.")
 
         # Teams
         await db.execute(f"""
@@ -131,10 +62,24 @@ async def _create_tables(db) -> None:
             );
         """)
         db_logger.info("TEAM table created successfully.")
-    except asqlite.Error as e:
+
+        # Table for verified users' data
+        await db.execute(f"""
+            CREATE TABLE IF NOT EXISTS {_VERIFIED_TABLE_NAME} (
+                verified_id INTEGER PRIMARY KEY,
+                discord_id BIGINT NOT NULL,
+                registrant_id INTEGER NOT NULL,
+                team_id INTEGER,
+                username TEXT NOT NULL,
+                FOREIGN KEY (registrant_id) REFERENCES {_REG_TABLE_NAME} (registrant_id) ON DELETE CASCADE,
+                FOREIGN KEY (team_id) REFERENCES {_TEAM_TABLE_NAME} (team_id) ON DELETE SET NULL
+            );
+        """)
+        db_logger.info("VERIFIED table created successfully.")
+    except sqlite3.Error as e:
         db_logger.error(f"An error occurred while creating tables: {e}")
         raise
-    
+
 async def get_registrant_id(email: str) -> int:
     async with asqlite.connect(_DATABASE_FILE) as db:
         async with db.execute(
@@ -162,8 +107,7 @@ async def add_registered_user(email: str, roles: list, data: dict) -> Optional[i
         is_mentor = 'mentor' in roles 
 
         data_columns = [
-        'first_name', 'last_name', 'university', 'class_team',
-        'major', 'grad_year', 'company', 'job_title'
+        'first_name', 'last_name'
         ]
 
         user_data = {col: data.get(col, '') for col in data_columns}
@@ -180,11 +124,14 @@ async def add_registered_user(email: str, roles: list, data: dict) -> Optional[i
 
         #Insert into the database
         async with asqlite.connect(_DATABASE_FILE) as db:
-            result = await db.execute(query, tuple(values_to_insert))
-            await db.commit()
-            db_logger.info(f"User with email {email} added to {_REG_TABLE_NAME} with roles {roles}")
-            return result
-    except asqlite.Error as e:
+            async with db.cursor() as cursor:
+                await cursor.execute(query, tuple(values_to_insert))
+                await cursor.execute("SELECT last_insert_rowid()")
+                result = await cursor.fetchone()
+                await db.commit()
+                db_logger.info(f"User with email {email} added to {_REG_TABLE_NAME} with roles {roles}")
+                return result[0]
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while adding registered user with email {email}: {e}")
         return None
     except Exception as e:
@@ -201,7 +148,7 @@ async def add_verified_user(registrant_id: int, discord_id: int, username: str):
             )
             await db.commit()
             db_logger.info(f"User with discord_id {discord_id} added to {_VERIFIED_TABLE_NAME}")
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while adding verified user with discord_id {discord_id}: {e}")
     except Exception as e:
         db_logger.error(f"Unexpected error while adding verified user with discord_id {discord_id}: {e}")
@@ -210,18 +157,23 @@ async def add_verified_user(registrant_id: int, discord_id: int, username: str):
 async def create_team(team_name: str, channels: dict) -> int:
     try:
         async with asqlite.connect(_DATABASE_FILE) as db:
-            created_at = datetime.datetime.utcnow().isoformat()
-            result = await db.execute(
-                f'INSERT INTO {_TEAM_TABLE_NAME} (name, category_id, text_id, voice_id, role_id, created_at) VALUES (?, ?, ?, ?, ?, ?)', 
-                (team_name, channels.get('category_id'), channels.get('text_id'), channels.get('voice_id'), channels.get('role_id'), created_at)
-            )
-            await db.commit()
-            db_logger.info(f"Team {team_name} created successfully with channels {channels}")
-            return result.lastrowid
-    except asqlite.Error as e:
+            async with db.cursor() as cursor:
+                created_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
+                await cursor.execute(
+                    f'INSERT INTO {_TEAM_TABLE_NAME} (name, category_id, text_id, voice_id, role_id, created_at) VALUES (?, ?, ?, ?, ?, ?)', 
+                    (team_name, channels.get('category_id'), channels.get('text_id'), channels.get('voice_id'), channels.get('role_id'), created_at)
+                )
+                await cursor.execute("SELECT last_insert_rowid()")
+                result = await cursor.fetchone()
+                await db.commit()
+                db_logger.info(f"Team {team_name} created successfully with channels {channels}")
+                return result[0]
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while creating team {team_name}: {e}")
+        return None
     except Exception as e:
         db_logger.error(f"Unexpected error while creating team {team_name}: {e}")
+        return None
     
 
 # ------------ Remove Entries from Tables -------------------------------------------------------------------------- DONE
@@ -233,7 +185,7 @@ async def remove_registered_user(email: str) -> None:
                              (email,))
             await db.commit()
             db_logger.info(f"User with email {email} removed from {_REG_TABLE_NAME}")
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while removing user with email {email}: {e}")
     except Exception as e:
         db_logger.error(f"Unexpected error: {e}")
@@ -246,7 +198,7 @@ async def remove_verified_user(discord_id: int) -> None:
                 (discord_id,))
             await db.commit()
             db_logger.info(f"User with discord_id {discord_id} removed from {_VERIFIED_TABLE_NAME}")
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while removing user with discord_id {discord_id}: {e}")
     except Exception as e:
         db_logger.error(f"Unexpected error: {e}")
@@ -255,11 +207,11 @@ async def remove_team(team_id: int) -> None:
     try:
         async with asqlite.connect(_DATABASE_FILE) as db:
             await db.execute(
-                f'DELETE FROM {_VERIFIED_TABLE_NAME} WHERE team_id = ?',
+                f'DELETE FROM {_TEAM_TABLE_NAME} WHERE team_id = ?',
                 (team_id,))
             await db.commit()
-            db_logger.info(f"Team with team_id {team_id} removed from {_VERIFIED_TABLE_NAME}")
-    except asqlite.Error as e:
+            db_logger.info(f"Team with team_id {team_id} removed from {_TEAM_TABLE_NAME}")
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while removing team with team_id {team_id}: {e}")
     except Exception as e:
         db_logger.error(f"Unexpected error: {e}")
@@ -273,11 +225,11 @@ async def get_registered_user_by_id(registrant_id: int) -> Optional[Dict[str, An
                 (registrant_id,)
             )
             return dict(row) if row else None
-    except asqlite.Error as e:
-        db_logger.error(f"Database error while fetching registered user with registrant_id {registrant_id}: {e}")
+    except sqlite3.Error as e:
+        db_logger.error(f"Database error in {_DATABASE_FILE} while fetching registered user with registrant_id {registrant_id}: {e}")
         return None
     except Exception as e:
-        db_logger.error(f"Unexpected error while fetching registered user with registrant_id {registrant_id}: {e}")
+        db_logger.error(f"Unexpected error in {_DATABASE_FILE} while fetching registered user with registrant_id {registrant_id}: {e}")
         return None
 
 async def get_registered_user_by_email(email: str) -> Optional[Dict[str, Any]]:
@@ -288,11 +240,26 @@ async def get_registered_user_by_email(email: str) -> Optional[Dict[str, Any]]:
                 (email,)
             )
             return dict(row) if row else None
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
             db_logger.error(f"Database error while fetching registered user with email {email}: {e}")
             return None
     except Exception as e:
         db_logger.error(f"Unexpected error while fetching registered user with email {email}: {e}")
+        return None
+
+async def get_email_by_registrant_id(registrant_id: int) -> Optional[str]:
+    try:
+        async with asqlite.connect(_DATABASE_FILE) as db:
+            row = await db.fetchone(
+                f'SELECT email FROM {_REG_TABLE_NAME} WHERE registrant_id = ?',
+                (registrant_id,)
+            )
+            return row['email'] if row else None
+    except sqlite3.Error as e:
+        db_logger.error(f"Database error while fetching email by registrant_id {registrant_id}: {e}")
+        return None
+    except Exception as e:
+        db_logger.error(f"Unexpected error while fetching email by registrant_id {registrant_id}: {e}")
         return None
 
 async def get_verified_user(discord_id: int) -> Optional[Dict[str, Any]]:
@@ -303,12 +270,13 @@ async def get_verified_user(discord_id: int) -> Optional[Dict[str, Any]]:
                 (discord_id,)
             )
             return dict(row) if row else None
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while fetching registered user with discord_id {discord_id}: {e}")
         return None
     except Exception as e:
         db_logger.error(f"Unexpected error while fetching registered user with discord_id {discord_id}: {e}")
         return None
+
 
 async def get_team(team_id: int) -> Optional[Dict[str, Any]]:
     try:
@@ -318,12 +286,13 @@ async def get_team(team_id: int) -> Optional[Dict[str, Any]]:
                 (team_id,)
             )
             return dict(row) if row else None
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while fetching team with team_id {team_id}: {e}")
         return None
     except Exception as e:
         db_logger.error(f"Unexpected error while fetching team with team_id {team_id}: {e}")
-        return None 
+        return None
+
 
 # -------------- Check if entry exists ----------------------------------------------------------------------- DONE
 
@@ -336,7 +305,7 @@ async def registered_user_exists(email: str) -> bool:
                 (email,)
             )
             return row is not None
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while checking if registered user exists with email {email}: {e}")
         return False
     except Exception as e:
@@ -351,7 +320,7 @@ async def verified_user_exists(discord_id: int) -> bool:
                 (discord_id,)
             )
             return row is not None
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while checking if verified user exists with discord_id {discord_id}: {e}")
         return False
     except Exception as e:
@@ -366,7 +335,7 @@ async def team_exists(team_id: int) -> bool:
                 (team_id,)
             )
             return row is not None
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while checking if team exists with team_id {team_id}: {e}")
         return False
     except Exception as e:
@@ -388,14 +357,14 @@ async def get_roles(email: str) -> list:
                 if row[1]: roles.append('judge')
                 if row[2]: roles.append('mentor')
                 return roles
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while fetching roles for user with email {email}: {e}")
-        return None
+        return []
     except Exception as e:
         db_logger.error(f"Unexpected error while fetching roles for user with email {email}: {e}")
-        return None
+        return []
     
-async def reassign_roles(email: str, roles: list):
+async def reassign_roles(email: str, roles: list) -> None:
     try:
         is_participant = 'participant' in roles
         is_judge = 'judge' in roles
@@ -408,7 +377,7 @@ async def reassign_roles(email: str, roles: list):
             )
             await db.commit()
             db_logger.info(f"Roles for user with email {email} updated to {roles}")
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while updating roles for user with email {email}: {e}")
     except Exception as e:
         db_logger.error(f"Unexpected error while updating roles for user with email {email}: {e}")
@@ -421,19 +390,19 @@ async def get_first_name(email: str) -> str:
     else:
         return first_name
 
-async def update_reg_discord_id(email:str, discord_id:int):
+async def update_reg_discord_id(registrant_id:int, discord_id:int) -> None:
     try:
         async with asqlite.connect(_DATABASE_FILE) as db:
             await db.execute(
-                f'UPDATE {_REG_TABLE_NAME} SET discord_id = ? WHERE email = ?',
-                (discord_id, email)
+                f'UPDATE {_REG_TABLE_NAME} SET discord_id = ? WHERE registrant_id = ?',
+                (discord_id, registrant_id)
             )
             await db.commit()
-            db_logger.info(f"Discord ID for user with email {email} updated to {discord_id}")
-    except asqlite.Error as e:
-        db_logger.error(f"Database error while updating discord_id for user with email {email}: {e}")
+            db_logger.info(f"Discord ID for user with registrant_id {registrant_id} updated to {discord_id}")
+    except sqlite3.Error as e:
+        db_logger.error(f"Database error while updating discord_id for user with registrant_id {registrant_id}: {e}")
     except Exception as e:
-        db_logger.error(f"Unexpected error while updating discord_id for user with email {email}: {e}")   
+        db_logger.error(f"Unexpected error while updating discord_id for user with registrant_id {registrant_id}: {e}")
 
 async def get_user_email(discord_id: int) -> str:
     try:
@@ -450,7 +419,7 @@ async def get_user_email(discord_id: int) -> str:
         else:
             db_logger.warning(f"No email found for registrant with discord_id {discord_id}")
             return None
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while fetching email for registrant with discord_id {discord_id}: {e}")
         return None
     except Exception as e:
@@ -458,6 +427,7 @@ async def get_user_email(discord_id: int) -> str:
         return None
 
 # ------- Verified User Methods ----------------------------------------------------------------------------
+
 
 async def get_verified_discord_id(email: str) -> int:
     try:
@@ -471,7 +441,7 @@ async def get_verified_discord_id(email: str) -> int:
         else:
             db_logger.warning(f"No discord_id found for registrant with email {email}")
             return None
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while fetching discord_id for email {email}: {e}")
         return None
     except Exception as e:  
@@ -493,7 +463,7 @@ async def get_verified_email(discord_id: int) -> str:
         else:
             db_logger.warning(f"No email found for verified user with discord_id {discord_id}")
             return None
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while fetching email for verified user with discord_id {discord_id}: {e}")
         return None
     except Exception as e:
@@ -511,7 +481,7 @@ async def verified_email_exists(email: str) -> bool:
         async with asqlite.connect(_DATABASE_FILE) as db:
             row = await db.fetchone(query, (email,))
         return row is not None
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while checking if email {email} exists in verified users: {e}")
         return False
     except Exception as e:
@@ -538,7 +508,7 @@ async def remove_from_team(discord_id: int):
             )
             await db.commit()
             db_logger.info(f"User with discord_id {discord_id} has been removed from their team.")
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while dropping team for user with discord_id {discord_id}: {e}")
     except Exception as e:  
         db_logger.error(f"Unexpected error while dropping team for user with discord_id {discord_id}: {e}")
@@ -558,7 +528,7 @@ async def add_to_team(team_id: int, discord_id: int):
             )
             await db.commit()
             db_logger.info(f"User with discord_id {discord_id} has joined team {team_id}.")
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while joining team {team_id} for user with discord_id {discord_id}: {e}")
     except Exception as e:
         db_logger.error(f"Unexpected error while joining team {team_id} for user with discord_id {discord_id}: {e}")
@@ -571,7 +541,7 @@ async def get_team_size(team_id: int) -> int:
                 (team_id,)
             )
             return count[0] if count else 0
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while getting team size for team_id {team_id}: {e}")
         return 0
     except Exception as e:
@@ -585,7 +555,7 @@ async def get_number_of_teams() -> int:
                 f'SELECT COUNT(*) FROM {_TEAM_TABLE_NAME}'
             )
             return count[0] if count else 0
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while getting number of teams: {e}")
         return 0
     except Exception as e:
@@ -607,7 +577,7 @@ async def is_member_on_team(discord_id: int) -> bool:
             # Check if the user is on a team by looking for their discord_id in the VERIFIED table
             user_team_id = await db.fetchone(f"SELECT team_id FROM {_VERIFIED_TABLE_NAME} WHERE discord_id = ?", (discord_id,))
             return user_team_id is not None
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while checking if user with discord_id {discord_id} is on a team: {e}")
         return False
     except Exception as e:
@@ -623,7 +593,7 @@ async def get_user_team_id(discord_id: int) -> int:
                 (discord_id,)
             )
             return row[0] if row else None
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while fetching team_id for user with discord_id {discord_id}: {e}")
         return None
     except Exception as e:
@@ -639,19 +609,19 @@ async def get_team_id(team_name: str) -> Optional[int]:
                 (team_name,)
             )
             return row[0] if row else -1  # Return -1 if the team does not exist
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while fetching team_id for team_name {team_name}: {e}")
         return None
     except Exception as e:
         db_logger.error(f"Unexpected error while fetching team_id for team_name {team_name}: {e}")
         return None
 
-async def get_team_members(team_id: int) -> list:
+async def get_team_members(team_id: int) -> list[int]:
     try:
         async with asqlite.connect(_DATABASE_FILE) as db:
             members = await db.fetchall(f'SELECT discord_id FROM {_VERIFIED_TABLE_NAME} WHERE team_id = ?', (team_id,))
             return [member['discord_id'] for member in members]  # Return a list of discord_ids
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while fetching members for team_id {team_id}: {e}")
         return []
     except Exception as e:
@@ -666,7 +636,7 @@ async def team_name_exists(team_name: int) -> bool:
                 (team_name,)
             )
             return row is not None
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while checking if team name {team_name} exists: {e}")
         return False
     except Exception as e:
@@ -680,11 +650,75 @@ async def update_channels(team_id: int, channels: dict):
                              (channels.get('category_id'), channels.get('text_id'), channels.get('voice_id'), channels.get('role_id'), team_id))
             await db.commit()
             db_logger.info(f"Channels for team_id {team_id} updated to {channels}")
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while updating channels for team_id {team_id}: {e}")
     except Exception as e:
         db_logger.error(f"Unexpected error while updating channels for team_id {team_id}: {e}")
-    
+
+async def get_team_role_id(team_id: int) -> Optional[int]:
+    """ Get the role_id for a given team_id."""
+    try:
+        async with asqlite.connect(_DATABASE_FILE) as db:
+            row = await db.fetchone(
+                f'SELECT role_id FROM {_TEAM_TABLE_NAME} WHERE team_id = ?',
+                (team_id,)
+            )
+            return row[0] if row else -1  # Return -1 if the team does not exist
+    except sqlite3.Error as e:
+        db_logger.error(f"Database error while fetching role_id for team_id {team_id}: {e}")
+        return None
+    except Exception as e:
+        db_logger.error(f"Unexpected error while fetching role_id for team_id {team_id}: {e}")
+        return None
+
+async def get_team_text_id(team_id:int) -> Optional[int]:
+    """ Get the text channel ID for a given team_id."""
+    try:
+        async with asqlite.connect(_DATABASE_FILE) as db:
+            row = await db.fetchone(
+                f'SELECT text_id FROM {_TEAM_TABLE_NAME} WHERE team_id = ?',
+                (team_id,)
+            )
+            return row[0] if row else None
+    except sqlite3.Error as e:
+        db_logger.error(f"Database error while fetching text_id for team_id {team_id}: {e}")
+        return None
+    except Exception as e:
+        db_logger.error(f"Unexpected error while fetching text_id for team_id {team_id}: {e}")
+        return None
+
+async def get_team_voice_id(team_id: int) -> Optional[int]:
+    """ Get the voice channel ID for a given team_id."""
+    try:
+        async with asqlite.connect(_DATABASE_FILE) as db:
+            row = await db.fetchone(
+                f'SELECT voice_id FROM {_TEAM_TABLE_NAME} WHERE team_id = ?',
+                (team_id,)
+            )
+            return row[0] if row else None
+    except sqlite3.Error as e:
+        db_logger.error(f"Database error while fetching voice_id for team_id {team_id}: {e}")
+        return None
+    except Exception as e:
+        db_logger.error(f"Unexpected error while fetching voice_id for team_id {team_id}: {e}")
+        return None
+
+async def get_team_category_id(team_id: int) -> Optional[int]:
+    """ Get the category channel ID for a given team_id."""
+    try:
+        async with asqlite.connect(_DATABASE_FILE) as db:
+            row = await db.fetchone(
+                f'SELECT category_id FROM {_TEAM_TABLE_NAME} WHERE team_id = ?',
+                (team_id,)
+            )
+            return row[0] if row else None
+    except sqlite3.Error as e:
+        db_logger.error(f"Database error while fetching category_id for team_id {team_id}: {e}")
+        return None
+    except Exception as e:
+        db_logger.error(f"Unexpected error while fetching category_id for team_id {team_id}: {e}")
+        return None
+
 # ----------- Verification Code Methods ----------------------------------------------------------------------
 async def code_exists(code: str) -> bool:
     """ Check if a verification code exists in the database."""
@@ -694,7 +728,7 @@ async def code_exists(code: str) -> bool:
         async with asqlite.connect(_DATABASE_FILE) as db:
             row = await db.fetchone(f"SELECT 1 FROM {_REG_TABLE_NAME} WHERE verification_code = ?", (code,))
             return row is not None
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while checking if code {code} exists: {e}")
         return False
     except Exception as e:
@@ -717,7 +751,7 @@ async def add_code(code: str, registrant_id: int, discord_id: int) -> bool:
         True if the code was added successfully, False otherwise.
     """
     try:
-        expires_at = datetime.utcnow() + timedelta(minutes = 15)
+        expires_at = datetime.datetime.now(datetime.timezone.utc) + timedelta(minutes = 15)
         expires_at_str = expires_at.isoformat()  # Convert to ISO 8601 format
 
         async with asqlite.connect(_DATABASE_FILE) as db:
@@ -731,7 +765,7 @@ async def add_code(code: str, registrant_id: int, discord_id: int) -> bool:
             await db.commit()
             db_logger.info(f"Code {code} added for registrant_id {registrant_id}, expiring at {expires_at_str}.")
             return True
-    except asqlite.Error as e:
+    except sqlite3.Error as e:
         db_logger.error(f"Database error while adding code {code}: {e}")
         return False
     except Exception as e:
@@ -747,20 +781,21 @@ async def get_registrant_from_code(code: str) -> Optional[int]:
             row = await db.fetchone(
                 f"SELECT registrant_id FROM {_REG_TABLE_NAME} WHERE verification_code = ?", 
                 (code,)
-                ) 
+                )
+            db_logger.info(f"Fetched registrant_id {row['registrant_id']} for code {code}.")
             return row['registrant_id'] if row else None
-    except asqlite.Error as e:
-        db_logger.error(f"Database error while fetching registrant_id for code {code}: {e}")
+    except sqlite3.Error as e:
+        db_logger.error(f"Database error in {_DATABASE_FILE} while fetching registrant_id for code {code}: {e}")
         return None
     except Exception as e:
-        db_logger.error(f"Unexpected error while fetching registrant_id for code {code}: {e}")
+        db_logger.error(f"Unexpected error in {_DATABASE_FILE} while fetching registrant_id for code {code}: {e}")
         return None
-    
-async def verify_code(code: str, discord_id: int) -> bool:
+
+async def verify_code(code: str, discord_id: int) -> (bool, Optional[int]):
     """ Verifies a given code for a registrant using discord ID. """
     if not code:
-        return False
-    
+        return (False, None)
+
     try:
         async with asqlite.connect(_DATABASE_FILE) as db:
             row = await db.fetchone(
@@ -772,6 +807,7 @@ async def verify_code(code: str, discord_id: int) -> bool:
                 (code, discord_id)
             )
             if row:
+                registrant_id = await get_registrant_from_code(code)
                 # Code is valid, update the registrant's verified status
                 await db.execute(
                     f"""
@@ -779,20 +815,20 @@ async def verify_code(code: str, discord_id: int) -> bool:
                     SET verified_at = ?, verification_code = NULL, code_expires_at = NULL
                     WHERE discord_id = ?
                     """, 
-                    (datetime.utcnow().isoformat(), discord_id)
+                    (datetime.datetime.now(datetime.timezone.utc).isoformat(), discord_id)
                 )
                 await db.commit()
                 db_logger.info(f"Code {code} verified for discord_id {discord_id}.")
-                return True
+                return (True, registrant_id)
             else:
                 db_logger.warning(f"Code {code} is invalid or expired for discord_id {discord_id}.")
-                return False
-    except asqlite.Error as e:
-        db_logger.error(f"Database error while verifying code {code} for discord_id {discord_id}: {e}")
-        return False    
+                return (False, None)
+    except sqlite3.Error as e:
+        db_logger.error(f"Database error in {_DATABASE_FILE} while verifying code {code} for discord_id {discord_id}: {e}")
+        return (False, None)
     except Exception as e:
-        db_logger.error(f"Unexpected error while verifying code {code} for discord_id {discord_id}: {e}")
-        return False
+        db_logger.error(f"Unexpected error in {_DATABASE_FILE} while verifying code {code} for discord_id {discord_id}: {e}")
+        return (False, None)
 
 # ----------- Connect to Database ----------------------------------------------------------------------------
 
@@ -804,6 +840,6 @@ async def main():
     async with asqlite.connect(_DATABASE_FILE, isolation_level=None) as db:
         # Initialize tables if the database is new
         if not _db_file_exists:
-            await _initialize_db(db)
+            await _initialize_db()
 
 
