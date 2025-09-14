@@ -57,6 +57,7 @@ _VERIFIED_TABLE_NAME = 'verified'
 _TEAM_TABLE_NAME = 'teams'
 _CHANNEL_TABLE_NAME = 'channels'
 _CODE_TABLE_NAME = 'codes'
+_CATEGORY_CHANNEL_TABLE_NAME = 'categories'
 
 
 def _initialize_db(cursor: sqlite3.Cursor):
@@ -114,6 +115,15 @@ def _initialize_db(cursor: sqlite3.Cursor):
             type TEXT NOT NULL
             )
         """)
+    
+    cursor.execute(
+        f"""CREATE TABLE IF NOT EXISTS {_CATEGORY_CHANNEL_TABLE_NAME} (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            channel_id INTEGER NOT NULL,
+            max_team_id INTEGER
+            )
+        """)
+
 
     # Verification Codes
     cursor.execute(
@@ -469,6 +479,17 @@ def team_name_exists(team_name: str) -> bool:
         'team_name': team_name
     })
     return cursor.fetchone() is not None
+
+
+def new_category(channel_id, max_team_id):
+    cursor.execute(
+        f"INSERT INTO {_CATEGORY_CHANNEL_TABLE_NAME} (channel_id, max_team_id) VALUES (?, ?)", (channel_id, max_team_id))
+
+def get_latest_category():
+    cursor.execute(f'SELECT channel_id FROM {_CATEGORY_CHANNEL_TABLE_NAME} ORDER BY id DESC LIMIT 1')
+    result = cursor.fetchone()
+    return result[0] if result else 0
+    
 
 
 # ----------- Verification Code Methods ----------------------------------------------------------------------
