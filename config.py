@@ -2,7 +2,7 @@ import configparser
 
 #Init Vars
 config_data = configparser.ConfigParser()
-CONFIG_FILENAME = 'config.ini'
+CONFIG_FILENAME = 'hack_config.ini'
 
 # Required configuration entries in _CONFIG_FILENAME, a list of tuples of
 # (section: str, option: str)
