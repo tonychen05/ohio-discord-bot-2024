@@ -2,11 +2,26 @@ import records
 import config
 # import bot
 
-from flask import Flask, abort, request, jsonify
+from flask import Flask, request, jsonify
 from eventlet import wsgi
 import eventlet
 
+import logging
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO) 
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
+# Logs everything of INFO level and above to a file
+file_handler = logging.FileHandler('web.log')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+
+# Logs only WARNING level and above to the console
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.WARNING)
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
 
 '''
 The purpose of this file is to stay active and listen for any incoming post requests from 
@@ -26,7 +41,6 @@ Format for Post Requests JSON
         ...
     }
 }
-"""
 '''
 
 #Define the server as app
@@ -50,11 +64,13 @@ def push_user():
         email = data.get("email", "").lower()
 
         if not email:
-            return jsonify({"Error": "Email is required"}), 400
-        
+            logging.error("Email is required.")
+            return jsonify({"error": "Email is required"}), 400
+
         if data.get("isAdultOrOSU") == 2:
-            return jsonify({"Error": "Participant not allowed"}), 400
-        
+            logging.error("Participant not allowed.")
+            return jsonify({"error": "Participant not allowed"}), 400
+
         # Get the 'roles' data from the input, defaulting to an empty string if not found
         roles_input = data.get("roles", "")
 
@@ -95,17 +111,18 @@ def push_user():
             records.add_registered_user(email, roles, user_data)
 
             #Send back "Good" Message
-            return jsonify({"email": email, "roles": roles, "data": user_data}), 200
+            logging.info(f"User registered successfully: {email} with roles {roles}")
+            return jsonify({"email": email, "roles": roles, "data": user_data}), 201
         except Exception as e:
             #Send Error that user being added has failed
-            print(f"ERROR {e}: Not all data in the request was included or error with DB file")
-            return jsonify({f"Error: {e}"}), 400
+            logging.exception(f"An unexpected error occured: {e}")
+            return jsonify({"error": "An internal server error occurred."}), 500
     else:
         #Send Error that Api-Key is not correct
-        print("ERROR: Api-Key is not correct.")
-        return jsonify({"ERROR: Api-Key is not correct."}), 401
+        logging.error("Api-Key is not correct.")
+        return jsonify({"error": "Api-Key is not correct."}), 401
 
-#Method to start a server and wait for a request
+# Method to start a server and wait for a request
 def start():
     wsgi.server(eventlet.listen(('0.0.0.0', config.web_port)), app)
 
