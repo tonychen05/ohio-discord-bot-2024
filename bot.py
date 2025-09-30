@@ -446,11 +446,11 @@ async def createteam(ctxt, team_name: str, teammate_1: discord.Member, teammate_
     #   - @everyone -> cannot view channel
     #   - team_role -> can view channel
 
-    team_id = records.create_team(team_name, team_role.id)
-
     # Create all channels and role for team internally
 
     team_role = await ctxt.guild.create_role(name=team_name)
+    team_id = records.create_team(team_name, team_role.id)
+
     category_channel_perms = {
         ctxt.guild.get_role(config.discord_all_access_pass_role_id): discord.PermissionOverwrite(view_channel=True),
         ctxt.guild.default_role: discord.PermissionOverwrite(view_channel=False),  
