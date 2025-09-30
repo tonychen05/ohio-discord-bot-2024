@@ -93,16 +93,6 @@ def push_user():
             # Data fields for both forms
             "first_name": data.get("firstName"),
             "last_name": data.get("lastName"),
-
-            # Data fields specific to the participant form
-            "university": data.get("university"),
-            "class_team": data.get("classTeam"),
-            "major": data.get("major"),
-            "grad_year": data.get("gradYear"),
-
-            # Data fields specific to the judges/mentors form
-            "company": data.get("company"),
-            "job_title": data.get("jobTitle"),
         }
         
         #Append Data to Database 
