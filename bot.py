@@ -397,7 +397,7 @@ overify.error(handle_permission_error)
 
 @bot.hybrid_command(description="Create a new team for this event")
 @app_commands.describe(team_name="Name/Label for your Team")
-async def createteam(ctxt, team_name: str, teammate_1: discord.Member, teammate_2: discord.Member = None, teammate_3: discord.Member = None): #TESTED
+async def createteam(ctxt, team_name: str, teammate_1: discord.Member, teammate_2: discord.Member = None, teammate_3: discord.Member = None):
     """
     Creates a new team, assigning user to team and creating necessary roles and channels
 
@@ -446,12 +446,7 @@ async def createteam(ctxt, team_name: str, teammate_1: discord.Member, teammate_
     #   - @everyone -> cannot view channel
     #   - team_role -> can view channel
 
-    # voice_channel_perms={
-    #     team_role: discord.PermissionOverwrite(connect=True, view_channel=True, speak=True),
-    #     ctxt.guild.get_role(config.discord_all_access_pass_role_id): discord.PermissionOverwrite(connect=True, view_channel=True, speak=True),
-    #     ctxt.guild.default_role:  discord.PermissionOverwrite(view_channel=False)
-    # }
-    # voice_channel = await category_channel.create_voice_channel(f"{team_name.replace(' ','-')}-voice", overwrites=voice_channel_perms)
+    team_id = records.create_team(team_name, team_role.id)
 
     # Create all channels and role for team internally
 
@@ -460,33 +455,39 @@ async def createteam(ctxt, team_name: str, teammate_1: discord.Member, teammate_
         ctxt.guild.get_role(config.discord_all_access_pass_role_id): discord.PermissionOverwrite(view_channel=True),
         ctxt.guild.default_role: discord.PermissionOverwrite(view_channel=False),  
         team_role: discord.PermissionOverwrite(view_channel=True)            
-    } 
+    }
+    category_channel = await ctxt.guild.create_category_channel(f"Team {team_id} - {team_name}", overwrites=category_channel_perms)
+
     text_channel_perms = {
         ctxt.guild.get_role(config.discord_all_access_pass_role_id): discord.PermissionOverwrite(view_channel=True),
         ctxt.guild.default_role: discord.PermissionOverwrite(view_channel=False),  
         team_role: discord.PermissionOverwrite(view_channel=True)  
     }
+    text_channel = await category_channel.create_text_channel(f"{team_name.replace(' ','-')}-text", overwrites=text_channel_perms)
 
-    channels_per_category = 50 # Max channels per category btw
+    voice_channel_perms={
+        team_role: discord.PermissionOverwrite(connect=True, view_channel=True, speak=True),
+        ctxt.guild.get_role(config.discord_all_access_pass_role_id): discord.PermissionOverwrite(connect=True, view_channel=True, speak=True),
+        ctxt.guild.default_role:  discord.PermissionOverwrite(view_channel=False)
+    }
+    voice_channel = await category_channel.create_voice_channel(f"{team_name.replace(' ','-')}-voice", overwrites=voice_channel_perms)
 
-    # Look at the previously made team (if exists) and 
-    team_id = records.create_team(team_name, team_role.id)
+    # channels_per_category = 50 # Max channels per category btw
 
-    if (team_id - 1) % channels_per_category == 0: 
-        # New category channel needs made
-        category_channel = await ctxt.guild.create_category_channel(f"Teams {team_id} - {(team_id - 1) + channels_per_category}", overwrites=category_channel_perms)
-        records.new_category(category_channel.id, (team_id - 1) + channels_per_category)
-    else:
-        # Use a previous team's category channel
-        category_id = records.get_latest_category()
-        category_channel = bot.get_channel(category_id)
-    text_channel = await category_channel.create_text_channel(f"{team_id}-{team_name.replace(' ','-')}-text", overwrites=text_channel_perms) # Inherit perms from Category
-    
+    # if (team_id - 1) % channels_per_category == 0: 
+    #     # New category channel needs made
+    #     category_channel = await ctxt.guild.create_category_channel(f"Teams {team_id} - {(team_id - 1) + channels_per_category}", overwrites=category_channel_perms)
+    #     records.new_category(category_channel.id, (team_id - 1) + channels_per_category)
+    # else:
+    #     # Use a previous team's category channel
+    #     category_id = records.get_latest_category()
+    #     category_channel = bot.get_channel(category_id)
+    # text_channel = await category_channel.create_text_channel(f"{team_id}-{team_name.replace(' ','-')}-text", overwrites=text_channel_perms) # Inherit perms from Category
 
     # Record Team and Channels in Database
-    # records.add_channel(category_channel.id, team_id, 'category')
+    records.add_channel(category_channel.id, team_id, 'category')
     records.add_channel(text_channel.id, team_id, 'text')
-    # records.add_channel(voice_channel.id, team_id, 'voice')
+    records.add_channel(voice_channel.id, team_id, 'voice')
     records.join_team(team_id, user.id) # Add author to team
 
     # Attempt to add users mentioned to team (Requires atleast 1 Sucesss)
