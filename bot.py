@@ -169,7 +169,7 @@ async def delete_team_channels(team_id: int):
 
     #Delete all channels and role
     for channel in channels:
-        if channel == "category": continue # SKIP CATEGORY FOR HACK
+        # if channel == "category": continue # SKIP CATEGORY FOR HACK
         await guild.get_channel(channels[channel]).delete()
     await guild.get_role(team['role']).delete()
 
