@@ -18,6 +18,7 @@ _REQUIRED_CONFIG_ENTRIES = [
     ('discord', 'team_assigned_role_id'),
     ('discord', 'all_access_pass_role_id'),
     ('discord', 'verified_role_id'),
+    ('discord', 'shared_categories'),
     ('contact', 'registration_link'),
     ('contact', 'organizer_email'),
     ('web', 'port'),
@@ -44,6 +45,11 @@ for entry in _REQUIRED_CONFIG_ENTRIES:
         exit(1)
 
 
+def strtobool(str: str) -> bool:
+    if str == "true": return True
+    elif str == "false": return False
+    raise ValueError("Value must be \"true\" or \"false\"")
+
 #Declare relevant variables to be retrieved
 discord_guild_id = int(config_data['discord']['guild_id'])
 discord_token = config_data['discord']['token']
@@ -56,6 +62,7 @@ discord_judge_role_id = int(config_data['discord']['judge_role_id'])
 discord_team_assigned_role_id = int(config_data['discord']['team_assigned_role_id'])
 discord_all_access_pass_role_id = int(config_data['discord']['all_access_pass_role_id'])
 discord_verified_role_id = int(config_data['discord']['verified_role_id'])
+discord_shared_categories = strtobool(config_data['discord']['shared_categories'])
 contact_registration_link = config_data['contact']['registration_link']
 contact_organizer_email = config_data['contact']['organizer_email']
 web_port = int(config_data['web']['port'])

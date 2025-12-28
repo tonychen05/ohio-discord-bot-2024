@@ -1,6 +1,5 @@
 import records
 import config
-# import bot
 
 from flask import Flask, request, jsonify
 from eventlet import wsgi
@@ -35,10 +34,12 @@ Format for Post Requests JSON
     }
     body: {
         'email': str,
-        'roles': (role,role), (comma-separated)
+
+        'first_name': str,
+        'last_name': str,
         
-        'data-header':'data-contents' (Every other pair is considered data)
-        ...
+        'is_capstone': bool,
+        'roles': (role,role), (comma-separated)        
     }
 }
 '''

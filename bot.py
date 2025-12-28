@@ -1,7 +1,5 @@
-# import os
 import records
 import config
-# import web
 
 import discord
 from discord.ext import commands
@@ -16,9 +14,8 @@ from email.mime.text import MIMEText
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
-# intents.guilds = True
 
-bot = commands.Bot(command_prefix='/', intents=intents)
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 #---------------------Constants----------------------
 
@@ -30,50 +27,13 @@ role_map = {
     "participant": config.discord_participant_role_id,
     "mentor": config.discord_mentor_role_id,
     "judge": config.discord_judge_role_id,
-    "verified": config.discord_verified_role_id
+    "verified": config.discord_verified_role_id,
+    "all-access": config.discord_all_access_pass_role_id
 }
 
 # --------------------Helper Methods-------------------
-async def assign_user_roles(user, roles: list): 
-    """
-    Assigns specified roles to the user based on provided role names.
 
-    Args:
-        user (discord.Member): The Discord user to whom the roles will be assigned.
-        roles (list): A list of role names (e.g., "participant", "mentor", "judge") that the user should be assigned
-    """
-    
-    for role_name in roles:
-        if role_name in role_map:
-            role = discord.utils.get(user.guild.roles, id=role_map[role_name])
-            if role:
-                await user.add_roles(role)
-            else:
-                print(f"Role '{role_name}' not found in the server.")
-        else:
-            print(f"Invalid role name '{role_name}' provided.")
-
-async def remove_roles(user: discord.Member, roles:list): 
-    """
-    Removes specified roles from a Discord user.
-
-    Args:
-        user (discord.Member): The Discord user whose roles will be modified.
-        roles (list): A list of roles that should be removed from the user.
-    """
-    roles_set = set(roles)
-    old_roles = user.roles
-    new_roles = []
-
-    # If role is not contained in the set of roles to remove
-    for role in old_roles:
-        if role not in roles_set:
-            new_roles.append(role)
-
-    # Update user with new roles
-    await user.edit(roles=new_roles)
-
-def generate_random_code(n):
+def generate_random_code(n): # TESTED
     """
     Generates random string of specified length using uppercase letters, lowercase letters, and digits.
 
@@ -89,8 +49,52 @@ def generate_random_code(n):
     characters = '0123456789'
     return ''.join(random.choices(characters, k=n))    
 
+async def sync_user_roles(member: discord.Member): # TESTED
+    """
+    Full Sync: 
+    1. Looks at every role defined in role_map.
+    2. Adds it if the DB says they should have it.
+    3. Removes it if the DB says they shouldn't (and they currently do).
+    """
+    
+    # Check that memeber is verified and capable of having roles assinged
+    if not records.is_verified(member.id): return
+    
+    # Get the list of roles the user SHOULD have from the DB
+    email = records.get_verified_email(member.id)
+    should_have_names = records.get_user_roles(email)
+    should_have_names.append("verified") # Always verified
 
-async def handle_team_deletion(ctxt: discord.Interaction, team_id: int): 
+    # All-Access-Pass if mentor or judge
+    if ("mentor" in should_have_names or "judge" in should_have_names):
+        should_have_names.append("all-access")
+
+    roles_to_add = []
+    roles_to_remove = []
+
+    # Iterate through the roles we manage (role_map)
+    for role_name, role_id in role_map.items():
+        
+        discord_role = member.guild.get_role(role_id)
+        if not discord_role: continue
+            
+        # Check if user has this role currently
+        has_role = discord_role in member.roles
+        
+        # Check if they satisfy the requirement in the DB
+        should_have = role_name in should_have_names
+        
+        # LOGIC:
+        if should_have and not has_role:
+            roles_to_add.append(discord_role)
+        elif not should_have and has_role:
+            roles_to_remove.append(discord_role)
+
+    # 3. Apply Changes (Bulk operations are faster/safer)
+    if roles_to_add: await member.add_roles(*roles_to_add)
+    if roles_to_remove: await member.remove_roles(*roles_to_remove)
+
+async def handle_team_deletion(team_id: int): # TESTED
     """
     Handles the timeout of team formation when team doesn't meet minimum size requirement
     
@@ -104,18 +108,20 @@ async def handle_team_deletion(ctxt: discord.Interaction, team_id: int):
         ctxt (discord.Interaction): The Context of the Interaction.
         team_id (int): The unique ID of the team
     """
+    guild = bot.get_guild(config.discord_guild_id)
     if records.team_exists(team_id):
+
         # Remove Role and team_id from each user on team
         for member in records.get_team_members(team_id):
-            await remove_roles(ctxt.guild.get_member(member[0]), [ctxt.guild.get_role(config.discord_team_assigned_role_id)])
-            records.drop_team(member[0])
+            await perform_team_leave(guild.get_member(member['discord_id']), team_id)
             
         # Remove all Channels
         await delete_team_channels(team_id)
+        records.remove_team(team_id)
         
-async def send_verification_email(recipient, CODE, username): 
+async def send_verification_email(recipient, CODE, username): # TESTED
     """
-    Sends verification email to recipientwith one-time use link for verifying Discord account
+    Sends verification email to recipient with one-time use link for verifying Discord account
     
     Args:
         recipient (str): Email address of the users to send the verificatio link to.
@@ -146,48 +152,95 @@ async def send_verification_email(recipient, CODE, username):
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
             smtp_server.login(config.email_address, config.email_password)
             smtp_server.sendmail(config.email_address, recipient, msg.as_string())
-
         return True
     except Exception as e:
         print(f"ERROR: Message not to {recipient} not sent. ERROR: {e}")
         return False
 
-async def delete_team_channels(team_id: int):
-    """
-    Deletes all channels and role associateed with a team, and removes the team from database
+async def delete_team_channels(team_id: int): # TESTED
 
-    Args:
-        team_id (int): The unique ID of the team to delete.
-        
-    Requires:
-        team_id exists and associated with a team
-    """
     # Get all channels and role from database
     guild = bot.get_guild(config.discord_guild_id)
-    channels = records.get_channels_for_team(team_id)
-    team = records.get_team(team_id)
+    team_data = records.get_team(team_id)
 
-    #Delete all channels and role
-    for channel in channels:
-        # if channel == "category": continue # SKIP CATEGORY FOR HACK
-        await guild.get_channel(channels[channel]).delete()
-    await guild.get_role(team['role']).delete()
+    category_id = team_data['category_id']
+    text_id = team_data['text_id']
+    voice_id = team_data['voice_id']
+    role_id = team_data['role_id']
+    
+    category = guild.get_channel(category_id) if category_id else None
+    text = guild.get_channel(text_id) if text_id else None
+    voice = guild.get_channel(voice_id) if voice_id else None
+    role = guild.get_role(role_id) if role_id else None
 
-    # Remove team and channels from database
-    records.remove_team(team_id)
-    for channel in channels:
-        records.remove_channel(channels[channel])
+    if text: await text.delete()
+    if voice: await voice.delete()
+    if role: await role.delete()
+    if category and not config.discord_shared_categories: await category.delete()
 
-async def handle_permission_error(ctxt: discord.Interaction, error: discord.errors): 
-    await ctxt.send(ephemeral=True,
-                               content='You do not have permission to use this command.')
 
+def can_join_team(added_member: discord.Member) -> int: # TESTED
+
+    # Check that added_user is verified 
+    if not records.is_verified(added_member.id):
+        return -1
+    
+    # Check if added_user is a participant
+    email = records.get_verified_email(added_member.id)
+    if not records.get_verified_user(email)['is_participant']:
+        return -2
+
+    # Check if add_user is already on a team
+    if records.get_user_team_id(added_member.id):
+        return -3
+    
+    return 0
+
+async def perform_team_join(member: discord.Member, team_id: int): # TESTED
+    
+    # DB Update
+    records.join_team(member.id, team_id)
+    
+    guild = bot.get_guild(config.discord_guild_id)
+    team_data = records.get_team(team_id)
+    
+    # Get Roles to add
+    roles_to_add = []
+    if team_data and 'role_id' in team_data:
+        t_role = guild.get_role(team_data['role_id'])
+        if t_role: roles_to_add.append(t_role)
+    a_role = guild.get_role(config.discord_team_assigned_role_id)
+    if a_role: roles_to_add.append(a_role)
+
+    # Add Roles to Users
+    if roles_to_add:
+        await member.add_roles(*roles_to_add)
+
+async def perform_team_leave(member: discord.Member, team_id: int): # TESTED 
+
+    guild = bot.get_guild(config.discord_guild_id)
+    team_data = records.get_team(team_id)
+    
+    # Drop Team
+    records.leave_team(member.id)
+    
+    # Get Roles to Remove
+    roles_to_remove = []
+    if team_data and 'role_id' in team_data:
+        t_role = guild.get_role(team_data['role_id'])
+        if t_role: roles_to_remove.append(t_role)
+    a_role = guild.get_role(config.discord_team_assigned_role_id)
+    if a_role: roles_to_remove.append(a_role)
+
+    # Remove Roles from User
+    if roles_to_remove:
+        await member.remove_roles(*roles_to_remove)
 
 #-------------------"/" Command Methods-----------------------------
 
 #Test Greet Command - Anyone can run
-@bot.tree.command(description="Recieve a random affirmation for encouragement")
-async def affirm(ctxt): # TESTED
+@bot.tree.command(name="affirm", description="Recieve a random affirmation for encouragement")
+async def affirm(interaction: discord.Interaction):
     affirmations = {
         "You're doing amazing—every line of code is one step closer to something great!",
         "Remember, the best solutions often come from the toughest challenges. Keep going!",
@@ -211,11 +264,12 @@ async def affirm(ctxt): # TESTED
         "No matter the outcome, you're learning, growing, and creating. That's a win!"
     }
     random_affirm = random.choice(list(affirmations))
-    await ctxt.response.send_message(ephemeral=True, content=f'{random_affirm}')
+    await interaction.response.send_message(ephemeral=True, content=f'{random_affirm}')
 
-@bot.hybrid_command(description="Verify your Discord account for this Event")
+@app_commands.guild_only() #Makes sure no-one can verify over dm?
+@bot.tree.command(name="verify", description="Verify your Discord account for this Event")
 @app_commands.describe(email_or_code="Email Address used to Register / or / Verification Code")
-async def verify(ctxt, email_or_code: str): #TESTED
+async def verify(interaction: discord.Interaction, email_or_code: str): # TESTED
     """
     Verifies a user's Discord account by linking it with their reg email
 
@@ -232,101 +286,83 @@ async def verify(ctxt, email_or_code: str): #TESTED
         flags (emailFlag): Flag containing email address to be verified
     """
     
-    user = ctxt.author
-    email_or_code
+    user = interaction.user
+    await interaction.response.defer(ephemeral=True) # Tell discord to wait before crashing session
 
-    # ------------------ Handle if a code is entered (all digits) --------------------------------
+    # Check if user is already verified
+    if records.is_verified(user.id):
+        first_name = records.get_first_name(records.get_verified_email(user.id))
+        await interaction.followup.send(content=f"Welcome, {first_name}! You are already verified.")
+        return
+
+
+    # Case 1: CODE was entered (Check Code)
     if (email_or_code.isdigit()):
         code = email_or_code
 
-        # ------------- Do Validation Checks --------------------
-
         # Check that code is valid
         if not records.code_exists(code):
-            await ctxt.send(ephemeral=True,
-                            content="Your Verification Code is either not valid or has expired. Please request a new one.")
+            await interaction.followup.send(content="Your Verification Code is either not valid or has expired. Please request a new one.")
             return
             
         # Retrieve Message ID or Verification message
-        user_id = records.get_value_from_code(code)
+        code_info = records.get_value_from_code(code)
 
         # Check that user_id matches user entering the code
-        if user_id != user.id:
-            await ctxt.send(ephemeral=True,
-                            content=f"The code you entered is not associated with your discord account. Please request a new one by entering the email you registered with.")
+        if code_info['discord_id'] != user.id:
+            await interaction.followup.send(content=f"The code you entered is not associated with your discord account. Please request a new one by entering the email you registered with.")
             return
 
         # ------------- Happy Case --------------------
 
-        email = records.get_email_from_reg(user.id)
+        email = code_info['email']
 
         # Add user to verified database
-        records.add_verified_user(user.id, email, user.name)
+        records.add_verified_user(email, user.id, user.name)
+        records.remove_code(code)
 
         # Assign user with all given roles
-        roles = records.get_roles(email)
-        roles.append('verified')
-        await assign_user_roles(user, roles)
+        await sync_user_roles(user)
         
-        ## Send the user a message that they have been verified and the next steps
-        await ctxt.send(ephemeral=True,
-                        content=f"Welcome {records.get_first_name(email)}! \nYou have been verified. Please check the {bot.get_guild(config.discord_guild_id).get_channel(config.discord_start_here_channel_id).mention} channel for next steps.")
-        return
-    # -----------------------------------------------------------------------------------------
+        # Send the user a message that they have been verified and the next steps
+        await interaction.followup.send(content=f"Welcome {records.get_first_name(email)}! \nYou have been verified. Please check the {bot.get_guild(config.discord_guild_id).get_channel(config.discord_start_here_channel_id).mention} channel for next steps.")
     
-    email = email_or_code
+    # Case 2: Email was entered
+    else:    
+        email = email_or_code 
 
-    # ------------- Do Validation Checks --------------------
+        # Confirm user is registered
+        if not records.is_registered(email):
+            await interaction.followup.send(content=f"There are no user's registered with the email: `<{email}>`. \nPlease verify using the correct email, reregister at {config.contact_registration_link}, or contact administration.")
+            return
+        
+        # Check if email is in verified DB
+        if records.is_verified(email):
+            await interaction.followup.send(content=f"A User with that email address is already verified. \nPlease reregister with a different email address at {config.contact_registration_link}")
+            return
 
-    #Check if user is already verified
-    if records.verified_user_exists(user.id):
-        first_name = records.get_first_name(records.get_verified_email(user.id))
-        await ctxt.send(ephemeral=True,
-                        content=f"Welcome, {first_name}! You are already verified.")
-        return
+        # ------------- Happy Case --------------------
 
-    #Confirm user is registered
-    if not records.registered_user_exists(email):
-        await ctxt.send(ephemeral=True,
-                        content=f"There are no user's registered with the email: `<{email}>`. \nPlease verify using the correct email, reregister at {config.contact_registration_link}, or contact administration.")
-        return
-    
-    # Check if email is in verified DB
-    if records.verified_email_exists(email):
-        await ctxt.send(ephemeral=True,
-                        content=f"A User with that email address is already verified. \nPlease reregister with a different email address at {config.contact_registration_link}")
-        return
-
-    # ------------- Happy Case --------------------
-
-    # Add user_id to registered user
-    records.update_reg_discord_id(email, user.id)
-
-    # Remove any codes from same user so only newest link will work
-    records.remove_user_codes(user.id)
-
-    # Send Verification Info to web for update
-    CODE = generate_random_code(6)
-    while records.code_exists(CODE):
+        # NOTE: DB automatically replaces any code entry that matches discord_id, code, or email
+        # Send Verification Info to web for update
         CODE = generate_random_code(6)
+        while records.code_exists(CODE):
+            CODE = generate_random_code(6)
 
-    if(await send_verification_email(email, CODE, user.name)):
-        # add code to verification codes and send message
-        records.add_code(CODE, user.id)
-        await ctxt.send(ephemeral=True,
-                        content=f"Check your inbox for an email from `<{config.email_address}>` with a verification link. Please check your email and enter the code in this format \n `/verify (code)`")
-    else:
-        await ctxt.send(ephemeral=True,
-                        content="Failed to send verification email. Please contact an organizer for assistance.")
+        if(await send_verification_email(email, CODE, user.name)):
+            records.add_code(email, user.id, CODE)
+            await interaction.followup.send(content=f"Check your inbox for an email from `<{config.email_address}>` with a verification link. Please check your email and enter the code in this format \n `/verify (code)`")
+        else:
+            await interaction.followup.send(content="Failed to send verification email. Please contact an organizer for assistance.")
 
-    ## Wait for timeout then delete verification code
-    await asyncio.sleep(config.email_code_expiration_time)
-    records.remove_code(CODE)
+        # Wait for timeout then delete verification code
+        await asyncio.sleep(config.email_code_expiration_time)
+        records.remove_code(CODE)
 
-@commands.has_role(config.discord_organizer_role_id)
-@bot.hybrid_command(description="Manually verify a Discord account for this event (Organizers only)") 
+@app_commands.default_permissions(administrator=True)
+@bot.tree.command(name="overify", description="Manually verify a Discord account for this event (Organizers only)") 
 @app_commands.describe(role="User Role: 'participant', 'mentor', or 'judge'")
-async def overify(ctxt, member_to_promote: discord.Member, email_address: str, role: str): #TESTED
+async def overify(interaction: discord.Interaction, member_to_promote: discord.Member, email_address: str, first_name: str, last_name: str, is_capstone: bool, role: str):  #TESTED
     """
     Manually verifies a Discord account for the event, allowing organizers to assign roles and verify users.
 
@@ -339,65 +375,43 @@ async def overify(ctxt, member_to_promote: discord.Member, email_address: str, r
     Requires:
         User is an admin
     """
-    admin_user = ctxt.author
-    email = email_address
 
-    # ------------- Do Validation Checks --------------------
-
-    # Ensure user is an organizer
-    organizer_role = ctxt.guild.get_role(config.discord_organizer_role_id)
-    if not organizer_role in admin_user.roles:
-        await ctxt.send(ephemeral=True,
-                        content=f"You do not have permission to run this command")
-        return
+    await interaction.response.defer(ephemeral=True)
     
     #Check if role is valid to be overified with
     if not (role in role_map):
-        await ctxt.send(ephemeral=True,
-                        content=f"`<{role}>` is not a valid role. \nPlease chose either `participant`, `mentor`, or `judge`")
+        await interaction.followup.send(content=f"`<{role}>` is not a valid role. \nPlease chose either `participant`, `mentor`, or `judge`")
         return
 
-    # If User is not registered, add a registered user with no data
-    if not records.registered_user_exists(email):
-        records.add_registered_user(email, [role], {})
-
-    # Check if user is already verified
-    if records.verified_user_exists(member_to_promote.id):
+    # Case 1: User is already verified (Add Role)
+    if records.is_verified(member_to_promote.id):
         verified_email = records.get_verified_email(member_to_promote.id)
 
         #Check if user has role specified, else add it
-        if role in records.get_roles(verified_email):
-            await ctxt.send(ephemeral=True,
-                            content=f"`<{member_to_promote.name}>` is verified and already has the role `<{role}>`.")
+        if role in records.get_user_roles(verified_email):
+            await interaction.followup.send(content=f"`<{member_to_promote.name}>` is verified and already has the role `<{role}>`.")
             return
 
-        # Assign user the role
-        await assign_user_roles(member_to_promote, [role])
-    
         # Update user in database
-        roles = records.get_roles(verified_email)
+        roles = records.get_user_roles(verified_email)
         if not (role in roles):
             roles.append(role)
-            records.reassign_roles(email, roles)
-        
-        await ctxt.send(ephemeral=True,
-                        content=f"`<{member_to_promote.name}>` is already verified but has been given the role `<{role}>`.")
-        return
+            records.update_roles(verified_email, roles)
+
+        await interaction.followup.send(content=f"`<{member_to_promote.name}>` is already verified but has been given the role `<{role}>`.")
     
-    # ------------- Happy Case --------------------
+    # Case 2: User is not Verified (Register and Verify User with the appropriate roles)
+    else:
+        records.add_registration(email_address, first_name, last_name, is_capstone, [role])
+        records.add_verified_user(email_address, member_to_promote.id, member_to_promote.name)
+        await interaction.followup.send(content=f"`<{member_to_promote.name}>` has been verified and given the role `<{role}>`.")
+    
+    # Assign the overified user any roles assigned
+    await sync_user_roles(member_to_promote)
 
-    # Add user to verified database
-    records.add_verified_user(member_to_promote.id, email, member_to_promote.name)
-
-    await assign_user_roles(member_to_promote, [role, 'verified'])
-
-    await ctxt.send(ephemeral=True,
-                    content=f"`<{member_to_promote.name}>` has been verified and given the role `<{role}>`.")
-overify.error(handle_permission_error)
-
-@bot.hybrid_command(description="Create a new team for this event")
+@bot.tree.command(name="createteam", description="Create a new team for this event")
 @app_commands.describe(team_name="Name/Label for your Team")
-async def createteam(ctxt, team_name: str, teammate_1: discord.Member, teammate_2: discord.Member = None, teammate_3: discord.Member = None):
+async def createteam(interaction: discord.Interaction, team_name: str, teammate_1: discord.Member, teammate_2: discord.Member = None, teammate_3: discord.Member = None):
     """
     Creates a new team, assigning user to team and creating necessary roles and channels
 
@@ -413,104 +427,115 @@ async def createteam(ctxt, team_name: str, teammate_1: discord.Member, teammate_
         teammate1: discord.Member = commands.flag(description="Username of Teammate")
         teammate2: discord.Member = None
         teammate3: discord.Member = None
-        
     """
 
     # Retrieve Context
-    user = ctxt.author
+    user = interaction.user
+    await interaction.response.defer(ephemeral=True)
 
-    # ------------- Do Validation Checks --------------------
+    # ------------- Check if Team and Creator is Valid --------------------
 
-    # Check that user is verified
-    if not records.verified_user_exists(user.id):
-        await ctxt.send(ephemeral=True,
-                        content="You are not verified! Please verify yourself with the /verify command")
-        return
+    author_status = can_join_team(user)
+    match author_status:
+        case -1: await interaction.followup.send(content="You are not verified! Please verify yourself with the /verify command"); return
+        case -2: await interaction.followup.send(content="You are not a participant. You cannot create a team"); return
+        case -3: await interaction.followup.send(content="You are already on a team. You can leave with the /leaveteam command"); return
 
-    # Check that user is not in another team
-    if records.is_member_on_team(user.id):
-        await ctxt.send(ephemeral=True,
-                        content="You are already on a team. You can leave with the /leaveteam command")
-        return
 
     # Check that team doesn't already exist
-    if records.team_name_exists(team_name):
-        await ctxt.send(ephemeral=True,
-                        content="That team name is already in use. Please chose a different name")
+    if records.team_exists(team_name):
+        await interaction.followup.send(content="That team name is already in use. Please chose a different name")
         return
 
+    # -------------- Check if Members added are Valid -------------------
 
-    # ------------- Happy Case --------------------
-    #     Sets up permissions:
-    #   - all_access_pass role -> can view channel
-    #   - @everyone -> cannot view channel
-    #   - team_role -> can view channel
+    # Check that atleast one member can be added to team
+    members = [teammate_1, teammate_2, teammate_3]
+    valid_members = []
+    for mem in members:
+        if not mem: continue
+        match can_join_team(mem):
+            case -1 | -2 : await interaction.followup.send(ephemeral=True, content=f"Failed to add team member. {mem.mention} is not a verified participant.")
+            case      -3 : await interaction.followup.send(ephemeral=True, content=f"Failed to add team member. {mem.mention} is already on a team. To join, they must leave using /leaveteam")
+            case       0 : valid_members.append(mem)
 
-    # Create all channels and role for team internally
+    if not valid_members:
+        await interaction.followup.send(ephemeral=True, content=f"Team creation failed - No teammates could be added. \nChoose a different teammate or reach out to them to fix their problem.")
+        return
 
-    team_role = await ctxt.guild.create_role(name=team_name)
-    team_id = records.create_team(team_name, team_role.id)
+    # -------------------- Create Team Channels -------------------------
+
+    team_role = await interaction.guild.create_role(name=team_name)
 
     category_channel_perms = {
-        ctxt.guild.get_role(config.discord_all_access_pass_role_id): discord.PermissionOverwrite(view_channel=True),
-        ctxt.guild.default_role: discord.PermissionOverwrite(view_channel=False),  
+        interaction.guild.get_role(config.discord_all_access_pass_role_id): discord.PermissionOverwrite(view_channel=True),
+        interaction.guild.default_role: discord.PermissionOverwrite(view_channel=False),  
         team_role: discord.PermissionOverwrite(view_channel=True)            
     }
-    category_channel = await ctxt.guild.create_category_channel(f"Team {team_id} - {team_name}", overwrites=category_channel_perms)
-
     text_channel_perms = {
-        ctxt.guild.get_role(config.discord_all_access_pass_role_id): discord.PermissionOverwrite(view_channel=True),
-        ctxt.guild.default_role: discord.PermissionOverwrite(view_channel=False),  
+        interaction.guild.get_role(config.discord_all_access_pass_role_id): discord.PermissionOverwrite(view_channel=True),
+        interaction.guild.default_role: discord.PermissionOverwrite(view_channel=False),  
         team_role: discord.PermissionOverwrite(view_channel=True)  
     }
-    text_channel = await category_channel.create_text_channel(f"{team_name.replace(' ','-')}-text", overwrites=text_channel_perms)
-
     voice_channel_perms={
         team_role: discord.PermissionOverwrite(connect=True, view_channel=True, speak=True),
-        ctxt.guild.get_role(config.discord_all_access_pass_role_id): discord.PermissionOverwrite(connect=True, view_channel=True, speak=True),
-        ctxt.guild.default_role:  discord.PermissionOverwrite(view_channel=False)
+        interaction.guild.get_role(config.discord_all_access_pass_role_id): discord.PermissionOverwrite(connect=True, view_channel=True, speak=True),
+        interaction.guild.default_role:  discord.PermissionOverwrite(view_channel=False)
     }
-    voice_channel = await category_channel.create_voice_channel(f"{team_name.replace(' ','-')}-voice", overwrites=voice_channel_perms)
 
-    # channels_per_category = 50 # Max channels per category btw
+    next_team_id = records.get_next_team_id()
+    category_channel = None
+    text_channel = None
+    voice_channel = None
 
-    # if (team_id - 1) % channels_per_category == 0: 
-    #     # New category channel needs made
-    #     category_channel = await ctxt.guild.create_category_channel(f"Teams {team_id} - {(team_id - 1) + channels_per_category}", overwrites=category_channel_perms)
-    #     records.new_category(category_channel.id, (team_id - 1) + channels_per_category)
-    # else:
-    #     # Use a previous team's category channel
-    #     category_id = records.get_latest_category()
-    #     category_channel = bot.get_channel(category_id)
-    # text_channel = await category_channel.create_text_channel(f"{team_id}-{team_name.replace(' ','-')}-text", overwrites=text_channel_perms) # Inherit perms from Category
+    # TODO: Add Table for Category channels for shared_categories
 
-    # Record Team and Channels in Database
-    records.add_channel(category_channel.id, team_id, 'category')
-    records.add_channel(text_channel.id, team_id, 'text')
-    records.add_channel(voice_channel.id, team_id, 'voice')
-    records.join_team(team_id, user.id) # Add author to team
+    # Case 1: Each team has their own category and voice channel
+    if not config.discord_shared_categories:
+        
+        category_channel = await interaction.guild.create_category_channel(f"Team {next_team_id} - {team_name}", overwrites=category_channel_perms)
+        text_channel = await category_channel.create_text_channel(f"{team_name.replace(' ','-')}-text", overwrites=text_channel_perms)
+        voice_channel = await category_channel.create_voice_channel(f"{team_name.replace(' ','-')}-voice", overwrites=voice_channel_perms)
 
-    # Attempt to add users mentioned to team (Requires atleast 1 Sucesss)
-    success = False
-    if teammate_1: success = await addmember(ctxt, teammate_1) or success
-    if teammate_2: success = await addmember(ctxt, teammate_2) or success
-    if teammate_3: success = await addmember(ctxt, teammate_3) or success
+    # Case 2: Categories hold text-channels 1-50, etc
+    else:
 
-    # Check if atleast one user was added to the team
-    if not success:
-        await handle_team_deletion(ctxt, team_id)
-        await ctxt.send(ephemeral=True, content=f'Team creation failed - No teammates could be added. Choose a different teammate or reach out to them to fix their problem.')
-        return
+        channels_per_category = 50
+        new_channel_needed = ((next_team_id - 1) % channels_per_category == 0) or not records.get_latest_category()
 
-    # Assign role to user and send confirmation message
-    # await category_channel.edit(name=f"Team {team_id} - {team_name}")
-    await user.add_roles(team_role)
-    await user.add_roles(ctxt.guild.get_role(config.discord_team_assigned_role_id))
-    await ctxt.send(ephemeral=True,
-                    content=f'Team creation succeeded. {team_role.mention} created. Make sure to add members to your team using the `/addmember` command. Teams with fewer than 2 members will be deleted after {round(TEAM_FORMATION_TIMEOUT/60)} minutes.')
+        if new_channel_needed: # New category channel needs made
+            category_channel = await interaction.guild.create_category_channel(f"Teams {next_team_id} - {(next_team_id - 1) + channels_per_category}", overwrites=category_channel_perms)
+            records.push_new_category(category_channel.id)
+       
+        else:                  # Use a previous team's category channel
+            category_channel = bot.get_channel(records.get_latest_category())
+        
+        text_channel = await category_channel.create_text_channel(f"{next_team_id}-{team_name.replace(' ','-')}-text", overwrites=text_channel_perms) # Inherit perms from Category
 
-@bot.hybrid_command(description="Leave your current team")
-async def leaveteam(ctxt): #TESTED
+
+    # ----------------------- Create Team ------------------------
+
+    team_id = records.create_team(
+        team_name, 
+        team_role.id, 
+        category_channel.id, 
+        text_channel.id, 
+        voice_channel.id if voice_channel else None
+    )
+
+    # Let user know that team was succesfully created
+    await interaction.followup.send(content=f'Your Team ({team_role.mention}) has successfully been created!. \nManage your team using the `/addmember` and `/removemember` commands')
+
+    # Add Author and Valid Teammates to team
+    await perform_team_join(user, team_id)  # Add author to team
+    records.set_team_lead(team_id, user.id) # Make author team_lead
+    for mem in valid_members:
+        await perform_team_join(mem, team_id)
+        await interaction.followup.send(ephemeral=True, content=f"Team member added successfully. {mem.mention} has been added to {team_role.mention}.")
+        await text_channel.send(content=f'{mem.mention} has been added to the team by {interaction.user.mention}.')    
+
+@bot.tree.command(name="leaveteam", description="Leave your current team")
+async def leaveteam(interaction: discord.Interaction): # TESTED
     """
     Command for a user to leave their current team. 
     The user will:
@@ -523,41 +548,37 @@ async def leaveteam(ctxt): #TESTED
         ctxt (discord.Interaction): The Context of the Interaction.
     """
 
-    user = ctxt.author
+    user = interaction.user
+    await interaction.response.defer(ephemeral=True)
 
     # ------------- Do Validation Checks --------------------
 
     # Ensure user is on a team
-    if not records.is_member_on_team(user.id):
-        await ctxt.send(ephemeral=True, content="You cannot leave a team since you are not assigned to one!")
+    if not records.get_user_team_id(user.id):
+        await interaction.followup.send(content="You cannot leave a team since you are not assigned to one!")
         return
 
     # ------------- Happy Case --------------------
 
     # Grab Team Relavent Info
     team_id = records.get_user_team_id(user.id)
-    role_id = records.get_team(team_id)['role']
-    team_assigned_role = ctxt.guild.get_role(config.discord_team_assigned_role_id)
-    team_role = ctxt.guild.get_role(role_id)
-    team_text_channel = ctxt.guild.get_channel(records.get_channels_for_team(team_id)['text'])
+    team_data = records.get_team(team_id)
+    team_text_channel = interaction.guild.get_channel(team_data['text_id'])
+    team_role = interaction.guild.get_role(team_data['role_id'])
 
-    # Remove user from team in Database
-    records.drop_team(user.id)
+    # Remove user from team
+    await perform_team_leave(user, team_id)
 
-    # Remove role from user
-    await remove_roles(user, [team_role, team_assigned_role])
-    
     # Send message back confirming removal
-    await ctxt.send(ephemeral=True,
-                    content=f"You have successfully been removed from the team {team_role.mention}")
+    await interaction.followup.send(content=f"You have successfully been removed from the team {team_role.mention}")
     await team_text_channel.send(content=f'{user.mention} has left the team.')
 
     # Delete team if no one is left
-    if records.get_team_size(team_id) == 0: await handle_team_deletion(ctxt, team_id)
+    if records.get_team_size(team_id) == 0: await handle_team_deletion(team_id)
         
-@bot.hybrid_command(description="Add a member to your team")
-@app_commands.describe(member="The member to add to your team") # This gives the description and autofill
-async def addmember(ctxt, member: discord.Member): #TESTED
+@bot.tree.command(name="addmember", description="Add a member to your team")
+@app_commands.describe(member="The member to add to your team")
+async def addmember(interaction: discord.Interaction, member: discord.Member): # TESTED
     """
     Adds a specified member to the team of the user who invokes the command.
 
@@ -565,61 +586,51 @@ async def addmember(ctxt, member: discord.Member): #TESTED
         ctxt (discord.Interaction): The Context of the Interaction.
         flags (userFlag): The user specified in the command input.
     """
-    team_user = ctxt.author # User who invoked the command
+    team_user = interaction.user # User who invoked the command
     added_user = member # The user to be added to the taem
+    await interaction.response.defer(ephemeral=True)
 
     # ------------- Do Validation Checks --------------------
 
     # Check that team_user is in a team
-    if not records.is_member_on_team(team_user.id):
-        await ctxt.send(ephemeral=True,
-                        content='Failed to add team member. You are not currently in a team. You must be in a team to add a team member. Please use `/createteam` to create a team or have another participant use `/addmember` to add you to their team')
-        return False # FAILURE
+    if not records.get_user_team_id(team_user.id):
+        await interaction.followup.send(content='Failed to add team member. You are not currently in a team. You must be in a team to add a team member. Please use `/createteam` to create a team or have another participant use `/addmember` to add you to their team')
+        return 
+    
+    # Check if member is already on your team
+    if records.get_user_team_id(team_user.id) == records.get_user_team_id(member.id):
+        await interaction.followup.send(content=f'Failed to add team member. {member.mention} is already on your team!')
+        return 
     
     # Check that team is not full
     team_id = records.get_user_team_id(team_user.id)
     if records.get_team_size(team_id) >= MAX_TEAM_SIZE:
-        await ctxt.send(ephemeral=True,
-                        content=f'Failed to add team member. There is no space in your team. Teams can have a maximum of {MAX_TEAM_SIZE} members.')
-        return False # FAILURE
+        await interaction.followup.send(content=f'Failed to add team member. There is no space in your team. Teams can have a maximum of {MAX_TEAM_SIZE} members.')
+        return 
 
-    # Check that added_user is verified and a participant
-    if not (records.verified_user_exists(added_user.id) and records.user_is_participant(added_user.id)):
-        await ctxt.send(ephemeral=True,
-                        content=f'Failed to add team member. `@{added_user.name}` is not a verified participant. All team members must be verified participants.')
-        return False # FAILURE
-    
-    # Check that added_user is not on a team
-    if records.is_member_on_team(added_user.id):
-        await ctxt.send(ephemeral=True,
-                        content=f'Failed to add team member. {added_user.mention} is already in a team. To join your team, they must leave their current team.')
-        return False # FAILURE
-    
+    # Check if user can join the team
+    match can_join_team(added_user):
+        case -1 | -2 : await interaction.followup.send(content=f"Failed to add team member. {added_user.mention} is not a verified participant."); return
+        case      -3 : await interaction.followup.send(content=f"Failed to add team member. {added_user.mention} is already on a team. To join, they must leave using /leaveteam"); return
+
     # ------------- Happy Case --------------------
 
     # Add the member to the team
-    records.join_team(team_id, added_user.id)
+    await perform_team_join(added_user, team_id)
 
-    # Retrieve the team text channel and role
-    text_channel = ctxt.guild.get_channel(records.get_channels_for_team(team_id)['text'])
-    team_role = ctxt.guild.get_role(records.get_team(team_id)['role'])
+    team_data = records.get_team(team_id)
+    team_role = interaction.guild.get_role(team_data['role_id'])
+    text_channel = interaction.guild.get_channel(team_data['text_id'])
 
-    # Assign added user team and team_assigned role
-    await added_user.add_roles(team_role)
-    await added_user.add_roles(ctxt.guild.get_role(config.discord_team_assigned_role_id))
-    
     # Send confirmation message to team_user
-    await ctxt.send(ephemeral=True,
-                    content=f'Team member added successfully. {added_user.mention} has been added to {team_role.mention}.')
+    await interaction.followup.send(content=f'Team member added successfully. {added_user.mention} has been added to {team_role.mention}.')
     
     # Notify team in team text channel of new member
     await text_channel.send(content=f'{added_user.mention} has been added to the team by {team_user.mention}.')
 
-    return True # SUCCESS
-
-@commands.has_role(config.discord_organizer_role_id)
-@bot.hybrid_command(description="Remove Team (Organizers only)") 
-async def deleteteam(ctxt, team_role: discord.Role, reason_for_removal: str): #TESTED
+@app_commands.default_permissions(administrator=True)
+@bot.tree.command(name="deleteteam", description="Remove Team (Organizers only)") 
+async def deleteteam(interaction: discord.Interaction, team_role: discord.Role, reason_for_removal: str): # TESTED
     """
     Delete a team and its associated data from the event.
 
@@ -627,42 +638,27 @@ async def deleteteam(ctxt, team_role: discord.Role, reason_for_removal: str): #T
         ctxt (discord.Interaction): The Context of the Interaction
         flags (removeTeamFlag): Flags containing the 'team_role' and 'reason' for removal
     """
-    # Retrieve team role, name, and ID
-    user = ctxt.author
+    await interaction.response.defer(ephemeral=True)
+
+    # Retrieve team details before removal
     team_name = team_role.name
-    team_id = records.get_team_id(team_name)
-    members = records.get_team_members(team_id)
-
-    # ------------- Do Validation Checks --------------------
-
-    # Ensure user is an organizer
-    organizer_role = ctxt.guild.get_role(config.discord_organizer_role_id)
-    if not organizer_role in user.roles:
-        await ctxt.send(ephemeral=True,
-                        content=f"You do not have permission to run this command")
-        return
+    team_id = records.get_team(team_name)['id']
+    members = records.get_team_members(team_name)
 
     # ------------- Happy Case --------------------
 
-    # Remove roles from users and drop members from team
+    # Notify team and admin about removal
     for member in members:
-        curr_user = ctxt.guild.get_member(member[0])
-        await remove_roles(curr_user, [team_role, ctxt.guild.get_role(config.discord_team_assigned_role_id)])
-        records.drop_team(curr_user.id)
-
-    # Delete team channels and db
-    await delete_team_channels(team_id)
-
-    # Notify team and admin about removal.
-    await ctxt.send(ephemeral=True,
-                    content=f"The team `<{team_name}>` has been removed and the members have been notified")
-    
-    for member in members:
-        await ctxt.guild.get_member(member[0]).send(
+        await interaction.guild.get_member(member['discord_id']).send(
             content=f"Your team has been removed from the event. \nReason: `{reason_for_removal}`. \nYou may create a new team but continued failure to comply may result in being permanently removed")
-deleteteam.error(handle_permission_error)
+    
+    await interaction.followup.send(content=f"The team `<{team_name}>` has been removed and the members have been notified")
 
-#When the bot is ready, this automatically runs
+    # Remove channels and remove team stats from members
+    await handle_team_deletion(team_id)    
+
+
+# When the bot is ready, this automatically runs
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user}')
@@ -672,4 +668,5 @@ def start():
     bot.run(config.discord_token)
 # ------------------------------------------------------------------
 
-
+# TODO: Allow 5 people to join a team if they are capstone
+# TODO: Rewrite web.py with new db material and same with export/import
