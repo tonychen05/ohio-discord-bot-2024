@@ -12,3 +12,4 @@ alter_records.py
 .*
 !.gitignore
 
+web.log
