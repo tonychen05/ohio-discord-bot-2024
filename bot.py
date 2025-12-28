@@ -236,9 +236,9 @@ async def perform_team_leave(member: discord.Member, team_id: int): # TESTED
     if roles_to_remove:
         await member.remove_roles(*roles_to_remove)
 
+
 #-------------------"/" Command Methods-----------------------------
 
-#Test Greet Command - Anyone can run
 @bot.tree.command(name="affirm", description="Recieve a random affirmation for encouragement")
 async def affirm(interaction: discord.Interaction):
     affirmations = {
@@ -359,59 +359,10 @@ async def verify(interaction: discord.Interaction, email_or_code: str): # TESTED
         await asyncio.sleep(config.email_code_expiration_time)
         records.remove_code(CODE)
 
-@app_commands.default_permissions(administrator=True)
-@bot.tree.command(name="overify", description="Manually verify a Discord account for this event (Organizers only)") 
-@app_commands.describe(role="User Role: 'participant', 'mentor', or 'judge'")
-async def overify(interaction: discord.Interaction, member_to_promote: discord.Member, email_address: str, first_name: str, last_name: str, is_capstone: bool, role: str):  #TESTED
-    """
-    Manually verifies a Discord account for the event, allowing organizers to assign roles and verify users.
-
-    If the user doesn't exist, add them to the database and assign roles.
-    If the user exists, update role and updata database.
-    Args:
-        ctxt (discord.Interaction): The Context of the Interaction.
-        flags (registerFlag): Flag that contains registrant information (user, email, and role)
-        
-    Requires:
-        User is an admin
-    """
-
-    await interaction.response.defer(ephemeral=True)
-    
-    #Check if role is valid to be overified with
-    if not (role in role_map):
-        await interaction.followup.send(content=f"`<{role}>` is not a valid role. \nPlease chose either `participant`, `mentor`, or `judge`")
-        return
-
-    # Case 1: User is already verified (Add Role)
-    if records.is_verified(member_to_promote.id):
-        verified_email = records.get_verified_email(member_to_promote.id)
-
-        #Check if user has role specified, else add it
-        if role in records.get_user_roles(verified_email):
-            await interaction.followup.send(content=f"`<{member_to_promote.name}>` is verified and already has the role `<{role}>`.")
-            return
-
-        # Update user in database
-        roles = records.get_user_roles(verified_email)
-        if not (role in roles):
-            roles.append(role)
-            records.update_roles(verified_email, roles)
-
-        await interaction.followup.send(content=f"`<{member_to_promote.name}>` is already verified but has been given the role `<{role}>`.")
-    
-    # Case 2: User is not Verified (Register and Verify User with the appropriate roles)
-    else:
-        records.add_registration(email_address, first_name, last_name, is_capstone, [role])
-        records.add_verified_user(email_address, member_to_promote.id, member_to_promote.name)
-        await interaction.followup.send(content=f"`<{member_to_promote.name}>` has been verified and given the role `<{role}>`.")
-    
-    # Assign the overified user any roles assigned
-    await sync_user_roles(member_to_promote)
-
-@bot.tree.command(name="createteam", description="Create a new team for this event")
+@app_commands.guild_only()
+@bot.tree.command(name="create_team", description="Create a new team for this event")
 @app_commands.describe(team_name="Name/Label for your Team")
-async def createteam(interaction: discord.Interaction, team_name: str, teammate_1: discord.Member, teammate_2: discord.Member = None, teammate_3: discord.Member = None):
+async def create_team(interaction: discord.Interaction, team_name: str, teammate_1: discord.Member, teammate_2: discord.Member = None, teammate_3: discord.Member = None):
     """
     Creates a new team, assigning user to team and creating necessary roles and channels
 
@@ -439,7 +390,7 @@ async def createteam(interaction: discord.Interaction, team_name: str, teammate_
     match author_status:
         case -1: await interaction.followup.send(content="You are not verified! Please verify yourself with the /verify command"); return
         case -2: await interaction.followup.send(content="You are not a participant. You cannot create a team"); return
-        case -3: await interaction.followup.send(content="You are already on a team. You can leave with the /leaveteam command"); return
+        case -3: await interaction.followup.send(content="You are already on a team. You can leave with the /leave_team command"); return
 
 
     # Check that team doesn't already exist
@@ -524,7 +475,7 @@ async def createteam(interaction: discord.Interaction, team_name: str, teammate_
     )
 
     # Let user know that team was succesfully created
-    await interaction.followup.send(content=f'Your Team ({team_role.mention}) has successfully been created!. \nManage your team using the `/addmember` and `/removemember` commands')
+    await interaction.followup.send(content=f'Your Team ({team_role.mention}) has successfully been created!. \nManage your team using the `/add_member` and `/remove_member` commands')
 
     # Add Author and Valid Teammates to team
     await perform_team_join(user, team_id)  # Add author to team
@@ -534,8 +485,9 @@ async def createteam(interaction: discord.Interaction, team_name: str, teammate_
         await interaction.followup.send(ephemeral=True, content=f"Team member added successfully. {mem.mention} has been added to {team_role.mention}.")
         await text_channel.send(content=f'{mem.mention} has been added to the team by {interaction.user.mention}.')    
 
-@bot.tree.command(name="leaveteam", description="Leave your current team")
-async def leaveteam(interaction: discord.Interaction): # TESTED
+@app_commands.guild_only()
+@bot.tree.command(name="leave_team", description="Leave your current team")
+async def leave_team(interaction: discord.Interaction): # TESTED
     """
     Command for a user to leave their current team. 
     The user will:
@@ -568,17 +520,27 @@ async def leaveteam(interaction: discord.Interaction): # TESTED
 
     # Remove user from team
     await perform_team_leave(user, team_id)
-
-    # Send message back confirming removal
     await interaction.followup.send(content=f"You have successfully been removed from the team {team_role.mention}")
-    await team_text_channel.send(content=f'{user.mention} has left the team.')
 
     # Delete team if no one is left
-    if records.get_team_size(team_id) == 0: await handle_team_deletion(team_id)
-        
-@bot.tree.command(name="addmember", description="Add a member to your team")
+    if records.get_team_size(team_id) == 0: await handle_team_deletion(team_id); return
+
+    # If they were team lead, replace team_lead
+    team_lead_id = team_data['team_lead']
+    if team_lead_id == user.id:
+
+        # Chose a random other teammate to assign as lead
+        new_lead_id = random.choice(records.get_team_members(team_id))['discord_id']        
+        records.set_team_lead(team_id, new_lead_id)
+        await team_text_channel.send(content=f"{user.mention} has left the team.\n{interaction.guild.get_member(new_lead_id).mention} has been randomly assigned as the new Team Lead.")
+   
+    else:
+        await team_text_channel.send(content=f'{user.mention} has left the team.')    
+
+@app_commands.guild_only()
+@bot.tree.command(name="add_member", description="Add a member to your team")
 @app_commands.describe(member="The member to add to your team")
-async def addmember(interaction: discord.Interaction, member: discord.Member): # TESTED
+async def add_member(interaction: discord.Interaction, member: discord.Member): # TESTED
     """
     Adds a specified member to the team of the user who invokes the command.
 
@@ -594,7 +556,7 @@ async def addmember(interaction: discord.Interaction, member: discord.Member): #
 
     # Check that team_user is in a team
     if not records.get_user_team_id(team_user.id):
-        await interaction.followup.send(content='Failed to add team member. You are not currently in a team. You must be in a team to add a team member. Please use `/createteam` to create a team or have another participant use `/addmember` to add you to their team')
+        await interaction.followup.send(content='Failed to add team member. You are not currently in a team. You must be in a team to add a team member. Please use `/create_team` to create a team or have another participant use `/add_member` to add you to their team')
         return 
     
     # Check if member is already on your team
@@ -611,7 +573,7 @@ async def addmember(interaction: discord.Interaction, member: discord.Member): #
     # Check if user can join the team
     match can_join_team(added_user):
         case -1 | -2 : await interaction.followup.send(content=f"Failed to add team member. {added_user.mention} is not a verified participant."); return
-        case      -3 : await interaction.followup.send(content=f"Failed to add team member. {added_user.mention} is already on a team. To join, they must leave using /leaveteam"); return
+        case      -3 : await interaction.followup.send(content=f"Failed to add team member. {added_user.mention} is already on a team. To join, they must leave using /leave_team"); return
 
     # ------------- Happy Case --------------------
 
@@ -628,6 +590,111 @@ async def addmember(interaction: discord.Interaction, member: discord.Member): #
     # Notify team in team text channel of new member
     await text_channel.send(content=f'{added_user.mention} has been added to the team by {team_user.mention}.')
 
+@app_commands.guild_only()
+@bot.tree.command(name="remove_member", description="Remove a member from your team (Team Lead Only)")
+@app_commands.describe(member="The member to remove from your team")
+async def remove_member(interaction: discord.Interaction, member: discord.Member): # TESTED
+    """
+    Removes a specific member from the team of the user who invokes the command.
+    User must be a "team_lead" to invoke (Created the team)
+    Args:
+        ctxt (discord.Interaction): The Context of the Interaction.
+        flags (userFlag): The user specified in the command input.
+    """
+    team_user = interaction.user # User who invoked the command
+    await interaction.response.defer(ephemeral=True)
+
+    # ------------- Do Validation Checks --------------------
+
+    # Check that team_user is in a team
+    if not records.get_user_team_id(team_user.id):
+        await interaction.followup.send(content='Failed to remove team member. You are not currently in a team.')
+        return 
+    
+    # Check that user is the team_lead
+    team_id = records.get_user_team_id(team_user.id)
+    team_lead_id = records.get_team(team_id)['team_lead']
+    if team_lead_id != team_user.id:
+        await interaction.followup.send(content=f"Only the Team Lead can invoke this command!\n{interaction.guild.get_member(team_lead_id).mention} is your lead. Contact them for to invoke the command")
+        return
+    
+    # Check if member is on your team
+    if records.get_user_team_id(team_user.id) != records.get_user_team_id(member.id):
+        await interaction.followup.send(content=f'Failed to remove team member. {member.mention} is not on your team!')
+        return 
+
+    # ------------- Happy Case --------------------
+
+    # Add the member to the team
+    await perform_team_leave(member, team_id)
+
+    team_data = records.get_team(team_id)
+    text_channel = interaction.guild.get_channel(team_data['text_id'])
+
+    # Send confirmation message to team_user
+    await interaction.followup.send(content=f'{member.mention} has been removed successfully.')
+    
+    # Notify team in team text channel of new member
+    await text_channel.send(content=f'{member.mention} has been removed from the team by {team_user.mention}.')
+
+    # Notify removed member over dm
+    await member.send(content=f"You have been removed from the team <{team_data['name']}>. \nYou can join a new team or create your own using `/create_team`")
+
+
+# ------------------- Admin Only Commands ----------------------
+
+@app_commands.guild_only()
+@app_commands.default_permissions(administrator=True)
+@bot.tree.command(name="overify", description="Manually verify a Discord account for this event (Organizers only)") 
+@app_commands.describe(role="User Role: 'participant', 'mentor', or 'judge'")
+async def overify(interaction: discord.Interaction, member_to_promote: discord.Member, email_address: str, first_name: str, last_name: str, is_capstone: bool, role: str):  #TESTED
+    """
+    Manually verifies a Discord account for the event, allowing organizers to assign roles and verify users.
+
+    If the user doesn't exist, add them to the database and assign roles.
+    If the user exists, update role and updata database.
+    Args:
+        ctxt (discord.Interaction): The Context of the Interaction.
+        flags (registerFlag): Flag that contains registrant information (user, email, and role)
+        
+    Requires:
+        User is an admin
+    """
+
+    await interaction.response.defer(ephemeral=True)
+    
+    #Check if role is valid to be overified with
+    if not (role in role_map):
+        await interaction.followup.send(content=f"`<{role}>` is not a valid role. \nPlease chose either `participant`, `mentor`, or `judge`")
+        return
+
+    # Case 1: User is already verified (Add Role)
+    if records.is_verified(member_to_promote.id):
+        verified_email = records.get_verified_email(member_to_promote.id)
+
+        #Check if user has role specified, else add it
+        if role in records.get_user_roles(verified_email):
+            await interaction.followup.send(content=f"`<{member_to_promote.name}>` is verified and already has the role `<{role}>`.")
+            return
+
+        # Update user in database
+        roles = records.get_user_roles(verified_email)
+        if not (role in roles):
+            roles.append(role)
+            records.update_roles(verified_email, roles)
+
+        await interaction.followup.send(content=f"`<{member_to_promote.name}>` is already verified but has been given the role `<{role}>`.")
+    
+    # Case 2: User is not Verified (Register and Verify User with the appropriate roles)
+    else:
+        records.add_registration(email_address, first_name, last_name, is_capstone, [role])
+        records.add_verified_user(email_address, member_to_promote.id, member_to_promote.name)
+        await interaction.followup.send(content=f"`<{member_to_promote.name}>` has been verified and given the role `<{role}>`.")
+    
+    # Assign the overified user any roles assigned
+    await sync_user_roles(member_to_promote)
+
+@app_commands.guild_only()
 @app_commands.default_permissions(administrator=True)
 @bot.tree.command(name="deleteteam", description="Remove Team (Organizers only)") 
 async def deleteteam(interaction: discord.Interaction, team_role: discord.Role, reason_for_removal: str): # TESTED
@@ -657,15 +724,19 @@ async def deleteteam(interaction: discord.Interaction, team_role: discord.Role, 
     # Remove channels and remove team stats from members
     await handle_team_deletion(team_id)    
 
+@app_commands.guild_only()
+@app_commands.default_permissions(administrator=True)
+@bot.tree.command("sync", description="Resync Command Tree (Organizer Only)")
+async def sync(interaction: discord.Interaction):
+    await bot.tree.sync()
+
+
 
 # When the bot is ready, this automatically runs
 @bot.event
-async def on_ready():
-    print(f'Logged in as {bot.user}')
-    await bot.tree.sync()
-
-def start():
-    bot.run(config.discord_token)
+async def on_ready(): print(f'Logged in as {bot.user}')
+   
+def start(): bot.run(config.discord_token)
 # ------------------------------------------------------------------
 
 # TODO: Allow 5 people to join a team if they are capstone
