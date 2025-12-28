@@ -351,7 +351,7 @@ async def verify(interaction: discord.Interaction, email_or_code: str): # TESTED
 
         if(await send_verification_email(email, CODE, user.name)):
             records.add_code(email, user.id, CODE)
-            await interaction.followup.send(content=f"Check your inbox for an email from `<{config.email_address}>` with a verification link. Please check your email and enter the code in this format \n `/verify (code)`")
+            await interaction.followup.send(content=f"Check your inbox for an email from `<{config.email_address}>` with a verification link. Please check that email and enter the code in this format \n `/verify (code)`\n Be sure to check your junk folder if you have trouble finding it")
         else:
             await interaction.followup.send(content="Failed to send verification email. Please contact an organizer for assistance.")
 
@@ -696,8 +696,8 @@ async def overify(interaction: discord.Interaction, member_to_promote: discord.M
 
 @app_commands.guild_only()
 @app_commands.default_permissions(administrator=True)
-@bot.tree.command(name="deleteteam", description="Remove Team (Organizers only)") 
-async def deleteteam(interaction: discord.Interaction, team_role: discord.Role, reason_for_removal: str): # TESTED
+@bot.tree.command(name="delete_team", description="Remove Team (Organizers only)") 
+async def delete_team(interaction: discord.Interaction, team_role: discord.Role, reason_for_removal: str): # TESTED
     """
     Delete a team and its associated data from the event.
 
@@ -724,17 +724,47 @@ async def deleteteam(interaction: discord.Interaction, team_role: discord.Role, 
     # Remove channels and remove team stats from members
     await handle_team_deletion(team_id)    
 
-@app_commands.guild_only()
-@app_commands.default_permissions(administrator=True)
-@bot.tree.command("sync", description="Resync Command Tree (Organizer Only)")
-async def sync(interaction: discord.Interaction):
-    await bot.tree.sync()
+@bot.hybrid_command(name="sync", description="Sync commands (Organizer Only)")
+@app_commands.default_permissions(administrator=True) 
+@commands.has_permissions(administrator=True)
+@app_commands.describe(spec="Scope of the sync (Local, Global, or Clear)")
+async def sync(ctx: commands.Context, spec: str):
+    """
+    Syncs the bot commands.
+    Usage:
+    /sync [spec]
+      - local    : Copy global commands to current server (Instant Dev)
+      - global   : Sync globally (Takes 1 hour)
+      - clear    : Wipe local commands
+    """
 
+    await ctx.defer(ephemeral=True)
+
+    if spec.lower() == "local":
+        bot.tree.copy_global_to(guild=ctx.guild)
+        synced = await bot.tree.sync(guild=ctx.guild)
+        
+        await ctx.send(f"✅ **Local Sync:** Copied and synced {len(synced)} commands to this server.")
+        return
+
+    if spec.lower() == "global":
+        synced = await bot.tree.sync()
+        await ctx.send(f"🌎 **Global Sync:** Synced {len(synced)} commands globally. (Updates may take up to 1 hour).")
+        return
+    
+    if spec.lower() == "clear":
+        bot.tree.clear_commands(guild=ctx.guild)
+        await bot.tree.sync(guild=ctx.guild)
+        await ctx.send("🧹 Cleared guild-specific commands.")
+        return
+    
+    await ctx.send("Please provide a valid spec argument (local, global, clear)")
 
 
 # When the bot is ready, this automatically runs
 @bot.event
-async def on_ready(): print(f'Logged in as {bot.user}')
+async def on_ready(): 
+    print(f'Logged in as {bot.user}')
    
 def start(): bot.run(config.discord_token)
 # ------------------------------------------------------------------
