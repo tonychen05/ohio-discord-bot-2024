@@ -9,6 +9,7 @@ import random
 import smtplib
 from email.mime.text import MIMEText
 
+from typing import cast
 
 #Init Bot Settings
 intents = discord.Intents.default()
@@ -724,15 +725,17 @@ async def delete_team(interaction: discord.Interaction, team_role: discord.Role,
     # Remove channels and remove team stats from members
     await handle_team_deletion(team_id)    
 
-@bot.tree.command(name="broadcast", description="Broadcast a message to each team channel")
+
+@app_commands.guild_only()
 @app_commands.default_permissions(administrator=True)
+@bot.tree.command(name="broadcast", description="Broadcast a message to each team channel")
 async def broadcast(interaction: discord.Interaction, message: str):
     """
     Broadcasts a message to each team's text channel.
 
     Args:
-        ctxt (discord.Interaction): The Context of the Interaction.
-        flags (messageFlag): Flag containing the message to broadcast.
+        interaction (discord.Interaction): The Context of the Interaction.
+        message (str): The message to broadcast.
     """
 
     guild = interaction.guild
@@ -753,7 +756,10 @@ async def broadcast(interaction: discord.Interaction, message: str):
             continue
         team_mention = role_obj.mention
         if team_text_channel:
-            await team_text_channel.send(content=f"{team_mention}\n{message}")
+            try:
+                await team_text_channel.send(content=f"{team_mention}\n{message}")
+            except Exception as e:
+                print(f"Failed to send message to {team_text_channel.name}: {e}")
 
     await interaction.followup.send(
         content="Broadcast message sent to all team channels.", ephemeral=True
