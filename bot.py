@@ -748,7 +748,6 @@ async def broadcast(interaction: discord.Interaction, message: str):
     await interaction.response.defer(ephemeral=True)
 
     teams = records.get_all_teams()
-    print(teams)
     for team in teams:
         team_text_channel = cast(discord.TextChannel, guild.get_channel(team.get("text_id")))
         role_obj = guild.get_role(team.get("role_id"))
