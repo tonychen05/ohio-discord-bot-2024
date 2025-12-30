@@ -34,7 +34,9 @@ role_map = {
 }
 
 # --------------------Helper Methods-------------------
-OHIO_RED = discord.Color.from_rgb(187, 0, 0)
+OHIO_RED = discord.Color.from_rgb(186, 12, 47)
+
+
 def create_embed(title: str, description: str, color=OHIO_RED) -> discord.Embed:
     """ 
     Standardized Embed Builder.
@@ -403,13 +405,27 @@ async def create_team(interaction: discord.Interaction, team_name: str, teammate
 
     author_status = can_join_team(user)
     match author_status:
-        case -1: await interaction.followup.send(content="You are not verified! Please verify yourself with the /verify command"); return
-        case -2: await interaction.followup.send(content="You are not a participant. You cannot create a team"); return
-        case -3: await interaction.followup.send(content="You are already on a team. You can leave with the /leave_team command"); return
+        case -1:
+            await interaction.followup.send(
+                content="You are not verified! Please verify yourself with the /verify command"
+            )
+            return
+        case -2:
+            await interaction.followup.send(
+                content="You are not a participant. You cannot create a team"
+            )
+            return
+        case -3:
+            await interaction.followup.send(
+                content="You are already on a team. You can leave with the /leave_team command"
+            )
+            return
 
     # Check that team doesn't already exist
     if records.team_exists(team_name):
-        await interaction.followup.send(content="That team name is already in use. Please chose a different name")
+        await interaction.followup.send(
+            content="That team name is already in use. Please chose a different name"
+        )
         return
 
     # -------------- Check if Members added are Valid -------------------
@@ -420,12 +436,26 @@ async def create_team(interaction: discord.Interaction, team_name: str, teammate
     members = [teammate_1, teammate_2, teammate_3]
     valid_members = []
     for mem in members:
-        if not mem: continue
+        if not mem:
+            continue
         match can_join_team(mem, is_capstone):
-            case -1 | -2 : await interaction.followup.send(ephemeral=True, content=f"Failed to add team member. {mem.mention} is not a verified participant.")
-            case      -3 : await interaction.followup.send(ephemeral=True, content=f"Failed to add team member. {mem.mention} is already on a team. To join, they must leave using /leaveteam")
-            case      -4 : await interaction.followup.send(ephemeral=True, content=f"Failed to add team member. {mem.mention} is {"NOT " if is_capstone else ""}registered as a capstone participant while you are {"" if is_capstone else "NOT "}registered as capstone. If this is a mistake, members can re-regsiter at {config.contact_registration_link}")
-            case       0 : valid_members.append(mem)
+            case -1 | -2:
+                await interaction.followup.send(
+                    ephemeral=True,
+                    content=f"Failed to add team member. {mem.mention} is not a verified participant.",
+                )
+            case -3:
+                await interaction.followup.send(
+                    ephemeral=True,
+                    content=f"Failed to add team member. {mem.mention} is already on a team. To join, they must leave using /leaveteam",
+                )
+            case -4:
+                await interaction.followup.send(
+                    ephemeral=True,
+                    content=f"Failed to add team member. {mem.mention} is {"NOT " if is_capstone else ""}registered as a capstone participant while you are {"" if is_capstone else "NOT "}registered as capstone. If this is a mistake, members can re-regsiter at {config.contact_registration_link}",
+                )
+            case 0:
+                valid_members.append(mem)
 
     if not valid_members:
         await interaction.followup.send(ephemeral=True, content=f"Team creation failed - No teammates could be added. \nChoose a different teammate or reach out to them to fix their problem.")
@@ -624,52 +654,73 @@ async def add_member(interaction: discord.Interaction, member: discord.Member): 
 @app_commands.guild_only()
 @bot.tree.command(name="remove_member", description="Remove a member from your team (Team Lead Only)")
 @app_commands.describe(member="The member to remove from your team")
-async def remove_member(interaction: discord.Interaction, member: discord.Member): # TESTED
+async def remove_member(interaction: discord.Interaction, member: discord.Member):  # TESTED
     """
     Removes a specific member from the team of the user who invokes the command.
     User must be a "team_lead" to invoke (Created the team)
     Args:
         ctxt (discord.Interaction): The Context of the Interaction.
-        flags (userFlag): The user specified in the command input.
+        member (discord.Member): The user to be removed.
     """
-    team_user = interaction.user # User who invoked the command
+    team_user = interaction.user  # User who invoked the command
+
     await interaction.response.defer(ephemeral=True)
 
     # ------------- Do Validation Checks --------------------
 
     # Check that team_user is in a team
     if not records.get_user_team_id(team_user.id):
-        await interaction.followup.send(content='Failed to remove team member. You are not currently in a team.')
-        return 
-    
+        await interaction.followup.send(
+            content="Failed to remove team member. You are not currently in a team."
+        )
+        return
+
     # Check that user is the team_lead
     team_id = records.get_user_team_id(team_user.id)
-    team_lead_id = records.get_team(team_id)['team_lead']
+    team_lead_id = records.get_team(team_id)["team_lead"]
     if team_lead_id != team_user.id:
-        await interaction.followup.send(content=f"Only the Team Lead can invoke this command!\n{interaction.guild.get_member(team_lead_id).mention} is your lead. Contact them for to invoke the command")
+        await interaction.followup.send(
+            content=f"Only the Team Lead can invoke this command!\n{interaction.guild.get_member(team_lead_id).mention} is your lead. Contact them to invoke the command"
+        )
         return
-    
+
+    # Team lead cannot remove themselves
+    if member.id == team_user.id:
+        await interaction.followup.send(
+            content="You cannot remove yourself from the team. To leave the team, please use the `/leave_team` command."
+        )
+        return
+
     # Check if member is on your team
     if records.get_user_team_id(team_user.id) != records.get_user_team_id(member.id):
-        await interaction.followup.send(content=f'Failed to remove team member. {member.mention} is not on your team!')
-        return 
+        await interaction.followup.send(
+            content=f"Failed to remove team member. {member.mention} is not on your team!"
+        )
+        return
 
     # ------------- Happy Case --------------------
 
-    # Add the member to the team
+    # Remove member from team
     await perform_team_leave(member, team_id)
 
     team_data = records.get_team(team_id)
-    text_channel = interaction.guild.get_channel(team_data['text_id'])
+    text_channel = interaction.guild.get_channel(team_data["text_id"])
 
     # Send confirmation message to team_user
-    await interaction.followup.send(content=f'{member.mention} has been removed successfully.')
-    
+    await interaction.followup.send(content=f"{member.mention} has been removed successfully.")
+
     # Notify team in team text channel of new member
-    await text_channel.send(embed=create_embed(title="👋 Teammate Removed!", description=f"{member.mention} has been removed from the team by {team_user.mention}"))
+    await text_channel.send(
+        embed=create_embed(
+            title="👋 Teammate Removed!",
+            description=f"{member.mention} has been removed from the team by {team_user.mention}",
+        )
+    )
 
     # Notify removed member over dm
-    await member.send(content=f"You have been removed from the team <{team_data['name']}>. \nYou can join a new team or create your own using `/create_team`")
+    await member.send(
+        content=f"You have been removed from the team <{team_data['name']}>. \nYou can join a new team or create your own using `/create_team`"
+    )
 
 
 # ------------------- Admin Only Commands ----------------------
@@ -792,6 +843,68 @@ async def broadcast(interaction: discord.Interaction, message: str):
     await interaction.followup.send(
         content="Broadcast message sent to all team channels.", ephemeral=True
     )
+
+
+@app_commands.guild_only()
+@app_commands.default_permissions(administrator=True)
+@bot.tree.command(name="my_team", description="Get information about your current team")
+async def my_team(interaction: discord.Interaction):
+    """
+    Provides information about the user's current team, including team name, members, and team lead.
+
+    Args:
+        interaction (discord.Interaction): The Context of the Interaction.
+    """
+
+    user = interaction.user
+    guild = interaction.guild
+    if not guild:
+        await interaction.response.send_message(
+            content="There was an error retrieving the Discord server information. Please contact an organizer for assistance.",
+            ephemeral=True,
+        )
+        return
+    await interaction.response.defer(ephemeral=True)
+
+    # Check if user is on a team
+    team_id = records.get_user_team_id(user.id)
+    if not team_id:
+        await interaction.followup.send(content="You are not currently assigned to a team.")
+        return
+
+    # Retrieve team information
+    team_data = records.get_team(team_id)
+    if not team_data:
+        await interaction.followup.send(
+            content="There was an error retrieving your team information. Please contact an organizer for assistance."
+        )
+        return
+    team_name = team_data["name"]
+    team_lead_id = team_data["team_lead"]
+    team_lead_member = guild.get_member(team_lead_id)
+    if not team_lead_member:
+        await interaction.followup.send(
+            content="There was an error retrieving your team information. Please contact an organizer for assistance."
+        )
+        return
+
+    team_members = records.get_team_members(team_id)
+
+    # Format member list
+    mentions = []
+    for member in team_members:
+        discord_member = guild.get_member(member["discord_id"])
+        if discord_member:
+            mentions.append(f"- {discord_member.mention}")
+    member_list = "\n".join(mentions)
+
+    # Create and send embed with team information
+    embed = create_embed(
+        title=f"Your Team: {team_name}",
+        description=f"**Team Lead:** {team_lead_member.mention}\n\n**Members:**\n{member_list}",
+    )
+    await interaction.followup.send(embed=embed)
+
 
 @bot.hybrid_command(name="sync", description="Sync commands (Organizer Only)")
 @app_commands.default_permissions(administrator=True) 
