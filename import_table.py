@@ -13,34 +13,12 @@ JUDGE_ROLE_NUM = '1'
 MENTOR_ROLE_NUM = '2'
 """A string that represents the mentor role in the volunteer form's CSV file."""
 
-DATA_ATTR = {
-    'First Name':'first_name',
-    'Last Name': 'last_name',
-    'Q24': 'university',
-    'Q25': 'class_team',
-    'Major': 'major',
-    'Grad Year': 'grad_year',
-    'Company': 'company',
-    'Job Title ': 'job_title'
-}
-"""
-A dictionary of attribute names that should be searched for and included as user data,
-<b>regardless of which form is being imported</b>.
-</br>
-The keys of this dictionary are the attribute names used in the CSV file.
-</br>
-The values of this dictionary are the attribute names used in the user data database table.
-"""
-
 # Variable to keep track of stats for report at the end.
 num_duplicates = 0
 num_error = 0
 num_unfinished = 0
 num_entries = 0
 start_time = time.time()
-
-# Print a startup message.
-print(f'Started importing {sys.argv[1]}, please wait...')
 
 # Check that the correct number of command line arguments were given.
 try:
@@ -49,6 +27,9 @@ except AssertionError:
     print('USAGE: import_table.py [csv_filename]')
     print('csv_filename: the name of the CSV file to import.')
     sys.exit(2)
+
+# Print a startup message.
+print(f'Started importing {sys.argv[1]}, please wait...')
 
 with open(sys.argv[1], 'r', encoding='utf-8') as csv_file:
     # Try to open the provided file name.
@@ -64,6 +45,8 @@ with open(sys.argv[1], 'r', encoding='utf-8') as csv_file:
         attributes = set(reader.fieldnames)
         attributes.remove('Progress')
         attributes.remove('Email')
+        attributes.remove('First Name')
+        attributes.remove('Last Name')
     except TypeError:
         print('ERROR: CSV file not formatted correctly. Check file contents and resubmit.')
         sys.exit(2)
@@ -78,6 +61,14 @@ with open(sys.argv[1], 'r', encoding='utf-8') as csv_file:
     except KeyError:
         is_participant = True
 
+    # Verify that the participant form has all the attributes we need.
+    try:
+        if is_participant:
+            attributes.remove('Capstone Team')
+    except KeyError:
+        print('ERROR: CSV file missing required attributes. Check file contents and resubmit.')
+        sys.exit(2)
+
     # For each entry in the CSV file...
     for entry in reader:
         num_entries = num_entries + 1
@@ -91,7 +82,10 @@ with open(sys.argv[1], 'r', encoding='utf-8') as csv_file:
         if entry['Email'] == '':
             num_error = num_error + 1
             continue
-        email = entry['Email'].replace(' ', '')
+        email = entry['Email'].replace(' ', '').lower()
+
+        # If this person is a participant, check if they are on a capstone team.
+        is_capstone = entry['Capstone Team'] == 'Yes' if is_participant else False
 
         # Check for and store the entry's roles.
         roles = []
@@ -108,39 +102,30 @@ with open(sys.argv[1], 'r', encoding='utf-8') as csv_file:
             if MENTOR_ROLE_NUM in entry['Roles']:
                 roles.append('mentor')
 
-        # Check for and store all user data.
-        data = {'email': email}
-        for attribute in DATA_ATTR.keys():
-            try:
-                data[DATA_ATTR[attribute]] = entry[attribute]
-            except KeyError:
-                data[DATA_ATTR[attribute]] = None
-
         # Add this entry's data to the database if it is not a duplicate.
-        if records.registered_user_exists(email) and records.user_data_exists(email):
+        if records.is_registered(email):
             # Get the existing version of this entry's data.
-            old_data = records.get_user_data(email)
+            old_data = records.get_registration(email)
+
+            # Check if the names are the same.
+            is_duplicate = old_data['first_name'] == entry['First Name']
+            is_duplicate = is_duplicate and old_data['last_name'] == entry['Last Name']
+
+            # Check if the capstone team status is the same.
+            if is_participant:
+                is_duplicate = is_duplicate and old_data['is_capstone'] == (entry['Capstone Team'] == 'Yes')
 
             # Check if the roles are the same.
-            is_duplicate = set(records.get_roles(email)) == set(roles)
-
-            # Check all data attributes.
-            for attribute in data:
-                try:
-                    is_duplicate = is_duplicate and old_data[attribute] == data[attribute]
-                except KeyError:
-                    # If a key does not exist in old_data, then this entry is not a duplicate.
-                    is_duplicate = False
-                    break
+            is_duplicate = is_duplicate and set(records.get_user_roles(email)) == set(roles)
 
             # If this entry is not a duplicate, add it.
             if not is_duplicate:
-                records.add_registered_user(email, roles, data)
+                records.add_registration(email, entry['First Name'], entry['Last Name'], is_capstone, roles)
             else:
                 num_duplicates = num_duplicates + 1
         else:
             # If this entry is not in the database, add it.
-            records.add_registered_user(email, roles, data)
+            records.add_registration(email, entry['First Name'], entry['Last Name'], is_capstone, roles)
 
 # There are essentially three header rows in the CSV file generated by Qualtrics.
 # One header row is the actual header row, and the other two rows are treated as entries
