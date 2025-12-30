@@ -21,6 +21,7 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 #---------------------Constants----------------------
 
 MAX_TEAM_SIZE = 4
+CAPSTONE_TEAM_SIZE = 5
 TEAM_FORMATION_TIMEOUT = 120
 
 # Maps role names to corresponding role IDs from configuration
@@ -33,6 +34,14 @@ role_map = {
 }
 
 # --------------------Helper Methods-------------------
+OHIO_RED = discord.Color.from_rgb(187, 0, 0)
+def create_embed(title: str, description: str, color=OHIO_RED) -> discord.Embed:
+    """ 
+    Standardized Embed Builder.
+    Usage: await channel.send(embed=create_embed("Title", "Desc"))
+    """
+    embed = discord.Embed(title=title, description=description, color=color)
+    return embed
 
 def generate_random_code(n): # TESTED
     """
@@ -180,20 +189,25 @@ async def delete_team_channels(team_id: int): # TESTED
     if category and not config.discord_shared_categories: await category.delete()
 
 
-def can_join_team(added_member: discord.Member) -> int: # TESTED
-
+def can_join_team(added_member: discord.Member, capstone_team: bool = None) -> int: # TESTED
+    
     # Check that added_user is verified 
     if not records.is_verified(added_member.id):
         return -1
     
     # Check if added_user is a participant
     email = records.get_verified_email(added_member.id)
-    if not records.get_verified_user(email)['is_participant']:
+    user_data = records.get_verified_user(email)
+    if not user_data['is_participant']:
         return -2
 
     # Check if add_user is already on a team
     if records.get_user_team_id(added_member.id):
         return -3
+    
+    # Check if user can join if a capstone team if relavent (not None)
+    if capstone_team and capstone_team != user_data['is_capstone']:
+        return -4
     
     return 0
 
@@ -352,7 +366,7 @@ async def verify(interaction: discord.Interaction, email_or_code: str): # TESTED
 
         if(await send_verification_email(email, CODE, user.name)):
             records.add_code(email, user.id, CODE)
-            await interaction.followup.send(content=f"Check your inbox for an email from `<{config.email_address}>` with a verification link. Please check that email and enter the code in this format \n `/verify (code)`\n Be sure to check your junk folder if you have trouble finding it")
+            await interaction.followup.send(content=f"Check your inbox for an email from `<{config.email_address}>` with a verification link. Please check that email and enter the code in this format \n `/verify (code)`\n\nBe sure to check your junk folder if you have trouble finding it")
         else:
             await interaction.followup.send(content="Failed to send verification email. Please contact an organizer for assistance.")
 
@@ -393,7 +407,6 @@ async def create_team(interaction: discord.Interaction, team_name: str, teammate
         case -2: await interaction.followup.send(content="You are not a participant. You cannot create a team"); return
         case -3: await interaction.followup.send(content="You are already on a team. You can leave with the /leave_team command"); return
 
-
     # Check that team doesn't already exist
     if records.team_exists(team_name):
         await interaction.followup.send(content="That team name is already in use. Please chose a different name")
@@ -401,14 +414,17 @@ async def create_team(interaction: discord.Interaction, team_name: str, teammate
 
     # -------------- Check if Members added are Valid -------------------
 
+    is_capstone = records.get_verified_user(user.id)['is_capstone']
+
     # Check that atleast one member can be added to team
     members = [teammate_1, teammate_2, teammate_3]
     valid_members = []
     for mem in members:
         if not mem: continue
-        match can_join_team(mem):
+        match can_join_team(mem, is_capstone):
             case -1 | -2 : await interaction.followup.send(ephemeral=True, content=f"Failed to add team member. {mem.mention} is not a verified participant.")
             case      -3 : await interaction.followup.send(ephemeral=True, content=f"Failed to add team member. {mem.mention} is already on a team. To join, they must leave using /leaveteam")
+            case      -4 : await interaction.followup.send(ephemeral=True, content=f"Failed to add team member. {mem.mention} is {"NOT " if is_capstone else ""}registered as a capstone participant while you are {"" if is_capstone else "NOT "}registered as capstone. If this is a mistake, members can re-regsiter at {config.contact_registration_link}")
             case       0 : valid_members.append(mem)
 
     if not valid_members:
@@ -451,17 +467,14 @@ async def create_team(interaction: discord.Interaction, team_name: str, teammate
 
     # Case 2: Categories hold text-channels 1-50, etc
     else:
-
         channels_per_category = 50
         new_channel_needed = ((next_team_id - 1) % channels_per_category == 0) or not records.get_latest_category()
-
+        
         if new_channel_needed: # New category channel needs made
             category_channel = await interaction.guild.create_category_channel(f"Teams {next_team_id} - {(next_team_id - 1) + channels_per_category}", overwrites=category_channel_perms)
             records.push_new_category(category_channel.id)
-       
         else:                  # Use a previous team's category channel
             category_channel = bot.get_channel(records.get_latest_category())
-        
         text_channel = await category_channel.create_text_channel(f"{next_team_id}-{team_name.replace(' ','-')}-text", overwrites=text_channel_perms) # Inherit perms from Category
 
 
@@ -469,22 +482,35 @@ async def create_team(interaction: discord.Interaction, team_name: str, teammate
 
     team_id = records.create_team(
         team_name, 
+        is_capstone,
         team_role.id, 
         category_channel.id, 
         text_channel.id, 
         voice_channel.id if voice_channel else None
     )
 
-    # Let user know that team was succesfully created
-    await interaction.followup.send(content=f'Your Team ({team_role.mention}) has successfully been created!. \nManage your team using the `/add_member` and `/remove_member` commands')
+    # Respond to creator and send message to team channel
+    await interaction.followup.send(content=f'Your Team ({team_role.mention}) has successfully been created!\n Your Team Channel: {text_channel.mention}')
+    welcome_embed = create_embed(title=f"Welcome Team #{team_id}: {team_name}!", description=f"Manage your team using `/add_member` and `/remove_member`.\n\n👑 **Team Lead:** {user.mention}")
+    if is_capstone:
+        welcome_embed.description += "\n\u200b"
+        welcome_embed.add_field(
+            name="🎓 Capstone Team Rules",
+            value=(
+                "- You can add up to **5 members** (All must be Capstone)\n"
+                "- You will be exclusively judged in the Capstone category\n"
+                f"[Re-register here if this is a mistake]({config.contact_registration_link})"
+            ), 
+            inline=False
+        )
+    await text_channel.send(embed=welcome_embed)
 
     # Add Author and Valid Teammates to team
     await perform_team_join(user, team_id)  # Add author to team
     records.set_team_lead(team_id, user.id) # Make author team_lead
     for mem in valid_members:
         await perform_team_join(mem, team_id)
-        await interaction.followup.send(ephemeral=True, content=f"Team member added successfully. {mem.mention} has been added to {team_role.mention}.")
-        await text_channel.send(content=f'{mem.mention} has been added to the team by {interaction.user.mention}.')    
+        await text_channel.send(embed=create_embed(title="👋 New Teammate!", description=f"{mem.mention} has been added to the team by {interaction.user.mention}"))
 
 @app_commands.guild_only()
 @bot.tree.command(name="leave_team", description="Leave your current team")
@@ -567,14 +593,18 @@ async def add_member(interaction: discord.Interaction, member: discord.Member): 
     
     # Check that team is not full
     team_id = records.get_user_team_id(team_user.id)
-    if records.get_team_size(team_id) >= MAX_TEAM_SIZE:
-        await interaction.followup.send(content=f'Failed to add team member. There is no space in your team. Teams can have a maximum of {MAX_TEAM_SIZE} members.')
-        return 
+    is_capstone = records.get_team(team_id)['is_capstone']
+    max_team_size = CAPSTONE_TEAM_SIZE if is_capstone else MAX_TEAM_SIZE
+    if records.get_team_size(team_id) >= max_team_size:
+        await interaction.followup.send(content=f'Failed to add team member. There is no space in your team. Teams can have a maximum of {max_team_size} members.')
+        return
 
     # Check if user can join the team
+    is_capstone = records.get_team(team_id)
     match can_join_team(added_user):
         case -1 | -2 : await interaction.followup.send(content=f"Failed to add team member. {added_user.mention} is not a verified participant."); return
         case      -3 : await interaction.followup.send(content=f"Failed to add team member. {added_user.mention} is already on a team. To join, they must leave using /leave_team"); return
+        case      -4 : await interaction.followup.send(content=f"Failed to add team member. {added_user.mention} is {"NOT " if is_capstone else ""}registered as a capstone participant while you are {"" if is_capstone else "NOT "}registered as capstone. If this is a mistake, members can re-regsiter at {config.contact_registration_link}")
 
     # ------------- Happy Case --------------------
 
@@ -589,7 +619,7 @@ async def add_member(interaction: discord.Interaction, member: discord.Member): 
     await interaction.followup.send(content=f'Team member added successfully. {added_user.mention} has been added to {team_role.mention}.')
     
     # Notify team in team text channel of new member
-    await text_channel.send(content=f'{added_user.mention} has been added to the team by {team_user.mention}.')
+    await text_channel.send(embed=create_embed(title="👋 New Teammate!", description=f"{added_user.mention} has been added to the team by {interaction.user.mention}"))
 
 @app_commands.guild_only()
 @bot.tree.command(name="remove_member", description="Remove a member from your team (Team Lead Only)")
@@ -636,7 +666,7 @@ async def remove_member(interaction: discord.Interaction, member: discord.Member
     await interaction.followup.send(content=f'{member.mention} has been removed successfully.')
     
     # Notify team in team text channel of new member
-    await text_channel.send(content=f'{member.mention} has been removed from the team by {team_user.mention}.')
+    await text_channel.send(embed=create_embed(title="👋 Teammate Removed!", description=f"{member.mention} has been removed from the team by {team_user.mention}"))
 
     # Notify removed member over dm
     await member.send(content=f"You have been removed from the team <{team_data['name']}>. \nYou can join a new team or create your own using `/create_team`")
@@ -725,7 +755,6 @@ async def delete_team(interaction: discord.Interaction, team_role: discord.Role,
     # Remove channels and remove team stats from members
     await handle_team_deletion(team_id)    
 
-
 @app_commands.guild_only()
 @app_commands.default_permissions(administrator=True)
 @bot.tree.command(name="broadcast", description="Broadcast a message to each team channel")
@@ -756,14 +785,13 @@ async def broadcast(interaction: discord.Interaction, message: str):
         team_mention = role_obj.mention
         if team_text_channel:
             try:
-                await team_text_channel.send(content=f"{team_mention}\n{message}")
+                await team_text_channel.send(embed=create_embed(title="📫 Broadcasted Message", description=message))
             except Exception as e:
                 print(f"Failed to send message to {team_text_channel.name}: {e}")
 
     await interaction.followup.send(
         content="Broadcast message sent to all team channels.", ephemeral=True
     )
-
 
 @bot.hybrid_command(name="sync", description="Sync commands (Organizer Only)")
 @app_commands.default_permissions(administrator=True) 
