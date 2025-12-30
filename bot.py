@@ -35,8 +35,6 @@ role_map = {
 
 # --------------------Helper Methods-------------------
 OHIO_RED = discord.Color.from_rgb(186, 12, 47)
-
-
 def create_embed(title: str, description: str, color=OHIO_RED) -> discord.Embed:
     """ 
     Standardized Embed Builder.
@@ -192,7 +190,8 @@ async def delete_team_channels(team_id: int): # TESTED
 
 
 def can_join_team(added_member: discord.Member, capstone_team: bool = None) -> int: # TESTED
-    
+    """ Checks if User can join a team whether capstone, not capstone, or unspecified """
+
     # Check that added_user is verified 
     if not records.is_verified(added_member.id):
         return -1
@@ -407,25 +406,21 @@ async def create_team(interaction: discord.Interaction, team_name: str, teammate
     match author_status:
         case -1:
             await interaction.followup.send(
-                content="You are not verified! Please verify yourself with the /verify command"
-            )
+                content="You are not verified! Please verify yourself with the /verify command")
             return
         case -2:
             await interaction.followup.send(
-                content="You are not a participant. You cannot create a team"
-            )
+                content="You are not a participant. You cannot create a team")
             return
         case -3:
             await interaction.followup.send(
-                content="You are already on a team. You can leave with the /leave_team command"
-            )
+                content="You are already on a team. You can leave with the /leave_team command")
             return
 
     # Check that team doesn't already exist
     if records.team_exists(team_name):
         await interaction.followup.send(
-            content="That team name is already in use. Please chose a different name"
-        )
+            content="That team name is already in use. Please chose a different name")
         return
 
     # -------------- Check if Members added are Valid -------------------
@@ -442,18 +437,15 @@ async def create_team(interaction: discord.Interaction, team_name: str, teammate
             case -1 | -2:
                 await interaction.followup.send(
                     ephemeral=True,
-                    content=f"Failed to add team member. {mem.mention} is not a verified participant.",
-                )
+                    content=f"Failed to add team member. {mem.mention} is not a verified participant.")
             case -3:
                 await interaction.followup.send(
                     ephemeral=True,
-                    content=f"Failed to add team member. {mem.mention} is already on a team. To join, they must leave using /leaveteam",
-                )
+                    content=f"Failed to add team member. {mem.mention} is already on a team. To join, they must leave using /leaveteam")
             case -4:
                 await interaction.followup.send(
                     ephemeral=True,
-                    content=f"Failed to add team member. {mem.mention} is {"NOT " if is_capstone else ""}registered as a capstone participant while you are {"" if is_capstone else "NOT "}registered as capstone. If this is a mistake, members can re-regsiter at {config.contact_registration_link}",
-                )
+                    content=f"Failed to add team member. {mem.mention} is {"NOT " if is_capstone else ""}registered as a capstone participant while you are {"" if is_capstone else "NOT "}registered as capstone. If this is a mistake, members can re-regsiter at {config.contact_registration_link}")
             case 0:
                 valid_members.append(mem)
 
@@ -485,8 +477,6 @@ async def create_team(interaction: discord.Interaction, team_name: str, teammate
     category_channel = None
     text_channel = None
     voice_channel = None
-
-    # TODO: Add Table for Category channels for shared_categories
 
     # Case 1: Each team has their own category and voice channel
     if not config.discord_shared_categories:
@@ -521,7 +511,7 @@ async def create_team(interaction: discord.Interaction, team_name: str, teammate
 
     # Respond to creator and send message to team channel
     await interaction.followup.send(content=f'Your Team ({team_role.mention}) has successfully been created!\n Your Team Channel: {text_channel.mention}')
-    welcome_embed = create_embed(title=f"Welcome Team #{team_id}: {team_name}!", description=f"Manage your team using `/add_member` and `/remove_member`.\n\n👑 **Team Lead:** {user.mention}")
+    welcome_embed = create_embed(title=f"Welcome Team #{team_id}: {team_name}!", description=f"Manage your team using `/add_member`, `/remove_member`, `leave_team`, and `/my_team`.\n\n👑 **Team Lead:** {user.mention}")
     if is_capstone:
         welcome_embed.description += "\n\u200b"
         welcome_embed.add_field(
@@ -589,10 +579,10 @@ async def leave_team(interaction: discord.Interaction): # TESTED
         # Chose a random other teammate to assign as lead
         new_lead_id = random.choice(records.get_team_members(team_id))['discord_id']        
         records.set_team_lead(team_id, new_lead_id)
-        await team_text_channel.send(content=f"{user.mention} has left the team.\n{interaction.guild.get_member(new_lead_id).mention} has been randomly assigned as the new Team Lead.")
-   
+        await team_text_channel.send(embed=create_embed("👋 Teammate Left!", f"{user.mention} has left the team.\n{interaction.guild.get_member(new_lead_id).mention} has been randomly assigned as the new Team Lead."))
+
     else:
-        await team_text_channel.send(content=f'{user.mention} has left the team.')    
+        await team_text_channel.send(embed=create_embed("👋 Teammate Left!", f"{user.mention} has left the team."))  
 
 @app_commands.guild_only()
 @bot.tree.command(name="add_member", description="Add a member to your team")
@@ -646,7 +636,7 @@ async def add_member(interaction: discord.Interaction, member: discord.Member): 
     text_channel = interaction.guild.get_channel(team_data['text_id'])
 
     # Send confirmation message to team_user
-    await interaction.followup.send(content=f'Team member added successfully. {added_user.mention} has been added to {team_role.mention}.')
+    await interaction.followup.send(content=f'{added_user.mention} has been added successfully')
     
     # Notify team in team text channel of new member
     await text_channel.send(embed=create_embed(title="👋 New Teammate!", description=f"{added_user.mention} has been added to the team by {interaction.user.mention}"))
@@ -721,6 +711,65 @@ async def remove_member(interaction: discord.Interaction, member: discord.Member
     await member.send(
         content=f"You have been removed from the team <{team_data['name']}>. \nYou can join a new team or create your own using `/create_team`"
     )
+
+@app_commands.guild_only()
+@bot.tree.command(name="my_team", description="Get information about your current team")
+async def my_team(interaction: discord.Interaction):
+    """
+    Provides information about the user's current team, including team name, members, and team lead.
+
+    Args:
+        interaction (discord.Interaction): The Context of the Interaction.
+    """
+
+    user = interaction.user
+    guild = interaction.guild
+    if not guild:
+        await interaction.response.send_message(
+            content="There was an error retrieving the Discord server information. Please contact an organizer for assistance.",
+            ephemeral=True,
+        )
+        return
+    await interaction.response.defer(ephemeral=True)
+
+    # Check if user is on a team
+    team_id = records.get_user_team_id(user.id)
+    if not team_id:
+        await interaction.followup.send(content="You are not currently assigned to a team.")
+        return
+
+    # Retrieve team information
+    team_data = records.get_team(team_id)
+    if not team_data:
+        await interaction.followup.send(
+            content="There was an error retrieving your team information. Please contact an organizer for assistance."
+        )
+        return
+    team_name = team_data["name"]
+    team_lead_id = team_data["team_lead"]
+    team_lead_member = guild.get_member(team_lead_id)
+    if not team_lead_member:
+        await interaction.followup.send(
+            content="There was an error retrieving your team information. Please contact an organizer for assistance."
+        )
+        return
+
+    team_members = records.get_team_members(team_id)
+
+    # Format member list
+    mentions = []
+    for member in team_members:
+        discord_member = guild.get_member(member["discord_id"])
+        if discord_member:
+            mentions.append(f"- {discord_member.mention}")
+    member_list = "\n".join(mentions)
+
+    # Create and send embed with team information
+    embed = create_embed(
+        title=f"Your Team: {team_name}",
+        description=f"**Team Lead:** {team_lead_member.mention}\n\n**Members:**\n{member_list}",
+    )
+    await interaction.followup.send(embed=embed)
 
 
 # ------------------- Admin Only Commands ----------------------
@@ -843,68 +892,6 @@ async def broadcast(interaction: discord.Interaction, message: str):
     await interaction.followup.send(
         content="Broadcast message sent to all team channels.", ephemeral=True
     )
-
-
-@app_commands.guild_only()
-@app_commands.default_permissions(administrator=True)
-@bot.tree.command(name="my_team", description="Get information about your current team")
-async def my_team(interaction: discord.Interaction):
-    """
-    Provides information about the user's current team, including team name, members, and team lead.
-
-    Args:
-        interaction (discord.Interaction): The Context of the Interaction.
-    """
-
-    user = interaction.user
-    guild = interaction.guild
-    if not guild:
-        await interaction.response.send_message(
-            content="There was an error retrieving the Discord server information. Please contact an organizer for assistance.",
-            ephemeral=True,
-        )
-        return
-    await interaction.response.defer(ephemeral=True)
-
-    # Check if user is on a team
-    team_id = records.get_user_team_id(user.id)
-    if not team_id:
-        await interaction.followup.send(content="You are not currently assigned to a team.")
-        return
-
-    # Retrieve team information
-    team_data = records.get_team(team_id)
-    if not team_data:
-        await interaction.followup.send(
-            content="There was an error retrieving your team information. Please contact an organizer for assistance."
-        )
-        return
-    team_name = team_data["name"]
-    team_lead_id = team_data["team_lead"]
-    team_lead_member = guild.get_member(team_lead_id)
-    if not team_lead_member:
-        await interaction.followup.send(
-            content="There was an error retrieving your team information. Please contact an organizer for assistance."
-        )
-        return
-
-    team_members = records.get_team_members(team_id)
-
-    # Format member list
-    mentions = []
-    for member in team_members:
-        discord_member = guild.get_member(member["discord_id"])
-        if discord_member:
-            mentions.append(f"- {discord_member.mention}")
-    member_list = "\n".join(mentions)
-
-    # Create and send embed with team information
-    embed = create_embed(
-        title=f"Your Team: {team_name}",
-        description=f"**Team Lead:** {team_lead_member.mention}\n\n**Members:**\n{member_list}",
-    )
-    await interaction.followup.send(embed=embed)
-
 
 @bot.hybrid_command(name="sync", description="Sync commands (Organizer Only)")
 @app_commands.default_permissions(administrator=True) 
