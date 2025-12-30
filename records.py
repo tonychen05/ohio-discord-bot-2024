@@ -100,6 +100,7 @@ def _initialize_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT UNIQUE NOT NULL,
 
+                is_capstone BOOLEAN DEFAULT 0,
                 team_lead INTEGER REFERENCES {_VERIFIED_TABLE_NAME}(discord_id) ON DELETE SET NULL,
 
                 role_id INTEGER NOT NULL,
@@ -273,17 +274,24 @@ def is_verified(identifier) -> bool:
             raise ValueError("Identifier must be an int (Discord ID) or str (Email)")
         return row is not None
 
-def get_verified_user(email: str) -> dict:
-    """ Returns a combined dictionary of Registration AND Verification data. """
-    with _get_connection() as conn: # We JOIN here so you get the full picture (Names + Discord info)
+def get_verified_user(identifier) -> dict:
+    """ Returns user data by accepting either a Discord ID (int) OR an Email (str). """
+    
+    if isinstance(identifier, int):
+        where_clause = "v.discord_id = ?"
+    else:
+        where_clause = "v.email = ?"
+
+    with _get_connection() as conn:
         row = conn.execute(f"""
             SELECT v.discord_id, v.username, v.team_id, 
                    r.email, r.first_name, r.last_name, 
-                   r.is_participant, r.is_judge, r.is_mentor
+                   r.is_participant, r.is_judge, r.is_mentor, r.is_capstone
             FROM {_VERIFIED_TABLE_NAME} v
             JOIN {_REG_TABLE_NAME} r ON v.email = r.email
-            WHERE v.email = ?
-        """, (email,)).fetchone()
+            WHERE {where_clause}
+        """, (identifier,)).fetchone()
+        
         return dict(row) if row else None
 
 def get_verified_email(discord_id: int) -> str:
@@ -291,7 +299,7 @@ def get_verified_email(discord_id: int) -> str:
     with _get_connection() as conn:
         row = conn.execute(f"SELECT email FROM {_VERIFIED_TABLE_NAME} WHERE discord_id = ?", (discord_id,)).fetchone()
         return row['email'] if row else None
-    
+
 def join_team(discord_id: int, team_id: int):
     """ Assigns a verified user to a team. """
     with _LOCK, _get_connection() as conn:
@@ -317,13 +325,13 @@ def get_user_team_id(identifier) -> int:
         
 # ---------------- Team Table Functions ------------------
 
-def create_team(name: str, role_id: int, category_id: int, text_id: int, voice_id=None) -> int:
+def create_team(name: str, is_capstone: bool, role_id: int, category_id: int, text_id: int, voice_id=None) -> int:
     """ Creates a new team and returns its new database ID. """
     with _LOCK, _get_connection() as conn:
         cursor = conn.execute(f"""
-            INSERT INTO {_TEAM_TABLE_NAME} (name, role_id, category_id, text_id, voice_id) 
-            VALUES (?, ?, ?, ?, ?)
-        """, (name, role_id, category_id, text_id, voice_id))
+            INSERT INTO {_TEAM_TABLE_NAME} (name, is_capstone, role_id, category_id, text_id, voice_id) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (name, is_capstone, role_id, category_id, text_id, voice_id))
         conn.commit()
         return cursor.lastrowid
 
