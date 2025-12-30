@@ -77,7 +77,7 @@ with open(sys.argv[1], 'r', encoding='utf-8') as csv_file:
         email = entry['Email'].replace(' ', '').lower()
 
         # If this person is a participant, check if they are on a capstone team.
-        is_capstone = entry['capstoneTeam'] == 'Yes' if is_participant else False
+        is_capstone = entry['Capstone Team'] == 'Yes' if is_participant else False
 
         # Check for and store the entry's roles.
         roles = []
@@ -102,6 +102,9 @@ with open(sys.argv[1], 'r', encoding='utf-8') as csv_file:
             # Check if the names are the same.
             is_duplicate = old_data['first_name'] == entry['First Name']
             is_duplicate = is_duplicate and old_data['last_name'] == entry['Last Name']
+
+            # Check if the capstone team status is the same.
+            is_duplicate = is_duplicate and old_data['is_capstone'] == (entry['Capstone Team'] == 'Yes')
 
             # Check if the roles are the same.
             is_duplicate = is_duplicate and set(records.get_user_roles(email)) == set(roles)
