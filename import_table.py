@@ -20,9 +20,6 @@ num_unfinished = 0
 num_entries = 0
 start_time = time.time()
 
-# Print a startup message.
-print(f'Started importing {sys.argv[1]}, please wait...')
-
 # Check that the correct number of command line arguments were given.
 try:
     assert len(sys.argv) == 2
@@ -30,6 +27,9 @@ except AssertionError:
     print('USAGE: import_table.py [csv_filename]')
     print('csv_filename: the name of the CSV file to import.')
     sys.exit(2)
+
+# Print a startup message.
+print(f'Started importing {sys.argv[1]}, please wait...')
 
 with open(sys.argv[1], 'r', encoding='utf-8') as csv_file:
     # Try to open the provided file name.
